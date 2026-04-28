@@ -1,0 +1,16 @@
+{
+  "name": "sf-dev-kit",
+  "version": "3.0.0",
+  "description": "Salesforce DX AI workflow for Claude Code, Headless-360-aware: 11 specialist subagents (incl. agent-dev, react-dev, trust-reviewer), 56 skills (incl. MCP routing, agent dev/test/deploy, Trust Layer audit, AI Gateway, natural-language deploy, AgentExchange listing, React parity), 3 lint hooks, 20 base patterns, 12 domain pattern packs (3 full + 8 stubs + 1 deprecated).",
+  "author": {
+    "name": "Victor Marquez"
+  },
+  "keywords": [
+    "salesforce",
+    "sfdx",
+    "lwc",
+    "apex",
+    "experience-cloud"
+  ],
+  "license": "MIT"
+}

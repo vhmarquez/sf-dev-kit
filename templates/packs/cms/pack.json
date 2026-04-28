@@ -1,0 +1,18 @@
+{
+  "name": "cms",
+  "displayName": "Salesforce CMS",
+  "description": "Patterns and guidance for the Salesforce CMS domain.",
+  "version": "0.1.0",
+  "patternsPrefix": "CMS",
+  "extends": [],
+  "requires": {
+    "sfApiVersion": "60.0",
+    "edition": ["Developer", "Enterprise", "Performance", "Unlimited"]
+  },
+  "installs": {
+    "patternsAppendTo": "patternsSalesforceDoc",
+    "checklistAppendTo": "quality-checklist.md",
+    "agents": [],
+    "skills": []
+  }
+}

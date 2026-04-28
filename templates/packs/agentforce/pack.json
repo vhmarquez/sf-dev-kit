@@ -1,0 +1,18 @@
+{
+  "name": "agentforce",
+  "displayName": "Agentforce",
+  "description": "Patterns for building Salesforce Agentforce agents — topic boundaries, sub-agent decomposition, guardrails, MCP-tool actions, FLS-aware grounding, memory, escalation. Replaces the v0.1 stub einstein-agentforce pack.",
+  "version": "1.0.0",
+  "patternsPrefix": "AGT",
+  "extends": [],
+  "requires": {
+    "sfApiVersion": "63.0",
+    "edition": ["Enterprise", "Performance", "Unlimited"]
+  },
+  "installs": {
+    "patternsAppendTo": "patternsSalesforceDoc",
+    "checklistAppendTo": "quality-checklist.md",
+    "agents": [],
+    "skills": []
+  }
+}

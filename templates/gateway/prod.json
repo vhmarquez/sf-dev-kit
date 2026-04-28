@@ -1,0 +1,30 @@
+{
+  "profile": "prod",
+  "models": {
+    "allowlist": ["claude-sonnet", "gpt-5"],
+    "default": "claude-sonnet",
+    "byAgent": {}
+  },
+  "quotas": {
+    "tokensPerHour": {
+      "org": 10000000,
+      "perAgent": 1000000
+    },
+    "requestsPerMinute": {
+      "perAgent": 600
+    },
+    "maxContextTokens": 100000,
+    "maxOutputTokens": 4096
+  },
+  "fallback": {
+    "policy": "degrade",
+    "chain": ["claude-sonnet", "gpt-5"],
+    "refuseAfter": 3,
+    "userMessage": "I'm temporarily unavailable. Please try again in a minute or contact support."
+  },
+  "audit": {
+    "logAllRequests": true,
+    "retainDays": 365,
+    "alertWebhook": null
+  }
+}

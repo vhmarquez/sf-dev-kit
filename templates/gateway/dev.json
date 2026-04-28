@@ -1,0 +1,30 @@
+{
+  "profile": "dev",
+  "models": {
+    "allowlist": ["sf-proprietary", "claude-sonnet", "gpt-5"],
+    "default": "sf-proprietary",
+    "byAgent": {}
+  },
+  "quotas": {
+    "tokensPerHour": {
+      "org": 1000000,
+      "perAgent": 100000
+    },
+    "requestsPerMinute": {
+      "perAgent": 60
+    },
+    "maxContextTokens": 100000,
+    "maxOutputTokens": 4096
+  },
+  "fallback": {
+    "policy": "degrade",
+    "chain": ["sf-proprietary", "claude-sonnet"],
+    "refuseAfter": 3,
+    "userMessage": "Temporary error — please try again."
+  },
+  "audit": {
+    "logAllRequests": true,
+    "retainDays": 30,
+    "alertWebhook": null
+  }
+}
