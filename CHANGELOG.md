@@ -4,6 +4,16 @@ All notable changes to **sf-dev-kit**. Format follows [Keep a Changelog](https:/
 
 ---
 
+## v3.3.2 — 2026-04-30
+
+### Changed
+
+- **README "Project status"** and **`SECURITY.md` "Bug reports"** sections — softened the contribution stance from "no contributions, ever" to "no contributions yet." If the project gains enough traction that a contribution path makes sense, a `CONTRIBUTING.md` will be published at that point. Today's posture is unchanged (still no PRs / feature requests accepted), but the messaging now says "not yet" instead of "never."
+
+Doc-only tweak; no code or behavior changes.
+
+---
+
 ## v3.3.1 — 2026-04-30
 
 Repo hygiene — adds the missing legal/governance files and clarifies the project's contribution stance up front.

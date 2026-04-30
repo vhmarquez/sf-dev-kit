@@ -410,14 +410,14 @@ sf-dev-kit/
 
 ## Project status
 
-`sf-dev-kit` is a **solo project**. I develop it primarily for my own use and ship it MIT-licensed so others can try it, fork it, and adapt it freely.
+`sf-dev-kit` is currently a **solo project** — I develop it primarily for my own use and ship it MIT-licensed so others can try it, fork it, and adapt it freely.
 
-- **No pull requests, feature requests, or external contributions are accepted.** If you want to change something, fork the repo — that's exactly what the MIT license allows for.
-- **Security disclosures are welcome.** See [`SECURITY.md`](SECURITY.md) for how to report a vulnerability privately via GitHub.
-- **Bug reports** are not solicited — fork and fix locally is the supported path.
-- The plugin is published to GitHub for visibility and reuse, not to incubate a community around the codebase.
+- **External contributions aren't accepted right now.** I'm keeping the dev process single-author for the moment to maintain a coherent design and security posture. **If the project gains enough traction that a contribution path makes sense, I'll revisit and publish a `CONTRIBUTING.md` at that point** — so this isn't a permanent "no," just a "not yet."
+- **Security disclosures are welcome regardless of project stage.** See [`SECURITY.md`](SECURITY.md) for how to report a vulnerability privately via GitHub.
+- **Bug reports** aren't actively solicited today — fork and fix locally is the supported path.
+- The plugin is on GitHub for visibility and reuse, not (yet) to incubate a community around the codebase.
 
-If you build something interesting on top, I'd love to hear about it — but the development of this repo stays single-author.
+If you build something interesting on top, I'd love to hear about it.
 
 ---
 

@@ -45,11 +45,13 @@ I prefer **90-day responsible disclosure** — after a fix ships and a patched v
 
 ## Bug reports (non-security)
 
-This plugin is developed solo, primarily for my own use. **I don't accept pull requests, feature requests, or bug-fix contributions.** The repo is MIT-licensed precisely so you can fork it and adapt it freely without going through me.
+This plugin is currently developed solo, primarily for my own use. **For now, I don't accept pull requests, feature requests, or bug-fix contributions** — I'm keeping the dev process single-author to maintain coherent design and security posture. The repo is MIT-licensed precisely so you can fork it and adapt it freely without going through me.
 
-For non-security bugs, your options are:
+If the project gains enough traction that a contribution path makes sense, I'll publish a `CONTRIBUTING.md` and update this section. So this is "not yet," not "never."
+
+For non-security bugs today, your options are:
 
 1. **Fork and fix locally** — recommended; you control the timeline and the patch
 2. **File the bug as a public issue** if GitHub Issues are enabled (they may not be — check the repo settings)
 
-I may notice fork-and-fix patterns and reimplement the fix in this repo, but that's not a process you can rely on.
+I may notice fork-and-fix patterns and reimplement the fix in this repo, but that's not a process you can rely on at the moment.
