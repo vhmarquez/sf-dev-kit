@@ -4,6 +4,28 @@ All notable changes to **sf-dev-kit**. Format follows [Keep a Changelog](https:/
 
 ---
 
+## v3.3.1 — 2026-04-30
+
+Repo hygiene — adds the missing legal/governance files and clarifies the project's contribution stance up front.
+
+### Added
+
+- **`LICENSE`** at the repo root — full MIT license text with copyright assigned to Victor Marquez. The README has always declared MIT, but without a `LICENSE` file the project was technically unusable downstream. This unblocks adoption at any company with a standard OSS-intake review.
+- **`SECURITY.md`** — vulnerability reporting policy. Routes confidential reports through GitHub Private Vulnerability Reporting; lists what does and doesn't count as a security issue (with concrete examples — bypass of `prodOrgAliases`, missed consent prompts, hook-script command injection); sets expectations on solo-project response time and 90-day disclosure preference.
+- **README "Project status" section** — explicit statement that this is a solo project: no PRs, feature requests, or external contributions accepted; security disclosures welcome; fork freely. Sets expectations clearly so users know whether to fork or open issues.
+
+### Changed
+
+- README footer now links the `LICENSE` file rather than just stating "MIT"
+
+### Notes
+
+This release is purely additive — no behavior, skill, or library changes. Versioned 3.3.1 as a patch.
+
+If you maintain a fork: this is a good time to update your fork's LICENSE if you've made substantial changes, and to point your fork's README at your own `SECURITY.md` rather than mine.
+
+---
+
 ## v3.3.0 — 2026-04-30
 
 The "first impression" release. The plugin's value-prop now reads in 30 seconds, the quickstart is five copy-pasteable commands, and a SessionStart hook tells you what to run when you land in a fresh SFDX project. Same surface as v3.2; better discovery.
