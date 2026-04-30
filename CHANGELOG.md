@@ -4,6 +4,16 @@ All notable changes to **sf-dev-kit**. Format follows [Keep a Changelog](https:/
 
 ---
 
+## v3.3.3 — 2026-04-30
+
+### Added
+
+- **README "Trademarks" section** — explicit disclaimer that the project is independent, not affiliated with or endorsed by Salesforce, Inc. or Anthropic, and that referenced product names (Salesforce, Apex, Lightning, LWC, Agentforce, Experience Cloud, Einstein Trust Layer, OmniStudio, Data Cloud, MuleSoft, Claude, Claude Code, etc.) are trademarks of their respective owners, used descriptively to indicate compatibility.
+
+Doc-only; no code or behavior changes.
+
+---
+
 ## v3.3.2 — 2026-04-30
 
 ### Changed

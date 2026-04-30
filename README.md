@@ -427,6 +427,16 @@ If you build something interesting on top, I'd love to hear about it.
 
 ---
 
+## Trademarks
+
+`sf-dev-kit` is an independent open-source project. It is **not** affiliated with, endorsed by, or sponsored by Salesforce, Inc. or Anthropic.
+
+"Salesforce", "Apex", "Lightning", "Lightning Web Components", "Agentforce", "Experience Cloud", "Einstein Trust Layer", "OmniStudio", "Data Cloud", "MuleSoft", and other Salesforce product names referenced in this repository are trademarks of Salesforce, Inc., used here descriptively to indicate compatibility. "Claude" and "Claude Code" are trademarks of Anthropic, PBC.
+
+All other trademarks are the property of their respective owners.
+
+---
+
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for the full v1.0.0 → v3.x history.
