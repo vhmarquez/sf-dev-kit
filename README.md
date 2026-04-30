@@ -33,7 +33,7 @@ Invoke any as `/sf-dev-kit:<name>`. Most accept `--ci`, `--format json|sarif`, `
 **Setup & onboarding**
 | Skill | Purpose |
 |-------|---------|
-| `/sf-dev-kit:sf-init` | Bootstrap or update project config; auto-detects SFDX state; `update <fields>` and `env <name>` modes |
+| `/sf-dev-kit:sf-init` | Detect → review → edit → verify bootstrap. Aggressive auto-detection populates a single review screen with confidence markers; the user edits only what's ambiguous or required; a smoke test verifies the result. Modes: `auto`, `update <fields>`, `env <name>`, `verify` |
 | `/sf-dev-kit:onboard` | Verify a developer's machine + smoke-test the dev loop end-to-end |
 | `/sf-dev-kit:pattern-pack` | Install/list/info/remove domain pattern packs |
 | `/sf-dev-kit:mcp-setup` | **Install/configure `@salesforce/mcp` toolsets** (metadata/data/testing/lwc/code-analysis/devops/aura) |
