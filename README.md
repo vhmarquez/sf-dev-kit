@@ -130,14 +130,16 @@ Invoke any as `/sf-dev-kit:<name>`. Most accept `--ci`, `--format json|sarif`, `
 
 | Hook | Trigger | Action |
 |------|---------|--------|
+| `security-guard.sh` | `PreToolUse` on `Bash` | Defense-in-depth security gate: refuses `sf` commands that target prod aliases or query data objects without consent. Belt-and-suspenders companion to `hooks/lib/security.sh`; see [`docs/security-model.md`](docs/security-model.md) |
 | `lint-lwc.sh` | `PostToolUse` on `Edit`/`Write` of LWC JS | Prettier + ESLint; surfaces findings on stderr; never blocks |
 | `lint-apex.sh` | `PostToolUse` on `Edit`/`Write` of `.cls`/`.trigger` | PMD `errorprone + bestpractices` |
 | `lint-react.sh` | `PostToolUse` on `Edit`/`Write` of `.tsx`/`.jsx` (when `platform.frontend` includes react) | Prettier + ESLint |
 
 Plus shared library helpers under `hooks/lib/`:
 - `config.sh` — load and deep-merge project config + per-env overrides
-- `sf-cli.sh` — wrappers for `sf` CLI; the always-works fallback
-- **`mcp.sh`** — **`@salesforce/mcp` routing helpers** (`mcp_prefer`, `mcp_run <toolset> <tool>`, `mcp_list_tools`)
+- `sf-cli.sh` — wrappers for `sf` CLI; routes through `security.sh`; the always-works fallback
+- **`mcp.sh`** — **`@salesforce/mcp` routing helpers** (`mcp_prefer`, `mcp_run <toolset> <tool>`, `mcp_list_tools`); routes through `security.sh`
+- **`security.sh`** — **central security gate**: `sec_check_org`, `sec_check_soql`, `sec_check_anon_apex`, `sec_log_consent`, metadata allowlist. See [`docs/security-model.md`](docs/security-model.md)
 - `pmd.sh` — lazy PMD download into `${CLAUDE_PLUGIN_DATA}` on first use
 - `sarif.sh` — SARIF 2.1.0 emitter for `--format sarif`
 
@@ -272,6 +274,21 @@ In a Salesforce DX project (or a new directory you intend to make one):
 Per-environment overrides (`.claude/sf-project.<env>.json`) deep-merge over the base.
 
 ---
+
+## Security model
+
+The plugin enforces four hard invariants. Detailed model in [`docs/security-model.md`](docs/security-model.md):
+
+1. **No contact with orgs classified as production** (`security.prodOrgAliases`). Hard refuse, no override.
+2. **Metadata-only across all orgs by default.** SOQL queries must target the metadata allowlist (`ApexClass`, `EntityDefinition`, `Profile`, `Flow`, `AgentDefinition`, etc., plus any `*__mdt`). Customer-data targets (`Account`, custom `__c`, `AgentSessionTrace`, `User`, `ContentDocument`) require per-call user consent.
+3. **Anonymous Apex disabled by default.** `sf apex run` is refused outright; even when enabled via `security.allowAnonymousApex: true`, every call prompts for consent.
+4. **Overrides are runtime-only.** No persistent "always allow" grants. Every restricted call prompts.
+
+Enforcement is centralized in `hooks/lib/security.sh` (every `sf-cli.sh` and `mcp.sh` wrapper routes through it) plus a `PreToolUse` Bash hook (`hooks/security-guard.sh`) that catches anything bypassing the library. Each skill declares its data-access surface in frontmatter (`data-access: none | metadata-only | data-with-consent`).
+
+Three skills fundamentally need data access and prompt for consent every run: `/trust-eval` (queries `AgentSessionTrace`), `/permset-audit` (queries `PermissionSetAssignment`), `/agent-test` (eval inputs / outputs may carry test PII).
+
+`/sf-dev-kit:sf-init` detects every non-sandbox alias `sf org list` knows about and requires the user to classify each one as production (refused) or known-non-prod (allowed) before writing config.
 
 ## CI integration
 

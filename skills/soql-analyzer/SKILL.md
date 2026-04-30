@@ -1,6 +1,7 @@
 ---
 name: soql-analyzer
 description: Static-analyze SOQL queries in Apex source for selectivity issues — non-selective WHERE clauses, missing indexed fields, full-table scans on LDV objects, missing LIMIT. Cross-references the org cache (when present) for actual indexed fields and row volumes.
+data-access: none
 ---
 
 You are analyzing SOQL queries for **selectivity**. A selective query uses an indexed field with a value that returns a small fraction of total rows; non-selective queries scan large tables and trigger query timeouts on LDV (Large Data Volume) objects. This skill flags candidate problems before they become production incidents.

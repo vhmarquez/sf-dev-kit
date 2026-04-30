@@ -1,6 +1,7 @@
 ---
 name: quick-deploy
 description: Promote a previously validated deployment to production without re-running tests. Salesforce honors a quick-deploy of any validated deploy ID within 4 days, skipping the test phase. Saves 20–60 minutes on prod releases.
+data-access: metadata-only
 ---
 
 You are running a **quick-deploy** — taking a deploy ID that's already passed validation and promoting it to actually apply. Salesforce's quick-deploy is the only sanctioned way to skip tests on a production deploy.

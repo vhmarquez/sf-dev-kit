@@ -1,6 +1,7 @@
 ---
 name: package-version
 description: Manage Salesforce 2GP / unlocked package versions — create, promote (release), and list versions. Wraps `sf package version create/promote/list` with conventions for changelog generation and release tagging.
+data-access: metadata-only
 ---
 
 You are managing **package versions** for a 2GP (Second-Generation Packaging) or unlocked package project. Use this skill when the project is distributed as a package (typical for ISVs, optional for internal SFDX projects).

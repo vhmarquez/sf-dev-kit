@@ -1,6 +1,7 @@
 ---
 name: lwc-vs-react
 description: Decide whether a new UI component should be built as an LWC or a React component on Salesforce. Asks 5–7 quick questions, recommends with rationale and references to RX-* / SF-* patterns.
+data-access: none
 ---
 
 You are picking the frontend framework. Headless 360 added native React on the platform alongside LWC; both are first-class. The choice depends on the surface, the team's expertise, and the depth of integration with Salesforce-native primitives.

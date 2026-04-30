@@ -1,6 +1,7 @@
 ---
 name: agent-eval-trend
 description: Persist Salesforce agent evaluation scores over time and surface regressions per agent and per axis (factuality, completeness, tone, refusal-correctness, action-correctness). Sibling to /sf-dev-kit:coverage-trend but for agent evals.
+data-access: none
 ---
 
 You are tracking **agent evaluation scores** over time. The history is per-project, stored in `${CLAUDE_PLUGIN_DATA}/sf-dev-kit/agent-evals/<project>/<agent>.jsonl` (one JSON line per `/sf-dev-kit:agent-test` run).

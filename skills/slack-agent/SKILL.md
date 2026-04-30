@@ -1,6 +1,7 @@
 ---
 name: slack-agent
 description: Scaffold a Slack-native Salesforce agent end-to-end via the Slack Agent Kit (Headless 360). Generates the agent's botDefinition, Slack manifest, channel-bot Apex bridge, and a starter Block Kit response template. Aim is "CLI to live agent in 10 minutes".
+data-access: none
 ---
 
 You are scaffolding a **Slack-native** agent — an Agentforce agent that lives in Slack as both a bot user and a workflow surface. This wraps Salesforce's **Slack Agent Kit** with sf-dev-kit's project conventions.

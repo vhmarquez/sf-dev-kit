@@ -1,6 +1,7 @@
 ---
 name: scratch-org
 description: Create or destroy a Salesforce scratch org from `config/project-scratch-def.json`, optionally deploy the project, optionally seed with the project's TestDataFactory. Useful for clean-slate testing, CI runs, and onboarding new developers.
+data-access: metadata-only
 ---
 
 You are creating or destroying a **scratch org** for the project. Scratch orgs are short-lived (max 30 days), feature-flag-controlled Salesforce instances tied to a Dev Hub. They're the right tool for CI tests, integration tests, and clean-slate dev work.

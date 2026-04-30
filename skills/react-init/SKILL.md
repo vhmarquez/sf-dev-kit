@@ -1,6 +1,7 @@
 ---
 name: react-init
 description: Scaffold a React-on-Salesforce component bundle at paths.reactSource. Generates .tsx + .module.css + .meta.xml + .test.tsx + index.ts following the project's React conventions, with `@salesforce/react/graphql` data fetching and SLDS tokens baked in.
+data-access: none
 ---
 
 You are scaffolding a React component bundle. Output goes to `<paths.reactSource>/<ComponentName>/`. Files generated: implementation, styles, meta XML, tests, public index, doc stub.

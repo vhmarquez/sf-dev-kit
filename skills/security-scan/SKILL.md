@@ -1,6 +1,7 @@
 ---
 name: security-scan
 description: Run PMD with the Apex security ruleset against the project's Apex source. Surfaces SOQL injection vectors, missing CRUD/FLS checks, hardcoded credentials, sharing violations, and other Apex-specific security issues. CI mode emits SARIF for GitHub Code Scanning.
+data-access: none
 ---
 
 You are running a **security scan** of the Apex source. The scan uses [PMD](https://pmd.github.io/) with its `apex-security` ruleset (built-in to PMD 7.x). PMD is downloaded on first use into the plugin data directory.

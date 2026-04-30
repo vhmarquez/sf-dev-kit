@@ -1,6 +1,7 @@
 ---
 name: diff-deploy
 description: Deploy only the metadata that's changed since a git ref (default `main`) instead of the full project. Reads `git diff` to compute the changed-file set, intersects with the project's `paths`, and runs `sf project deploy start` with --source-dir flags. Useful for fast PR validation deploys.
+data-access: metadata-only
 ---
 
 You are deploying **only the metadata that has changed** between the current state and a git reference. Full-project deploys can take 5–30 minutes; diff deploys typically take seconds-to-minutes.

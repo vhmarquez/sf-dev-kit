@@ -1,6 +1,7 @@
 ---
 name: org-explore
 description: Snapshot the target Salesforce org's schema (objects, fields, profiles, permission sets, installed packages) into a local cache for downstream sf-dev-kit skills. In MCP mode (Headless 360) this is optional — agents read live via the `data`/`metadata` toolsets. Cache is for offline use, batch reports, and snapshot-vs-snapshot diffs.
+data-access: metadata-only
 ---
 
 You are populating the **org cache** that downstream sf-dev-kit skills (especially `@architect`, `/sf-dev-kit:flow-audit`, `/sf-dev-kit:permset-audit`, `/sf-dev-kit:field-impact`) read for grounded design and analysis.

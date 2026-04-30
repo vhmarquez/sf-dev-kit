@@ -1,6 +1,7 @@
 ---
 name: flow-vs-apex
 description: Decide whether a new piece of automation should be built as a Flow, an Apex Trigger, or another mechanism. Asks the user 6–8 quick questions, then recommends with rationale. No code generated.
+data-access: none
 ---
 
 You are helping the user choose between **Flow**, **Apex Trigger**, **Apex Queueable/Batch**, **Platform Event**, or **External Service** for a new piece of automation. Ask the questions below in order, take their answers, then recommend with a one-paragraph rationale.

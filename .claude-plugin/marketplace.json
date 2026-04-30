@@ -7,8 +7,8 @@
     {
       "name": "sf-dev-kit",
       "source": "./",
-      "description": "Salesforce DX AI workflow for Claude Code, fully Headless-360-aware. v3: 11 subagents (incl. agent-dev, react-dev, trust-reviewer), 56 skills (MCP routing via @salesforce/mcp, agent dev/test/deploy gated by Trust Layer audit, AI Gateway controls, natural-language deploy, AgentExchange listing prep, React-on-Salesforce parity), 3 lint hooks, 20 base patterns, 11 domain packs (10 full + 1 deprecated redirect).",
-      "version": "3.1.0",
+      "description": "Salesforce DX AI workflow for Claude Code, fully Headless-360-aware. Hardened security model in v3.2: prod orgs hard-blocked, metadata-only SOQL by default, anonymous Apex refused by default, runtime-only consent for any data access. 11 subagents, 56 skills (each declares data-access surface), centralized security library + PreToolUse Bash guard, 11 domain packs.",
+      "version": "3.2.0",
       "keywords": ["salesforce", "sfdx", "lwc", "apex", "react", "experience-cloud", "agentforce", "headless360", "mcp", "trust-layer", "platform-events", "cdc", "pmd", "sarif"]
     }
   ]

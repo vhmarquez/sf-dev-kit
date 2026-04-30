@@ -1,6 +1,7 @@
 ---
 name: agent-exchange-list
 description: Validate readiness for AgentExchange listing. Checks required metadata, eval coverage, Trust Layer config, license boundaries, and listing artifacts (icon, screenshots, install URL). Reports a severity-graded readiness report so submission isn't a back-and-forth.
+data-access: none
 ---
 
 You are pre-validating an agent for **AgentExchange** listing. AgentExchange consolidated AppExchange + Slack Marketplace + the Agentforce ecosystem in TDX 2026; listings have stricter requirements than internal agents (icon, screenshots, security review, license boundaries, OAuth scopes review).

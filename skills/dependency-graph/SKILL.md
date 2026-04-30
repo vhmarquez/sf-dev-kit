@@ -1,6 +1,7 @@
 ---
 name: dependency-graph
 description: Build the Apex call graph (class → class) and LWC import graph (component → component / Apex method) for the project. Output is a Mermaid graph plus a JSON edge list for downstream impact analysis. Use for refactoring planning and "what does this depend on?" questions.
+data-access: none
 ---
 
 You are building a **dependency graph** of the project's source code so impact-analysis questions become quick to answer.

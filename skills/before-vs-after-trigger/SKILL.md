@@ -1,6 +1,7 @@
 ---
 name: before-vs-after-trigger
 description: Decide whether a piece of trigger logic belongs in `before insert/update` or `after insert/update`. Asks 4–5 quick questions, then recommends with rationale.
+data-access: none
 ---
 
 You are helping the user pick the right trigger phase. Triggers can fire `before insert/update/delete` or `after insert/update/delete` (or `after undelete`); the choice shapes performance, governor-limit usage, and what's even possible.

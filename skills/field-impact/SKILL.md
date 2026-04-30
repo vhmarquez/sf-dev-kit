@@ -1,6 +1,7 @@
 ---
 name: field-impact
 description: Find all references to a Salesforce field across LWC, Apex, layouts, validation rules, formula fields, Flows, and reports. Use before deleting or renaming a field, or when assessing the blast radius of a field-level change.
+data-access: metadata-only
 ---
 
 You are computing the **blast radius** for a field change. The user asks "who depends on `Account.Custom_Field__c`?" and you answer with a structured report grouped by metadata type.

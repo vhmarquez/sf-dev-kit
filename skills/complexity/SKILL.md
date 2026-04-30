@@ -1,6 +1,7 @@
 ---
 name: complexity
 description: Compute cyclomatic complexity per Apex method and per LWC JS function. Flags hotspots above a configurable threshold (default 10). Useful for spotting methods that need refactoring before they become unmaintainable.
+data-access: none
 ---
 
 You are computing **cyclomatic complexity (CC)** — the number of linearly independent paths through a function. CC of 1 = straight-line code, 5 = moderate, 10 = at the limit of "manageable", 15+ = needs refactoring.

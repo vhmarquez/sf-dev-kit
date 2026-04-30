@@ -1,6 +1,7 @@
 ---
 name: release-notes
 description: Generate release notes from git commits + tags + ADRs + coverage history since the last release. Output is Markdown grouped by category (Features, Fixes, Refactors, Docs, etc.), with deploy/coverage stats and links to the relevant ADRs.
+data-access: none
 ---
 
 You are producing **release notes** for a Salesforce project. The notes are derived from git history, ADRs added since the last release, and the latest coverage record.

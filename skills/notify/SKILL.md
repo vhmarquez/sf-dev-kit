@@ -1,6 +1,7 @@
 ---
 name: notify
 description: Post a structured notification to a configured Slack or Microsoft Teams webhook. Used by deploy / coverage / security skills (or CI pipelines) to broadcast results without hardcoding webhook URLs in scripts. Webhook URLs come from `.claude/sf-project.json` (or env override).
+data-access: none
 ---
 
 You are posting a notification to a team chat webhook. The webhook URL lives in the project config under `notifications.webhooks`; this skill never accepts a URL as an argument (so it's safe in shell history).

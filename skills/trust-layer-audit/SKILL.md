@@ -1,6 +1,7 @@
 ---
 name: trust-layer-audit
 description: Verify Einstein Trust Layer configuration for the target org and per-agent settings. Checks PII masking, FLS enforcement on grounding queries, zero-data-retention agreements with LLM providers, dynamic-grounding scope, and prompt-template safety. Severity-graded findings; SARIF for security pipelines.
+data-access: metadata-only
 ---
 
 You are auditing the **Einstein Trust Layer** for this org and the project's agents. The Trust Layer is Salesforce-managed but has org-level toggles (data masking, ZDR agreements with LLM providers) and per-agent / per-prompt configurations that drift over time. This skill is a static + org-side check.

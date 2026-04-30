@@ -1,6 +1,7 @@
 ---
 name: code-review
 description: Perform a comprehensive code review of an LWC component, Apex class, or both against project standards
+data-access: none
 ---
 
 You are performing a code review for this Salesforce project. Assess code quality, identify issues, and highlight strengths — but make **no edits**.

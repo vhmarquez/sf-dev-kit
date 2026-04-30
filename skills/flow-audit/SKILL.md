@@ -1,6 +1,7 @@
 ---
 name: flow-audit
 description: Inventory active Flows in the target org, classify them by trigger type and purpose, flag overlaps with Apex triggers in source, and surface flows that lack source-control coverage. Useful before recommending new automation (Flow vs. Trigger decision) and during automation audits.
+data-access: metadata-only
 ---
 
 You are auditing record-triggered, screen, scheduled, and platform-event Flows in the target org. Output a structured report so the user — or `@architect` — can decide how to consolidate, replace, or leave them alone.

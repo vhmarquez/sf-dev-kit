@@ -138,6 +138,17 @@ All agents read both pattern docs and the relevant standards docs before writing
 
 `.claude/sf-project.<env>.json` deep-merges over the base config when any skill is invoked with `--env <name>`. Common pattern: `prod` overrides `defaultTargetOrg`, raises `codeCoverageTarget` and `agentEvalThreshold`, narrows `mcp.toolsets` to read-only, configures `notifications.webhooks` for Slack/Teams alerts.
 
+### Security model
+
+The plugin enforces four hard invariants (see `${CLAUDE_PLUGIN_ROOT}/docs/security-model.md`):
+
+1. No contact with orgs classified in `security.prodOrgAliases`
+2. Metadata-only SOQL by default; customer-data queries require per-call user consent
+3. Anonymous Apex disabled by default
+4. Overrides are runtime-only — no persistent "always allow"
+
+`/sf-dev-kit:sf-init` requires every non-sandbox alias to be classified before it writes config. Three skills (`/trust-eval`, `/permset-audit`, `/agent-test`) prompt for consent on every run because they fundamentally need customer data.
+
 ### MCP Toolsets (Headless 360)
 
 When `mcp.toolsets` is configured (run `/sf-dev-kit:mcp-setup`), the workflow routes through Salesforce's official `@salesforce/mcp` server. Toolsets: `metadata, data, testing, lwc, code-analysis, devops, aura`. The plugin's `hooks/lib/mcp.sh` falls back to direct `sf` CLI when the MCP server isn't available — every skill works either way.

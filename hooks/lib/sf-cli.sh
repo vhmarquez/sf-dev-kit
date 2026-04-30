@@ -1,19 +1,33 @@
 #!/bin/bash
 # sf-cli.sh — Thin wrapper around the Salesforce CLI (`sf`) used by org-aware skills.
 #
+# All org-touching wrappers route through `hooks/lib/security.sh` first:
+#   - Prod aliases are hard-refused (sec_check_org)
+#   - SOQL targets must be on the metadata allowlist (sec_check_soql)
+#   - Anonymous Apex is refused unless explicitly enabled (sec_check_anon_apex)
+#   - Data writes always require per-call consent (sec_check_data_write)
+#
 # Headless 360 / MCP note: for skills that benefit from agent-mediated calls, prefer
 # the MCP toolsets via `${CLAUDE_PLUGIN_ROOT}/hooks/lib/mcp.sh` (`mcp_prefer` +
 # `mcp_run <toolset> <tool>`). This file remains the always-works fallback path
 # and is the authoritative shim used when `@salesforce/mcp` is absent or
-# explicitly disabled (--no-mcp / SF_DEV_KIT_MCP_DISABLED=1).
+# explicitly disabled (--no-mcp / SF_DEV_KIT_MCP_DISABLED=1). Both routes are
+# gated by the same security library.
 #
-# Public functions (all return 0 on success, non-zero with a message on stderr otherwise):
+# Public functions (return 0 on success; non-zero with a stderr message otherwise):
 #   sf_cli_check                          — verify `sf` is installed
 #   sf_cli_alias_exists  <alias>          — boolean: does the org alias resolve?
-#   sf_cli_query         <soql> [alias]   — run SOQL, print JSON result on stdout
-#   sf_cli_describe      <object> [alias] — describe an sObject, print JSON
-#   sf_cli_org_display   [alias]          — print org info JSON
-#   sf_cli_list_objects  [alias]          — print list of sObject API names
+#   sf_cli_query         <soql> [alias]   — run SOQL (subject to metadata allowlist)
+#   sf_cli_describe      <object> [alias] — describe an sObject (metadata)
+#   sf_cli_org_display   [alias]          — print org info JSON (gated)
+#   sf_cli_list_objects  [alias]          — list sObject API names (metadata)
+
+# shellcheck shell=bash
+
+if ! declare -F sec_check_org >/dev/null 2>&1; then
+  # shellcheck source=/dev/null
+  source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/security.sh"
+fi
 
 sf_cli_check() {
   if ! command -v sf >/dev/null 2>&1; then
@@ -22,6 +36,7 @@ sf_cli_check() {
   fi
 }
 
+# Pure local lookup — no org contact. Safe to call without security check.
 sf_cli_alias_exists() {
   local alias="$1"
   if [[ -z "$alias" ]]; then
@@ -51,6 +66,10 @@ sf_cli_query() {
     return 2
   fi
   sf_cli_check || return 1
+
+  # Security: org classification + SOQL allowlist.
+  sec_check_soql "$soql" "$alias" || return $?
+
   local args=(--query "$soql" --json)
   [[ -n "$alias" ]] && args+=(--target-org "$alias")
   sf data query "${args[@]}"
@@ -64,6 +83,12 @@ sf_cli_describe() {
     return 2
   fi
   sf_cli_check || return 1
+
+  # describe is metadata only; just check the org.
+  if [[ -n "$alias" ]]; then
+    sec_check_org "$alias" || return $?
+  fi
+
   local args=(--sobject "$obj" --json)
   [[ -n "$alias" ]] && args+=(--target-org "$alias")
   sf sobject describe "${args[@]}"
@@ -72,6 +97,11 @@ sf_cli_describe() {
 sf_cli_org_display() {
   local alias="${1:-}"
   sf_cli_check || return 1
+
+  if [[ -n "$alias" ]]; then
+    sec_check_org "$alias" || return $?
+  fi
+
   local args=(--json)
   [[ -n "$alias" ]] && args+=(--target-org "$alias")
   sf org display "${args[@]}"
@@ -80,6 +110,11 @@ sf_cli_org_display() {
 sf_cli_list_objects() {
   local alias="${1:-}"
   sf_cli_check || return 1
+
+  if [[ -n "$alias" ]]; then
+    sec_check_org "$alias" || return $?
+  fi
+
   local args=(--json)
   [[ -n "$alias" ]] && args+=(--target-org "$alias")
   sf sobject list "${args[@]}"

@@ -1,9 +1,33 @@
 ---
 name: agent-test
 description: Run agent evaluation tests via `sf agent test run` against the target org's Testing Center. Produces severity-graded findings; CI mode emits SARIF for GitHub Code Scanning. Persists each run to history for /sf-dev-kit:agent-eval-trend.
+data-access: data-with-consent
 ---
 
 You are running **agent evaluation tests**. Testing Center scores agent responses against expected behavior on multiple axes (factuality, completeness, tone, refusal-correctness for security cases). This skill drives `sf agent test run` with the project's eval suite, parses the result, and reports.
+
+## Security: data-with-consent
+
+`sf agent test run` produces eval inputs and outputs that may carry test-PII (user-shaped fixtures, agent response text). Even when the eval cases themselves are synthetic, the runtime execution touches the org's data surface (grounding queries, action invocations). The skill is gated as "data-with-consent" — refused unless the user grants per-call consent.
+
+Production orgs are blocked outright (no eval runs against `security.prodOrgAliases` — production agent quality must be measured inside Salesforce's Testing Center web UI, not via this plugin).
+
+```
+[sf-dev-kit/security] CONSENT REQUIRED
+
+Skill:    /agent-test
+Org:      <alias>
+Action:   sf agent test run
+Records:  N eval cases × (test inputs + agent outputs + scores)
+What enters your conversation context with Claude:
+  • Eval case inputs (synthetic or fixture-shaped — review tests/agent-evals/<agent>/)
+  • Agent responses (post Trust Layer masking)
+  • Per-axis scores (factuality, completeness, refusal-correctness, etc.)
+
+Choose:
+  [a] Allow once    — runs the eval; audit log records the run
+  [c] Cancel        — abort
+```
 
 ## Read Project Config First
 
@@ -14,6 +38,7 @@ source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/sarif.sh"
 sf_cli_check || exit 2
 ORG="$(sf_config_get '.platform.defaultTargetOrg' "$ENV")"
 EVAL_SCORE_THRESHOLD="$(sf_config_get '.quality.agentEvalThreshold // 0.85' "$ENV")"
+SKILL_NAME="agent-test"; export SKILL_NAME
 ```
 
 The threshold is configurable in `sf-project.json` under `quality.agentEvalThreshold` (default 0.85, matching the recommended Trust Layer scoring band).

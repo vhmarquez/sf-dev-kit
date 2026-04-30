@@ -1,6 +1,7 @@
 ---
 name: coverage-trend
 description: Persist Apex code-coverage results over time and surface regressions. After each /sf-dev-kit:test-coverage run (or via this skill directly), append the result to a per-project history file and show the trend. PR-mode diffs against the baseline.
+data-access: metadata-only
 ---
 
 You are tracking Apex coverage over time so regressions are visible. The history is per-project, stored in `${CLAUDE_PLUGIN_DATA}/sf-dev-kit/coverage/<project>/history.jsonl` (one JSON line per run).

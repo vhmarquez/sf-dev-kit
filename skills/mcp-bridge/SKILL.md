@@ -1,6 +1,7 @@
 ---
 name: mcp-bridge
 description: Wrap an existing Apex REST endpoint (SF-16) as an MCP tool exposed to agents. Generates a bridge config + tool schema, registers in the Agent Registry, and (optionally) emits a sample agent prompt that uses the new tool.
+data-access: metadata-only
 ---
 
 You are exposing project-owned Apex REST services to agents as **first-class MCP tools**. This closes the loop between SF-16 (Apex REST Service) and the agent ecosystem: anything the team already exposes via `/services/apexrest/*` becomes invokable from an agent's tool palette.

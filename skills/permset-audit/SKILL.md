@@ -1,9 +1,38 @@
 ---
 name: permset-audit
 description: Build a permission audit matrix mapping every object/field in the target org to the profiles and permission sets that grant access. Flag orphan permsets, profile-vs-permset CRUD divergence, and fields with no read access from any profile/permset.
+data-access: data-with-consent
 ---
 
 You are building a **permission audit matrix** for the target org. The matrix is rows=objects/fields, columns=profile-or-permset, cells=`R/CRUD/-`. Use it to spot orphan permsets, fields that no one can see, and divergence between similarly named profiles and permsets.
+
+## Security: data-with-consent
+
+This skill queries `PermissionSetAssignment`, which links permission sets to **specific user records**. That's customer data per the plugin's security model (`security.metadataOnly = true` blocks it by default). The skill prompts the user before running.
+
+The other queries used by this skill (`Profile`, `PermissionSet`, `ObjectPermissions`, `FieldPermissions`) ARE on the metadata allowlist and do not require consent.
+
+When the assistant sees exit code `77` from `sf_cli_query` with `reason: SOQL_DATA_OBJECT` and `target: PermissionSetAssignment`:
+
+```
+[sf-dev-kit/security] CONSENT REQUIRED
+
+Skill:    /permset-audit
+Org:      <alias>
+Action:   SOQL query against PermissionSetAssignment
+Records:  ~N (one per active permset assignment in the org)
+What enters your conversation context with Claude:
+  • User Ids (AssigneeId)
+  • Permission Set Ids (PermissionSetId)
+  • No field values, no email/name fields are projected
+
+Choose:
+  [a] Allow once    — runs this query (audit log: "permset-audit / soql / PermissionSetAssignment / allow-once")
+  [d] Deny this part — skip the assignments query; the audit will report orphan permsets without per-user assignments
+  [c] Cancel        — abort the skill
+```
+
+On `[a]` re-invoke the same `sf_cli_query` after `export SF_DEV_KIT_CONSENT_GRANTED=once`. Per the plugin contract this is a single-use override; a follow-up call inside the same skill run requires another consent.
 
 ## Read Project Config First
 
@@ -12,6 +41,7 @@ source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/config.sh"
 source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/sf-cli.sh"
 sf_cli_check || exit 2
 ORG="$(sf_config_get '.platform.defaultTargetOrg' "$ENV")"
+SKILL_NAME="permset-audit"; export SKILL_NAME
 ```
 
 ## Input

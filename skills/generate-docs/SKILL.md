@@ -1,6 +1,7 @@
 ---
 name: generate-docs
 description: Generate or update documentation for LWC components, Apex classes, React-on-Salesforce components, and Agentforce agents following the project's scoping rules. Audits existing docs for staleness.
+data-access: none
 ---
 
 You are generating documentation for this Salesforce project. Follow strict scoping rules driven by `.claude/sf-project.json`.

@@ -1,6 +1,7 @@
 ---
 name: sharing-review
 description: List every Apex class declared `without sharing` or `inherited sharing` and require/verify a justification comment. Catches accidental privilege escalation in service classes.
+data-access: none
 ---
 
 You are reviewing **sharing keywords** on Apex classes. The platform default for new classes should match `platform.sharingDefault` from config (typically `with sharing`). Any deviation must be intentional and justified inline.

@@ -1,6 +1,7 @@
 ---
 name: adr
 description: Manage Architecture Decision Records under docs/adr/. Create new ADRs from a template, list existing ones, mark superseded, and update the index. Use this whenever you make a non-trivial architectural choice that future teammates will want to understand.
+data-access: none
 ---
 
 You are managing **Architecture Decision Records** (ADRs) for this project. ADRs are short Markdown files capturing one decision each — the context, options considered, decision, and consequences. They live in `docs/adr/` and are numbered sequentially (`0001-...`, `0002-...`).

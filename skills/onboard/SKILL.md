@@ -1,6 +1,7 @@
 ---
 name: onboard
 description: Onboard a new developer to a Salesforce project — verify Salesforce CLI version, Dev Hub authentication, project config, and run an end-to-end sanity check (scratch org create → deploy → tests pass). Outputs a checklist with green/red status per item.
+data-access: metadata-only
 ---
 
 You are walking a new developer through the prerequisites and a smoke test for this Salesforce project. The skill verifies their machine is set up correctly and that they can complete the basic dev loop end-to-end.

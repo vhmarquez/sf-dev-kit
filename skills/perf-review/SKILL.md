@@ -1,6 +1,7 @@
 ---
 name: perf-review
 description: Static performance review of Lightning Web Components — bundle size, render-blocking imports, @wire waterfall, large templates, missing virtualization, unnecessary re-renders. Reports per-component findings and an aggregate summary.
+data-access: none
 ---
 
 You are performing a **performance review** of LWCs. The review is static (file-content analysis); it doesn't run a browser. Findings are heuristic but actionable.

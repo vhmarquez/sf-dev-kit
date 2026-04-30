@@ -1,6 +1,7 @@
 ---
 name: agent-discover
 description: Inventory Agentforce agents in the project — both source-controlled `AgentDefinition` files and live agents in the target org. Maps each agent's topics, sub-agents, MCP tools used, and bridge tools registered. Counterpart to /flow-audit for the agent surface.
+data-access: metadata-only
 ---
 
 You are inventorying **agents** for the project. Agents are now first-class deployable artifacts (Headless 360); like Flows and Apex, they live in source control under `force-app/main/default/botDefinitions/` and are also visible in the org's Agent Registry. This skill reconciles the two.

@@ -1,6 +1,7 @@
 ---
 name: agent-deploy
 description: Deploy AgentDefinition metadata + register the eval suite with Testing Center, with Trust Layer + eval-regression gating. Refuses to deploy if /sf-dev-kit:trust-layer-audit or /sf-dev-kit:agent-test fail.
+data-access: metadata-only
 ---
 
 You are deploying an **agent** — AgentDefinition + AgentVersion + topics + actions + sub-agents — and registering its eval suite with Testing Center so future runs are tracked. This is the agent-side counterpart to `/sf-dev-kit:diff-deploy` for code.

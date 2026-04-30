@@ -1,6 +1,7 @@
 ---
 name: erd
 description: Generate or update Mermaid Entity-Relationship Diagrams from Salesforce object metadata. Reads .object-meta.xml files plus their field-meta.xml subdirectories, extracts relationships (Lookup, MasterDetail, Hierarchy), and emits a Mermaid ERD as Markdown. Useful for design reviews and onboarding.
+data-access: none
 ---
 
 You are generating an ERD from local source metadata. You read the project's `.object-meta.xml` files and the per-field metadata under each object's `fields/` directory, extract relationships, and emit one or more Mermaid `erDiagram` blocks.

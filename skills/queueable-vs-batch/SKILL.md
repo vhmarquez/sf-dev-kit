@@ -1,6 +1,7 @@
 ---
 name: queueable-vs-batch
 description: Decide between Queueable Apex, Batch Apex, Schedulable, and `@future` for an async piece of work. Asks 5–6 quick questions, then recommends with rationale.
+data-access: none
 ---
 
 You are picking the right async mechanism. Salesforce offers four+ kinds; each has different governor limits, scheduling semantics, and chaining rules.

@@ -1,6 +1,7 @@
 ---
 name: test-data
 description: Scaffold an Apex `TestDataFactory` for an sObject using its required fields and project-context defaults. Outputs a class with `make<Object>()`, `make<Object>(overrides)`, and `make<Object>List(count, overrides)` methods, plus a sensible defaults map. Saves the most tedious part of writing tests.
+data-access: none
 ---
 
 You are scaffolding an Apex `TestDataFactory` for one or more sObjects. The factory provides a stable way to build valid test records (all required fields populated) with optional per-test overrides.

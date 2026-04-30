@@ -1,6 +1,7 @@
 ---
 name: deploy
 description: Deploy or validate Salesforce metadata against the project's default org (or another org if specified). Routes through the @salesforce/mcp `metadata` toolset when available; falls back to direct `sf` CLI. Honors per-environment config overrides via `--env`.
+data-access: metadata-only
 ---
 
 You are deploying Salesforce metadata for this project. Always read the project config first.

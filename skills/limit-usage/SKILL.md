@@ -1,6 +1,7 @@
 ---
 name: limit-usage
 description: Static estimate of governor-limit consumption per public Apex method — count of SOQL queries, DML statements, callouts, queries-in-loops, async enqueues. Useful for spotting bulk-unsafe code before runtime.
+data-access: none
 ---
 
 You are estimating **governor-limit usage** per Apex method. The estimates are static and conservative — they count operations textually without simulating runtime branches. The output points to methods worth bulk-load testing.

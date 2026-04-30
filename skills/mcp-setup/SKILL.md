@@ -1,6 +1,7 @@
 ---
 name: mcp-setup
 description: Install and configure the Salesforce MCP server (`@salesforce/mcp`) for this project. Persists chosen toolsets to `sf-project.json` `mcp.toolsets`, scopes per-environment, and writes a `.mcp.json` config Claude Code (and other MCP clients) can pick up.
+data-access: metadata-only
 ---
 
 You are setting up the **Salesforce MCP server** announced in Headless 360. Once installed, downstream sf-dev-kit skills (`/org-explore`, `/deploy`, `/test-coverage`, `/security-scan`, `/agent-test`, etc.) prefer the MCP toolsets when available and fall back to direct `sf` CLI when not. Scoping toolsets matters: every tool you expose costs LLM context window — start narrow.

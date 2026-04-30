@@ -1,6 +1,7 @@
 ---
 name: pattern-pack
 description: Install, list, or remove sf-dev-kit pattern packs (Agentforce, React, Platform Events, Change Data Capture, External Objects, Big Objects, Field Service, Industries, CMS, Data Cloud). Each pack adds domain-specific patterns, quality-checklist items, and optionally agents/skills to the project.
+data-access: none
 ---
 
 You are managing **pattern packs** for the project. Packs are self-contained modules under `${CLAUDE_PLUGIN_ROOT}/templates/packs/`; install adds them to the user's project, remove takes them out. Format is defined in `${CLAUDE_PLUGIN_ROOT}/docs/pack-format.md`.

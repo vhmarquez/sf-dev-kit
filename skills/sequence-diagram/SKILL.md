@@ -1,6 +1,7 @@
 ---
 name: sequence-diagram
 description: Generate Mermaid sequence diagrams tracing the call path from an LWC entry point through @wire / imperative Apex calls into Apex methods, SOQL/DML, callouts, and Platform Event publishes. Useful for design reviews, onboarding, and explaining "what happens when the user clicks X."
+data-access: none
 ---
 
 You are generating a Mermaid `sequenceDiagram` from the call path that begins at an LWC entry point (a button click, a `@wire`, a `connectedCallback`) and follows through Apex into the org and any external systems.

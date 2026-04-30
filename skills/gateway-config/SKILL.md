@@ -1,6 +1,7 @@
 ---
 name: gateway-config
 description: Generate (or validate) the LLM Governance on AI Gateway configuration for the project — token quotas, model allowlist, fallback policy, per-agent rate limits. Output is a `.claude/ai-gateway.<env>.json` file the org's gateway service consumes.
+data-access: none
 ---
 
 You are producing the **AI Gateway** configuration that controls token usage, model selection, and fallback behavior for agents in this org. The gateway is the org-level chokepoint for LLM traffic — sensible defaults here prevent surprise bills and cap blast-radius for misbehaving agents.

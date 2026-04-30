@@ -1,6 +1,7 @@
 ---
 name: devops-natural
 description: Natural-language deploy via the DevOps Center MCP toolset (Headless 360). Wraps an English description like "deploy the order changes from main to QA" into a structured deploy. Falls back to /sf-dev-kit:diff-deploy when MCP isn't configured.
+data-access: metadata-only
 ---
 
 You are translating a natural-language deploy request into a concrete deploy via the DevOps Center MCP. Salesforce reports up to 40% cycle-time reduction over CLI-driven deploys when the right toolset is configured. This skill is a thin opinionated wrapper that adds project-context-aware prompts and gating.

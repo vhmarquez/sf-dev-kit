@@ -1,6 +1,7 @@
 ---
 name: fls-audit
 description: Static-analyze Apex source for DML and SOQL operations missing CRUD/FLS enforcement. Reports every `insert`/`update`/`delete`/`upsert`/`merge` and dynamic SOQL that doesn't use USER_MODE / SECURITY_ENFORCED / Schema.DescribeSObjectResult checks.
+data-access: none
 ---
 
 You are auditing **CRUD and Field-Level Security (FLS)** enforcement in Apex. Modern Salesforce orgs require `WITH USER_MODE` (or `WITH SECURITY_ENFORCED`) on SOQL and `as user` on DML, or explicit `Schema.sObjectType.Foo.fields.bar.isAccessible()` checks. This skill flags places where those guards are missing.

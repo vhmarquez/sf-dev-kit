@@ -1,6 +1,7 @@
 ---
 name: destructive-changes
 description: Build a Salesforce `destructiveChanges.xml` interactively from a list of components to delete. Validates that nothing else in source still references them before authoring the file.
+data-access: metadata-only
 ---
 
 You are building a `destructiveChanges.xml` file (and the matching `package.xml` placeholder) to delete metadata from a Salesforce org. Destructive changes are the only safe way to delete components on deploy — manual UI deletes don't propagate.

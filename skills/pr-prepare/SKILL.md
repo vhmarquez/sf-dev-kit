@@ -1,6 +1,7 @@
 ---
 name: pr-prepare
 description: Prepare a pull-request body from the current branch — runs /code-review pr, /test-coverage diff, /diff-deploy --validate, /security-scan, and assembles a Markdown PR body with summary, test plan, and gate results. Optionally posts via `gh pr create` if confirmed.
+data-access: none
 ---
 
 You are preparing a pull-request body. The body is assembled from the outputs of several sf-dev-kit skills and presented as a single Markdown ready to paste (or push via `gh`).

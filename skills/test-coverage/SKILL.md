@@ -1,6 +1,7 @@
 ---
 name: test-coverage
 description: Run Apex code coverage or agent evaluation tests against the project's default org. Two modes — `apex` (default; deploys + runs Apex tests with coverage) and `agent` (delegates to /sf-dev-kit:agent-test for Agentforce eval suites).
+data-access: metadata-only
 ---
 
 You are running test coverage for this project. Two modes:

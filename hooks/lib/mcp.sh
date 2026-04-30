@@ -5,16 +5,29 @@
 # (data, metadata, testing, lwc, code-analysis, devops, aura) when available,
 # and fall back to direct `sf` CLI calls when not.
 #
+# All mcp_run invocations are gated by `hooks/lib/security.sh`:
+#   - Prod-classified orgs are blocked unconditionally
+#   - `data` toolset SOQL invocations check the metadata allowlist
+#   - Write-shaped tool calls (deploy, create-record, run-anon-apex) check
+#     per-toolset rules
+#
 # Public functions:
-#   mcp_check                          — verify the MCP package is reachable; print version
-#   mcp_available                      — boolean: is `@salesforce/mcp` resolvable via npx?
-#   mcp_configured_toolsets   [env]    — print the toolsets configured in sf-project.json (mcp.toolsets)
-#   mcp_run                  <toolset> <tool-name> [json-args]
-#                                       — invoke a single MCP tool; prints JSON result on stdout
-#   mcp_prefer                         — boolean: should we route through MCP for this run?
-#                                         (true if mcp_available AND --mcp not explicitly disabled)
+#   mcp_check                            — verify the MCP package is reachable; print version
+#   mcp_available                        — boolean: is `@salesforce/mcp` resolvable via npx?
+#   mcp_configured_toolsets   [env]      — print toolsets configured in sf-project.json
+#   mcp_run                  <toolset> <tool-name> [json-args] [alias]
+#                                         — invoke a single MCP tool; gated by security
+#   mcp_list_tools            <toolset>  — list tools in a toolset
+#   mcp_prefer                            — boolean: should we route through MCP?
 #
 # Requires: jq, npx (Node)
+
+# shellcheck shell=bash
+
+if ! declare -F sec_check_org >/dev/null 2>&1; then
+  # shellcheck source=/dev/null
+  source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/security.sh"
+fi
 
 mcp_check() {
   if ! command -v npx >/dev/null 2>&1; then
@@ -40,7 +53,6 @@ mcp_available() {
 
 mcp_configured_toolsets() {
   local env="${1:-}"
-  # Source the config helper if not already sourced (idempotent guard).
   if ! declare -F sf_config_get >/dev/null 2>&1; then
     # shellcheck source=/dev/null
     source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/config.sh"
@@ -49,31 +61,84 @@ mcp_configured_toolsets() {
 }
 
 mcp_prefer() {
-  # Honor an explicit override env var if the caller set one.
   if [[ -n "${SF_DEV_KIT_MCP_DISABLED:-}" ]]; then
     return 1
   fi
   mcp_available
 }
 
+# --- Security pre-flight for MCP calls ----------------------------------------
+
+# Decide which security check applies to a (toolset, tool) pair.
+# Returns 0 when allowed; non-zero when refused/consent-required (with stderr
+# emitted by sec_*).
+_mcp_security_check() {
+  local toolset="$1"
+  local tool="$2"
+  local args_json="$3"
+  local alias="$4"
+
+  if sec_is_disabled; then
+    return 0
+  fi
+
+  # Always validate the org first.
+  if [[ -n "$alias" ]]; then
+    sec_check_org "$alias" || return $?
+  fi
+
+  case "$toolset:$tool" in
+    data:soql-query|data:query|data:soql)
+      local soql
+      soql=$(printf '%s' "$args_json" | jq -r '.soql // .query // .sql // empty' 2>/dev/null)
+      if [[ -z "$soql" ]]; then
+        _sec_emit "refused" "MCP_SOQL_NOT_PARSEABLE" "soql" "" "$alias" \
+          "MCP data tool invocation didn't include a parseable SOQL string in args."
+        return 78
+      fi
+      sec_check_soql "$soql" "$alias" || return $?
+      ;;
+    data:create-record|data:update-record|data:delete-record|data:upsert|data:bulk*)
+      sec_check_data_write "$alias" "data-write" || return $?
+      ;;
+    testing:run-anon-apex|metadata:run-anon-apex|*:run-anon-apex)
+      sec_check_anon_apex "$alias" || return $?
+      ;;
+    testing:run-agent-test|testing:agent-eval|*:agent-test*)
+      sec_check_data_write "$alias" "agent-eval" || return $?
+      ;;
+    *)
+      # Default: org check is enough. Toolsets like metadata/lwc/code-analysis
+      # operate on metadata or local sources.
+      ;;
+  esac
+}
+
 # Invoke a single tool from a single toolset.
-# Args:  <toolset> <tool> [json-args]
+# Args:  <toolset> <tool> [json-args] [alias]
 # Stdout: JSON tool result
-# Returns: tool exit code
+# Returns: 0 on success; 77 (consent required), 78 (refused), or tool exit code
 mcp_run() {
   local toolset="$1"
   local tool="$2"
   local args_json="${3:-{\}}"
+  local alias="${4:-}"
 
   if [[ -z "$toolset" ]] || [[ -z "$tool" ]]; then
-    echo "[sf-dev-kit/mcp] Usage: mcp_run <toolset> <tool> [json-args]" >&2
+    echo "[sf-dev-kit/mcp] Usage: mcp_run <toolset> <tool> [json-args] [alias]" >&2
     return 2
   fi
+
+  # If alias not passed, sniff from JSON args (`org` field convention) for
+  # security gating.
+  if [[ -z "$alias" ]]; then
+    alias=$(printf '%s' "$args_json" | jq -r '.org // .targetOrg // empty' 2>/dev/null || echo "")
+  fi
+
+  _mcp_security_check "$toolset" "$tool" "$args_json" "$alias" || return $?
+
   mcp_check >/dev/null || return 1
 
-  # @salesforce/mcp invocation contract: each toolset is a JSON-RPC server; we
-  # frame a single invocation as a JSON-RPC request and pipe to the appropriate
-  # transport. The `--invoke` shape is the supported one-shot mode.
   npx -y @salesforce/mcp \
     --toolsets "$toolset" \
     --invoke "$tool" \
@@ -82,7 +147,7 @@ mcp_run() {
 }
 
 # Convenience: list available tools in a toolset (for skills that want to
-# enumerate what they can call).
+# enumerate what they can call). No org contact, no security check needed.
 mcp_list_tools() {
   local toolset="$1"
   if [[ -z "$toolset" ]]; then

@@ -1,6 +1,7 @@
 ---
 name: agent-vs-flow-vs-apex
 description: Decide whether a feature should be built as an Agentforce Agent, a Flow, an Apex Trigger, or other mechanism. Replaces /sf-dev-kit:flow-vs-apex when agents are in scope; otherwise falls through to it. Asks 6–10 questions and recommends with rationale.
+data-access: none
 ---
 
 You are extending the **flow-vs-apex** decision with **Agent** as a first-class option (Headless 360). Many things that used to be Flow + LWC + Apex are now better expressed as agents — especially conversational, multi-step, or reasoning-over-data workflows.

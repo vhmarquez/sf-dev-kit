@@ -1,9 +1,39 @@
 ---
 name: trust-eval
 description: Run Custom Scoring Evals + Session Tracing against a deployed agent to surface drift (factuality regressions, hallucinations, grounding leaks). Counterpart to /sf-dev-kit:trust-layer-audit (config) — this skill is runtime / behavior.
+data-access: data-with-consent
 ---
 
 You are running **runtime trust evaluation** of a deployed agent. Where `/sf-dev-kit:trust-layer-audit` checks config, this skill checks behavior — does the deployed agent ground correctly, refuse adversarial prompts, and stay within its scope under live conditions?
+
+## Security: data-with-consent
+
+This skill queries `AgentSessionTrace`, which contains **user conversation transcripts**. That's customer data per the plugin's security model — refused by default. The Custom Scoring Eval portion (`sf agent test run`) also exposes test inputs/outputs that may carry test-PII; it's also gated.
+
+Before running, the assistant must present the consent block below to the user. On grant, re-invoke the gated commands with `SF_DEV_KIT_CONSENT_GRANTED=once` set per call (one-shot tokens — every call prompts again).
+
+```
+[sf-dev-kit/security] CONSENT REQUIRED
+
+Skill:    /trust-eval
+Org:      <alias>
+Action:   AgentSessionTrace query + sf agent test run
+Records:  up to N (--sample, default 50) AgentSessionTrace rows from the last 7 days
+          + every case in the configured Custom Scoring Eval set
+What enters your conversation context with Claude:
+  • User questions submitted to the agent (post Trust Layer masking)
+  • Agent responses (ditto)
+  • Grounding source record Ids
+  • Custom Scoring Eval outcomes (per-rubric scores)
+
+Choose:
+  [a] Allow once     — runs both gated portions; audit log records each
+  [d] Deny part      — skip the AgentSessionTrace portion; run only Custom Scoring Evals
+                       (still requires consent for the eval portion)
+  [c] Cancel         — abort
+```
+
+If the org is unclassified or in `security.prodOrgAliases`, the skill is refused before consent is even offered — production trust evaluation must be performed inside Salesforce's Testing Center, not via this plugin.
 
 ## Read Project Config First
 
@@ -14,6 +44,7 @@ source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/sarif.sh"
 sf_cli_check || exit 2
 ORG="$(sf_config_get '.platform.defaultTargetOrg' "$ENV")"
 THRESHOLD="$(sf_config_get '.quality.agentEvalThreshold // 0.85' "$ENV")"
+SKILL_NAME="trust-eval"; export SKILL_NAME
 ```
 
 ## Input

@@ -4,6 +4,97 @@ All notable changes to **sf-dev-kit**. Format follows [Keep a Changelog](https:/
 
 ---
 
+## v3.2.0 — 2026-04-30
+
+The "security model" release. The plugin now enforces four hard invariants on every org-touching operation: prod orgs are hard-blocked, SOQL is metadata-only by default, anonymous Apex is refused by default, and overrides are runtime-only. Centralized in a new `security.sh` library; defended in depth by a `PreToolUse` Bash hook that catches anything bypassing the library.
+
+### Added — security infrastructure
+
+- **`hooks/lib/security.sh`** — central security gate. Public functions:
+  - `sec_check_org <alias>` — hard-refuses prod aliases; classifies unknown aliases via `sf org display`
+  - `sec_check_soql <soql> <alias>` — parses FROM clause; refuses non-allowlist targets
+  - `sec_check_anon_apex <alias>` — refuses unless `security.allowAnonymousApex: true` AND consent token set
+  - `sec_check_data_write <alias> <action>` — refuses unless consent token set
+  - `sec_classify_org <alias>` — caches sandbox/prod classification
+  - `sec_log_consent` — appends to JSONL audit log
+- **`hooks/security-guard.sh`** — `PreToolUse` hook on `Bash`. Defense-in-depth wrapper around raw `sf` commands that bypass the library helpers. Disable per-session via `SF_DEV_KIT_SECURITY_GUARD=0` (testing only)
+- **`docs/security-model.md`** — full security-model documentation: invariants, wire protocol, exit codes, JSON event shape, consent UX, threat model, recommended posture
+- **Org-classification cache** at `${CLAUDE_PLUGIN_DATA}/sf-dev-kit/org-cache/<alias>.json`
+- **Consent log** at `${CLAUDE_PLUGIN_DATA}/sf-dev-kit/consent-log/<project>.jsonl` — every override granted, with timestamp, skill, action, scope
+
+### Added — config schema
+
+- `security.prodOrgAliases` — aliases the plugin refuses to contact, ever (no override)
+- `security.knownNonSandboxNonProd` — non-sandbox orgs classified as OK (dev orgs, demo orgs)
+- `security.metadataOnly` (default `true`) — SOQL must target the metadata allowlist; otherwise per-call consent
+- `security.allowAnonymousApex` (default `false`) — `sf apex run` is refused outright when false
+
+### Added — wire protocol
+
+When a security check refuses, the function emits a JSON event on stderr and exits with one of:
+
+- `77` — consent required (overridable). Assistant presents to user; on grant, re-invokes with `SF_DEV_KIT_CONSENT_GRANTED=once` (single-use token)
+- `78` — hard refusal (not overridable in this session)
+- `2` — invocation error
+
+Event shape: `{event, reason, skill, action, target, org, message}`.
+
+### Changed — wrappers
+
+- **`hooks/lib/sf-cli.sh`** — every org-touching function routes through `security.sh`. `sf_cli_query` runs `sec_check_soql`; `sf_cli_describe` / `sf_cli_org_display` / `sf_cli_list_objects` run `sec_check_org`. `sf_cli_alias_exists` is local-only and unchanged.
+- **`hooks/lib/mcp.sh`** — `mcp_run` runs `_mcp_security_check`, which routes by `(toolset, tool)` pair: data toolset SOQL → `sec_check_soql`; data writes → `sec_check_data_write`; anon Apex → `sec_check_anon_apex`.
+
+### Changed — sf-init
+
+- Detection now classifies every non-scratch alias `sf org list` knows about via `sf org display --json` (cached). Any alias reporting `isSandbox: false` and not yet listed in `security.prodOrgAliases` or `security.knownNonSandboxNonProd` surfaces on the review screen as ⚠️ required — must be classified before write proceeds.
+- Schema includes the new `security` block; written by default with restrictive values
+- Verify step gains three checks: all non-sandbox orgs classified; security defaults intact; `defaultTargetOrg` not in prod list
+- Field help (`? <N>`) covers each new security field
+
+### Changed — data-touching skills (now require explicit consent)
+
+- **`/trust-eval`** — queries `AgentSessionTrace` (user conversation transcripts). Frontmatter declares `data-access: data-with-consent`. Refused on prod orgs. Per-run consent block lists: org, action, record scope, what enters Claude's context.
+- **`/permset-audit`** — queries `PermissionSetAssignment` (user-permset links). Frontmatter declares `data-access: data-with-consent`. Other queries (`Profile`, `PermissionSet`, `ObjectPermissions`, `FieldPermissions`) remain on the metadata allowlist and don't prompt. Offers `[d] Deny this part` to skip the assignments query and run a partial audit.
+- **`/agent-test`** — runs `sf agent test run` (eval inputs / outputs may carry test PII). Frontmatter declares `data-access: data-with-consent`. Production orgs blocked outright.
+
+### Changed — frontmatter audit
+
+Every skill now declares its data-access surface in frontmatter:
+
+| Value | Count | Meaning |
+|-------|-------|---------|
+| `data-access: none` | 30 | No org contact at all |
+| `data-access: metadata-only` | 23 | May contact orgs, but only metadata-shaped ops; SOQL constrained by allowlist |
+| `data-access: data-with-consent` | 3 | Fundamentally needs customer data; prompts every run |
+
+### Changed — hooks.json
+
+- Adds a `PreToolUse` matcher on `Bash` registering `security-guard.sh` (10s timeout). Existing `PostToolUse` lint hooks unchanged.
+
+### Migration from v3.1.x
+
+1. Pull v3.2: `/plugin marketplace update sf-dev-kit`
+2. Re-run `/sf-dev-kit:sf-init update` (or the full bootstrap) to populate the new `security` block. Required: classify every non-sandbox alias as either prod or known-non-prod
+3. (Recommended) Run `/sf-dev-kit:sf-init verify` to confirm the new boundary holds against your config
+4. Existing skills continue to work with no changes — the security library refuses what it must; data-touching skills surface consent prompts at runtime
+5. CI: ensure `SF_DEV_KIT_CONSENT_GRANTED` is **never set** in the env. CI cannot grant consent; runs that would prompt instead fail loudly
+
+### Notes on threat model
+
+What's protected:
+- Accidental writes / queries against prod (alias-list block + classification cache)
+- Skill-prompt injection asking Claude to "run a query against the customer table" (allowlist refuses non-metadata SOQL)
+- Future skill updates that add unintended data queries (Bash guard catches at hook layer)
+- Privilege escalation via anonymous Apex (refused by default)
+
+What isn't:
+- Compromise of the user's local `sf` CLI auth state
+- The user explicitly setting `prodOrgAliases: []` and consenting to every prompt
+- Vulnerabilities in `@salesforce/mcp` itself
+- Information that flows to the Anthropic API as part of the standard Claude Code session — same data flow as any other Claude Code project
+
+---
+
 ## v3.1.0 — 2026-04-30
 
 The "fill-in-the-stubs" release. v3.0 shipped 3 fully-authored domain packs and 8 stub scaffolds; v3.1 finishes the stubs (now 7 of 8, with the 8th — `functions` — dropped because Salesforce Functions is retired), drags V1-era skills into v3 parity, and tightens the deprecated-pack story.

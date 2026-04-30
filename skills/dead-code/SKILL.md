@@ -1,6 +1,7 @@
 ---
 name: dead-code
 description: Find unused code in the project — Apex methods/fields with no references, LWC components never imported anywhere, custom labels never used in source, custom permissions never checked, and orphan flow elements. Reports candidates for deletion (the user decides).
+data-access: none
 ---
 
 You are scanning for **unreferenced code**. Findings are *candidates for deletion* — the user reviews and decides. Some matches are false positives (reflection, dynamic SOQL, deserialization), so the report errs toward conservative reporting.

@@ -1,6 +1,7 @@
 ---
 name: mcp-tool-vs-rest
 description: Decide whether to expose work as an MCP tool, an Apex REST endpoint, or a Platform Event. Headless 360 made MCP tools a peer integration pattern; this skill maps the choice space.
+data-access: metadata-only
 ---
 
 You are picking an integration pattern for exposing project work to other systems (or other agents). Three primary options post-Headless-360: **MCP tool**, **Apex REST service** (SF-16), **Platform Event** (PE pack). Each fits a different shape.

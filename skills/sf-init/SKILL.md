@@ -1,6 +1,7 @@
 ---
 name: sf-init
 description: Bootstrap or update a Salesforce project for the sf-dev-kit AI workflow. Detects existing SFDX state aggressively, presents a single review screen with confidence indicators, edits only what the user picks, writes `.claude/sf-project.json`, scaffolds standards/docs, then runs a smoke test to verify everything resolves. Modes: full bootstrap, `auto`, `update <fields>`, `env <name>`, `verify`.
+data-access: metadata-only
 ---
 
 You are bootstrapping a Salesforce project for the **`sf-dev-kit`** Claude Code plugin. The interaction model is **detect → review → edit → write → verify**: detection does the heavy lifting, the user only edits what's ambiguous or missing, and a smoke test catches misconfigurations before they break downstream skills.
@@ -61,6 +62,12 @@ Run all detectors via Bash; collect (value, confidence, evidence) per field. Con
 | 21 | `mcp.toolsets` | `.mcp.json` `salesforce` server's `--toolsets` arg | present | absent | Skipped otherwise; `mcp_check` reports installability |
 | 22 | `mcp.allowNonGaTools` | (none) | always `false` | (n/a) | |
 | 23 | `notifications` | (none) | always omitted | (n/a) | Asked only if user opts in via `edit notifications` |
+| 24 | `security.prodOrgAliases` | (none — user must classify) | (n/a) | (n/a) | **Required** if any non-sandbox alias is detected. The plugin refuses unknown non-sandbox orgs at runtime |
+| 25 | `security.knownNonSandboxNonProd` | (none) | always `[]` | (n/a) | Dev/demo orgs that are non-sandbox but explicitly OK to contact |
+| 26 | `security.metadataOnly` | (none) | always `true` | (n/a) | When true (default), SOQL queries are restricted to a metadata allowlist; data queries require per-call consent |
+| 27 | `security.allowAnonymousApex` | (none) | always `false` | (n/a) | When false (default), `sf apex run` is refused outright |
+
+For each non-scratch alias from `sf org list --json`, run `sf org display --target-org <alias> --json` once during detection to capture `isSandbox` and cache the classification under `${CLAUDE_PLUGIN_DATA}/sf-dev-kit/org-cache/<alias>.json`. Aliases reporting `isSandbox: false` AND not yet listed in `security.prodOrgAliases` or `security.knownNonSandboxNonProd` surface on the review screen as ⚠️ required — the user must classify them before the write proceeds.
 
 Detection is read-only. It produces a struct: each field has `{value, confidence, evidence}`.
 
@@ -107,6 +114,9 @@ Counts in the header tell the user at a glance how much to read:
  14. quality.unitTestCommand   npm run test:unit                ✓ from package.json
  15. mcp                       (skipped)                        ⚠️ @salesforce/mcp not installed; run /mcp-setup later
  16. notifications             (none)                           (default; you can add later)
+ 17. security.prodOrgAliases   []                               ⚠️ required — 2 non-sandbox orgs detected: ProdProd, UAT-Sandbox
+ 18. security.metadataOnly     true                             ✓ default — refuses customer-data queries
+ 19. security.allowAnonymousApex false                          ✓ default — anonymous Apex disabled
 
 Reply with one of:
   • The description for #2 (a sentence) — I'll confirm #5, then write
@@ -207,7 +217,11 @@ Assemble the v3 schema; **omit** keys whose preconditions don't hold (don't writ
                 "unitTestCommand":     "npm run test:unit" },
   "mcp":      { "toolsets":         ["metadata", "data", "testing", "lwc", "code-analysis"],
                 "allowNonGaTools":  false },
-  "notifications": { "webhooks": { "slack": "...", "teams": "..." } }
+  "notifications": { "webhooks": { "slack": "...", "teams": "..." } },
+  "security": { "prodOrgAliases": ["ProdProd", "UAT-Sandbox"],
+                "knownNonSandboxNonProd": [],
+                "metadataOnly": true,
+                "allowAnonymousApex": false }
 }
 ```
 
@@ -217,6 +231,7 @@ Assemble the v3 schema; **omit** keys whose preconditions don't hold (don't writ
 - `paths.standardsDocs` — append `"docs/react-standards.md"` when react in scope
 - `mcp` — write only if MCP was edited in (otherwise `/mcp-setup` will manage it)
 - `notifications` — write only if at least one webhook URL was provided
+- `security` — **always written**. Defaults are restrictive (`metadataOnly: true`, `allowAnonymousApex: false`). `prodOrgAliases` defaults to every detected non-sandbox alias the user didn't classify as `knownNonSandboxNonProd` — failing safe
 
 ### 6. Copy generic standards docs
 
@@ -279,6 +294,9 @@ Skipped if `--no-verify`. Run all checks; render a checklist; record exit status
 | MCP reachable (when configured) | `mcp_check` (sources `hooks/lib/mcp.sh`) returns 0 | Run `/sf-dev-kit:mcp-setup` to install/configure |
 | Standards docs copied | each `paths.standardsDocs` exists | Re-run `/sf-init` (will detect existing config and just re-copy) |
 | Doc indexes scaffolded | `lwc/README.md`, `apex-classes/README.md`, `docs/README.md`, conditional `react/`/`agents/` | Same |
+| All non-sandbox orgs classified | every alias from `sf org list` is either in `security.prodOrgAliases` or `security.knownNonSandboxNonProd` (sandboxes skipped) | Edit one of those lists; an unclassified non-sandbox is refused at runtime |
+| Security defaults intact | `security.metadataOnly = true`, `security.allowAnonymousApex = false` | Warns if either is loosened; does not fail (loosening is the user's decision) |
+| `defaultTargetOrg` not in prod list | `platform.defaultTargetOrg` ∉ `security.prodOrgAliases` | Refuses all skill operations otherwise; pick a sandbox/scratch alias as the default |
 
 Output:
 
@@ -384,6 +402,10 @@ A short blurb per field. When the user asks `? <N>`, print the matching blurb, t
 - `mcp.toolsets` — Which `@salesforce/mcp` toolsets to enable. Each one consumes LLM context — start narrow. Configured by `/mcp-setup`
 - `mcp.allowNonGaTools` — Pre-release tools toggle. Off in CI/prod; on only for dev experimentation
 - `notifications.webhooks.{slack,teams}` — Outgoing webhook URLs for `/notify`. Slack: `https://hooks.slack.com/...`; Teams: `https://*.webhook.office.com/...`
+- `security.prodOrgAliases` — Aliases the plugin must NEVER contact. Every `sf` invocation against these is refused unconditionally — no read, no metadata fetch, no validation. Detected via `sf org display --json` `isSandbox: false`; the user formalizes during `/sf-init`. Removing an alias from this list is a deliberate security decision
+- `security.knownNonSandboxNonProd` — Non-sandbox orgs that are NOT production (developer orgs, demo orgs). Listed here, they're allowed; not listed AND non-sandbox, they're refused at runtime as "unclassified"
+- `security.metadataOnly` — When true (default), SOQL queries are restricted to a metadata allowlist (`ApexClass`, `EntityDefinition`, `Profile`, `Flow`, etc.). Customer-data queries (`Account`, `Contact`, custom `__c`, `AgentSessionTrace`, etc.) require per-call user consent. The plugin's full allowlist lives in `hooks/lib/security.sh` (`SEC_METADATA_OBJECTS`)
+- `security.allowAnonymousApex` — When false (default), `sf apex run` is refused outright. When true, it's available but every invocation prompts for consent (anonymous Apex bypasses the metadata-only contract — it can read or write anything). Keep false in prod environments and CI
 
 ---
 
@@ -399,3 +421,4 @@ A short blurb per field. When the user asks `? <N>`, print the matching blurb, t
 - **Don't write source code.** This skill writes config + doc scaffolding; never `.cls`, `.js`, `.html`, or `.xml` source files
 - **Always replace `{{project.name}}` placeholders.** `{paths.*}` and `{platform.*}` placeholders, by contrast, are runtime — leave them alone
 - **In CI mode, every interactive prompt becomes a refusal.** CI must pass `auto` or per-field overrides on the command line; the skill never blocks waiting for input
+- **Security defaults are restrictive.** `metadataOnly: true` and `allowAnonymousApex: false` are written by default; loosening either prompts the user to confirm and is recorded in the consent log. Production aliases must be classified before the write completes — an unclassified non-sandbox alias is a ⚠️ required field

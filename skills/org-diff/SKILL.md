@@ -1,6 +1,7 @@
 ---
 name: org-diff
 description: Diff local Salesforce source vs. the target org and produce a structured drift report (setup-only changes, source-only changes, conflicts). Useful before deploys, after merge, or when investigating "why does the org behave differently from source?"
+data-access: metadata-only
 ---
 
 You are computing the drift between local source and the target org. Use `sf project retrieve preview` (which lists what *would* change without doing the retrieve) and present the results as a structured report.

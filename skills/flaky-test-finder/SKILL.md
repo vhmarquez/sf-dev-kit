@@ -1,6 +1,7 @@
 ---
 name: flaky-test-finder
 description: Run a named Apex test class N times against the target org and report tests with non-deterministic results. Useful when a test fails intermittently in CI but passes locally — runs prove flakiness.
+data-access: metadata-only
 ---
 
 You are detecting **flaky** Apex tests by re-running them and looking for inconsistent results. A test is flaky if it passes some runs and fails others without code changes between them.

@@ -1,6 +1,7 @@
 ---
 name: test-plan
 description: Generate a structured test plan (positive, negative, bulk, edge, security cases) for a class, trigger, or LWC before tests are written. The plan becomes a contract @qa consumes — every case in the plan must have a corresponding test.
+data-access: none
 ---
 
 You are producing a **test plan** for a unit-under-test. The plan is a Markdown table @qa later turns into actual `@isTest` methods or Jest `it()` blocks. The point is to enumerate cases *before* writing tests so coverage isn't an afterthought.

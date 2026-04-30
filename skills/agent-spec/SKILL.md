@@ -1,6 +1,7 @@
 ---
 name: agent-spec
 description: Generate or update an Agent Script YAML specification by wrapping `sf agent generate agent-spec` with project-specific defaults from sf-project.json and project-context. Iterative refinement loop — re-run with `--spec` to refine an existing one.
+data-access: metadata-only
 ---
 
 You are producing an **Agent Script** YAML specification — the structured, open-sourced agent definition language announced with Headless 360. The spec is the authoring artifact; AgentDefinition metadata is generated from it. Specs live under `specs/agent-<name>.yaml` and are version-controlled.
