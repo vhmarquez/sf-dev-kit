@@ -1,8 +1,105 @@
 # sf-dev-kit
 
-A Claude Code plugin packaging an opinionated AI workflow for Salesforce DX projects — including the agent surface, the new React framework, and the MCP toolsets shipped with **Salesforce Headless 360** (TDX 2026). Built for Experience Cloud, Lightning Experience, Communities, mobile, and Slack delivery surfaces.
+> Opinionated, security-first AI workflow for Salesforce DX projects in Claude Code.
 
-The workflow is driven by a single per-project config — **`.claude/sf-project.json`** — with optional per-environment overrides at `.claude/sf-project.<env>.json`. The plugin's `/sf-dev-kit:sf-init` skill scaffolds it interactively (auto-detects existing SFDX state).
+A Claude Code plugin that turns Claude into a Salesforce DX team. Eleven specialist subagents — solution architect, data architect, integration architect, Apex/LWC/React/agent builders, QA, E2E tester, security and trust reviewers — coordinate through structured handoffs. Fifty-six slash-skills handle setup, deploys, code review, agent dev, and DevOps. Every org-touching operation is gated by a hardened security model: production orgs are hard-blocked, customer-data queries require explicit per-call consent, and anonymous Apex is refused by default.
+
+Built for Experience Cloud, Lightning Experience, Communities, mobile, and Slack delivery surfaces — and aware of everything Salesforce announced at TDX 2026 (Headless 360, Agentforce, the new React framework, the Einstein Trust Layer + AI Gateway controls, AgentExchange).
+
+---
+
+## Quickstart
+
+Five steps from zero to a working setup, in your Salesforce DX project.
+
+### 1. Install Claude Code (if you haven't)
+
+```bash
+# macOS / Linux
+curl -fsSL https://claude.ai/install.sh | sh
+
+# Windows: install from the Anthropic site or via npm
+npm install -g @anthropic-ai/claude-code
+```
+
+### 2. Add the plugin
+
+In Claude Code:
+
+```text
+/plugin marketplace add https://github.com/vhmarquez/sf-dev-kit
+/plugin install sf-dev-kit@sf-dev-kit
+```
+
+Restart your session so the agents, skills, and hooks register.
+
+### 3. Bootstrap your project
+
+`cd` into your SFDX project, then:
+
+```text
+/sf-dev-kit:sf-init
+```
+
+Detection runs automatically (`sfdx-project.json`, `package.json`, `sf org list`, etc.) and presents one screen with everything pre-filled. You typically only fill in:
+- A one-sentence project description
+- Confirming the target org alias if multiple are detected
+- Classifying any non-sandbox orgs as production (hard-blocked) or known-non-prod (allowed)
+
+A smoke test runs after the write to verify the org alias resolves, paths exist, and lint commands work.
+
+### 4. (Optional but recommended) Configure MCP
+
+```text
+/sf-dev-kit:mcp-setup --profile dev
+```
+
+Installs `@salesforce/mcp`, scopes the toolsets to a sensible dev set (`metadata, data, testing, lwc, code-analysis`), and writes `.mcp.json`. The plugin runs without it via direct `sf` CLI calls; MCP unlocks richer routing for Headless-360 features.
+
+### 5. Try the workflow
+
+```text
+@architect: design a customer-greeting agent for our portal
+```
+
+The architect produces a structured plan (data model, automation type, governor budget, risk, effort, test strategy) and hands off to specialists — `@agent-dev` for the agent, `@apex-dev` for any Apex, `@react-dev` if the portal needs React, `@qa` to write tests, `@trust-reviewer` to check the agent surface. All in one conversation; specialists run in parallel where possible.
+
+Before merging:
+
+```text
+/sf-dev-kit:code-review pr
+/sf-dev-kit:security-scan
+/sf-dev-kit:diff-deploy --validate
+/sf-dev-kit:pr-prepare --push
+```
+
+That's the loop.
+
+---
+
+## Why this plugin
+
+- **Salesforce DX-aware out of the box.** `/sf-init` reads `sfdx-project.json`, scans existing components for the LWC prefix, sniffs `package.json` for lint/test scripts, classifies orgs from `sf org list` — most of the config writes itself. You typically answer one or two questions.
+- **Security is the default, not an afterthought.** Production orgs are unreachable; data queries require per-call consent; anonymous Apex is refused; every override is logged. Read [`docs/security-model.md`](docs/security-model.md) before loosening anything.
+- **Specialists, not a generalist.** Eleven subagents with distinct responsibilities and clean handoffs. `@architect` plans, builders implement in parallel, reviewers gate the merge. No one agent has all the context — that's the point.
+- **Headless 360 native.** First-class MCP routing via `@salesforce/mcp`, Agentforce dev workflow (`/agent-spec` → `/agent-test` → `/agent-deploy`), Trust Layer audits, AgentExchange listing prep, React-on-Salesforce parity with LWC.
+- **CI-ready.** Most skills accept `--ci`, `--format json|sarif`, `--out`, `--fail-on` flags following a [documented contract](docs/ci-output-contract.md). SARIF output integrates natively with GitHub Code Scanning.
+
+---
+
+## Table of contents
+
+- [Quickstart](#quickstart) — five steps to a working setup
+- [Why this plugin](#why-this-plugin)
+- [What you get](#what-you-get) — agents, skills, hooks, packs, standards
+- [Install](#install) — full prerequisites
+- [Project config](#project-config-claudesf-projectjson)
+- [Security model](#security-model)
+- [CI integration](#ci-integration)
+- [Plugin layout](#plugin-layout)
+- [Compatibility](#compatibility)
+- [License](#license)
+- [Changelog](#changelog)
 
 ---
 
@@ -28,7 +125,7 @@ Typical flow: `@architect` plans → hands off to specialists → builders work 
 
 ### Skills (`skills/`) — 56 total
 
-Invoke any as `/sf-dev-kit:<name>`. Most accept `--ci`, `--format json|sarif`, `--out`, `--env <name>` per the [CI output contract](docs/ci-output-contract.md).
+Invoke any as `/sf-dev-kit:<name>`. Most accept `--ci`, `--format json|sarif`, `--out`, `--env <name>` per the [CI output contract](docs/ci-output-contract.md). Each skill declares a `data-access` field in its frontmatter (`none` / `metadata-only` / `data-with-consent`); see the [security model](#security-model).
 
 **Setup & onboarding**
 | Skill | Purpose |
@@ -121,7 +218,7 @@ Invoke any as `/sf-dev-kit:<name>`. Most accept `--ci`, `--format json|sarif`, `
 **Documentation & release**
 | Skill | Purpose |
 |-------|---------|
-| `/sf-dev-kit:generate-docs` | Generate or update LWC and Apex docs |
+| `/sf-dev-kit:generate-docs` | Generate or update LWC, Apex, React, and agent docs (`audit` mode flags stale/orphaned/missing) |
 | `/sf-dev-kit:release-notes` | Conventional-commits release notes + ADRs + coverage stats |
 | `/sf-dev-kit:pr-prepare` | Assemble a PR body from review/coverage/deploy/security gates |
 | `/sf-dev-kit:notify` | Slack/Teams webhook poster for deploy/coverage/security/release events |
@@ -130,6 +227,7 @@ Invoke any as `/sf-dev-kit:<name>`. Most accept `--ci`, `--format json|sarif`, `
 
 | Hook | Trigger | Action |
 |------|---------|--------|
+| `session-start.sh` | `SessionStart` | One-line first-run nudge when an SFDX project has no `.claude/sf-project.json` yet. Silent in all other cases |
 | `security-guard.sh` | `PreToolUse` on `Bash` | Defense-in-depth security gate: refuses `sf` commands that target prod aliases or query data objects without consent. Belt-and-suspenders companion to `hooks/lib/security.sh`; see [`docs/security-model.md`](docs/security-model.md) |
 | `lint-lwc.sh` | `PostToolUse` on `Edit`/`Write` of LWC JS | Prettier + ESLint; surfaces findings on stderr; never blocks |
 | `lint-apex.sh` | `PostToolUse` on `Edit`/`Write` of `.cls`/`.trigger` | PMD `errorprone + bestpractices` |
@@ -183,7 +281,7 @@ Plus stubs the user fills in:
 ### As a marketplace (recommended)
 
 ```text
-/plugin marketplace add /path/to/sf-dev-kit
+/plugin marketplace add https://github.com/vhmarquez/sf-dev-kit
 /plugin install sf-dev-kit@sf-dev-kit
 ```
 
@@ -209,54 +307,6 @@ PMD is downloaded automatically on first use of any PMD-based skill into `${CLAU
 
 ---
 
-## Use
-
-In a Salesforce DX project (or a new directory you intend to make one):
-
-1. **Bootstrap**
-   ```text
-   /sf-dev-kit:sf-init
-   ```
-   Auto-detects from `sfdx-project.json` and `package.json`; validates target org via `sf org list`. Set `platform.frontend` to `lwc`, `react`, or `both`. Set `mcp.toolsets` to enable Headless 360 routing.
-
-2. **Configure MCP** (recommended)
-   ```text
-   /sf-dev-kit:mcp-setup --profile dev
-   ```
-   Installs `@salesforce/mcp`, scopes the toolsets, writes `.mcp.json`. After this, agent-mediated calls to the org route through the official MCP server.
-
-3. **Fill in `docs/project-context.md`** — object model, channels, glossary, project-specific constraints.
-
-4. **Build features through the workflow**
-   ```text
-   @architect: design a Slack-native order assistant
-   ```
-   The architect plans → hands off to `@agent-dev` (for the agent), `@apex-dev` (for the controller), `@react-dev` if the project also has a portal UI → `@qa` reviews → `@trust-reviewer` validates the agent surface.
-
-5. **Verify before merge**
-   ```text
-   /sf-dev-kit:code-review pr
-   /sf-dev-kit:test-coverage agent order_helper
-   /sf-dev-kit:trust-layer-audit order_helper
-   /sf-dev-kit:security-scan
-   /sf-dev-kit:diff-deploy --validate
-   /sf-dev-kit:pr-prepare --push
-   ```
-
-6. **Release**
-   ```text
-   /sf-dev-kit:devops-natural "deploy the order changes since main to prod"
-   /sf-dev-kit:release-notes --update-changelog
-   /sf-dev-kit:notify release '{"version":"2.0.0","url":"..."}'
-   ```
-
-7. **List on AgentExchange** (optional)
-   ```text
-   /sf-dev-kit:agent-exchange-list order_helper
-   ```
-
----
-
 ## Project config (`.claude/sf-project.json`)
 
 | Section | Keys | Notes |
@@ -266,10 +316,11 @@ In a Salesforce DX project (or a new directory you intend to make one):
 | `naming.react` | `prefix` | When `platform.frontend` includes react |
 | `naming.apex` | suffixes | |
 | `platform` | `apiVersion`, `defaultTargetOrg`, `lwcTargets`, `sharingDefault`, `devHubAlias`, `packageName`, **`frontend`** | `frontend` ∈ `"lwc" \| "react" \| "both"` |
-| `paths` | `lwcSource`, `apexSource`, `reactSource`, `reactDocs`, **`agentDefinitions`**, `lwcDocs`, `apexDocs`, doc paths | |
+| `paths` | `lwcSource`, `apexSource`, `reactSource`, `reactDocs`, **`agentDefinitions`**, `agentDocs`, `lwcDocs`, `apexDocs`, doc paths | |
 | `quality` | `codeCoverageTarget`, `lintCommand`, `unitTestCommand`, **`agentEvalThreshold`** | Agent eval threshold default 0.85 (Trust Layer band) |
 | **`mcp`** | **`toolsets`**, `allowNonGaTools` | Configured by `/sf-dev-kit:mcp-setup`; downstream skills route through `@salesforce/mcp` when present |
 | `notifications.webhooks` | `slack`, `teams` | For `/notify` |
+| **`security`** | **`prodOrgAliases`**, **`knownNonSandboxNonProd`**, **`metadataOnly`**, **`allowAnonymousApex`** | Restrictive defaults; see [security model](#security-model). Production aliases are **hard-blocked, no override** |
 
 Per-environment overrides (`.claude/sf-project.<env>.json`) deep-merge over the base.
 
@@ -290,6 +341,8 @@ Three skills fundamentally need data access and prompt for consent every run: `/
 
 `/sf-dev-kit:sf-init` detects every non-sandbox alias `sf org list` knows about and requires the user to classify each one as production (refused) or known-non-prod (allowed) before writing config.
 
+---
+
 ## CI integration
 
 Skills with the `--ci` flag follow the [CI output contract](docs/ci-output-contract.md): JSON or SARIF output, exit codes per severity, configurable `--fail-on` threshold. SARIF integrates natively with GitHub Code Scanning.
@@ -307,6 +360,8 @@ A typical PR pipeline:
   with: { sarif_file: review.sarif }
 ```
 
+CI guidance: `SF_DEV_KIT_CONSENT_GRANTED` must never be set in CI. CI cannot grant consent; runs that would prompt fail loudly.
+
 ---
 
 ## Plugin layout
@@ -317,11 +372,12 @@ sf-dev-kit/
 │   ├── plugin.json
 │   └── marketplace.json
 ├── agents/                    11 subagents
-├── skills/                    56 skills
+├── skills/                    56 skills (each with data-access frontmatter)
 ├── hooks/
 │   ├── hooks.json
+│   ├── session-start.sh, security-guard.sh
 │   ├── lint-lwc.sh, lint-apex.sh, lint-react.sh
-│   └── lib/                   config, sf-cli, mcp, pmd, sarif
+│   └── lib/                   config, sf-cli, mcp, security, pmd, sarif
 ├── templates/
 │   ├── CLAUDE.md
 │   ├── docs/                  bundled standards (apex/lwc/react), patterns, ADR template
@@ -330,19 +386,20 @@ sf-dev-kit/
 │   └── scratch/               seed.apex + seed-agents.apex
 ├── docs/
 │   ├── ci-output-contract.md
-│   └── pack-format.md
+│   ├── pack-format.md
+│   └── security-model.md
 ├── README.md
 ├── CHANGELOG.md
 └── .gitattributes / .gitignore
 ```
 
-`${CLAUDE_PLUGIN_ROOT}` resolves to the plugin's installed location. `${CLAUDE_PLUGIN_DATA}` holds caches (org snapshots, PMD binary, coverage history, agent eval history, deploy history).
+`${CLAUDE_PLUGIN_ROOT}` resolves to the plugin's installed location. `${CLAUDE_PLUGIN_DATA}` holds caches (org snapshots, PMD binary, coverage history, agent eval history, deploy history, consent log).
 
 ---
 
 ## Compatibility
 
-- **Salesforce DX** — assumes `force-app/main/default/` layout (configurable)
+- **Salesforce DX** — assumes `force-app/main/default/` layout (configurable via `paths.*`)
 - **Experience Cloud / Lightning Experience** — `platform.lwcTargets` switches between `lightningCommunity__*` and `lightning__*Page` targets
 - **Agentforce** — requires API ≥ 63.0 (set `platform.apiVersion`)
 - **React-on-Salesforce** — requires API ≥ 63.0 + `platform.frontend` includes `react`
@@ -359,4 +416,4 @@ MIT
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md) for the v1.0.0 → v3.0.0 history.
+See [CHANGELOG.md](CHANGELOG.md) for the full v1.0.0 → v3.x history.

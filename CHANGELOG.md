@@ -4,6 +4,43 @@ All notable changes to **sf-dev-kit**. Format follows [Keep a Changelog](https:/
 
 ---
 
+## v3.3.0 — 2026-04-30
+
+The "first impression" release. The plugin's value-prop now reads in 30 seconds, the quickstart is five copy-pasteable commands, and a SessionStart hook tells you what to run when you land in a fresh SFDX project. Same surface as v3.2; better discovery.
+
+### Added — first-run experience
+
+- **`hooks/session-start.sh`** — `SessionStart` hook that fires once per session. When `CLAUDE_PROJECT_DIR/sfdx-project.json` exists but `.claude/sf-project.json` doesn't, it emits a one-paragraph nudge pointing at `/sf-dev-kit:sf-init` (with surface-aware extras when React sources or AgentDefinitions are detected). Silent in every other case — never adds noise to projects that don't need it. Disable per-session via `SF_DEV_KIT_SESSION_NUDGE=0`.
+- **`hooks/hooks.json`** — registers the `SessionStart` matcher with a 5s timeout.
+
+### Changed — README
+
+The README now leads with what the plugin is, then how to try it, then everything else:
+
+- **Tagline + elevator pitch** at the top — one sentence and one paragraph that answer "what is this and why would I want it"
+- **Quickstart section** — five literally copy-pasteable steps from "Claude Code installed" to "running through the @architect → builders → reviewers loop"
+- **"Why this plugin"** — five-bullet differentiators (DX-aware, security-first, specialists not generalists, Headless-360 native, CI-ready)
+- **Table of contents** for the reference material that follows
+- The full skill / hook / pack inventory is preserved as the back half — it's reference material, not the front door
+
+The previous `## Use` section was replaced by the cleaner Quickstart. Plugin layout, security model, CI integration, compatibility, license, changelog all preserved verbatim.
+
+### Changed — marketplace metadata
+
+Plugin and marketplace descriptions rewritten to lead with positioning ("opinionated, security-first AI workflow") rather than feature counts.
+
+### Migration from v3.2.x
+
+No breaking changes. Pull v3.3:
+
+```text
+/plugin marketplace update sf-dev-kit
+```
+
+The SessionStart hook is automatic and silent unless it has something useful to say. Existing projects (with `.claude/sf-project.json`) will see no behavior change.
+
+---
+
 ## v3.2.0 — 2026-04-30
 
 The "security model" release. The plugin now enforces four hard invariants on every org-touching operation: prod orgs are hard-blocked, SOQL is metadata-only by default, anonymous Apex is refused by default, and overrides are runtime-only. Centralized in a new `security.sh` library; defended in depth by a `PreToolUse` Bash hook that catches anything bypassing the library.

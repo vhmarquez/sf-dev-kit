@@ -7,8 +7,8 @@
     {
       "name": "sf-dev-kit",
       "source": "./",
-      "description": "Salesforce DX AI workflow for Claude Code, fully Headless-360-aware. Hardened security model in v3.2: prod orgs hard-blocked, metadata-only SOQL by default, anonymous Apex refused by default, runtime-only consent for any data access. 11 subagents, 56 skills (each declares data-access surface), centralized security library + PreToolUse Bash guard, 11 domain packs.",
-      "version": "3.2.0",
+      "description": "Opinionated, security-first AI workflow for Salesforce DX projects in Claude Code. Five-step quickstart; SessionStart nudge on fresh SFDX projects; detect-review-edit-verify bootstrap. Hardened security model: prod orgs hard-blocked, metadata-only SOQL, anonymous Apex refused, runtime-only consent. 11 subagents, 56 skills, 11 domain packs.",
+      "version": "3.3.0",
       "keywords": ["salesforce", "sfdx", "lwc", "apex", "react", "experience-cloud", "agentforce", "headless360", "mcp", "trust-layer", "platform-events", "cdc", "pmd", "sarif"]
     }
   ]
