@@ -52,7 +52,7 @@ Fire-and-forget broadcast to many subscribers
     Subscribers are decoupled (Apex trigger, LWC empApi, external Pub/Sub API)
 
 Bidirectional record sync (CDC)
-  → Change Data Capture (cdc pack — currently a stub)
+  → Change Data Capture (change-data-capture pack — CDC-1..5)
     Auto-emitted on persistence; replay window 3 days
 
 Read-only external data (reverse direction — pulling INTO Salesforce)

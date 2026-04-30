@@ -40,7 +40,7 @@ You are the **Integration Architect** for this Salesforce project. You design ho
 | External pulls reference data (read-only) | **External Object via Salesforce Connect** | No replication; live query via OData/REST |
 | External-to-Salesforce bulk sync | **Bulk API 2.0** (load) or **CDC** (sync down) | Batch-friendly; CDC for ongoing diff |
 | Salesforce notifies external of changes | **Outbound Message** (legacy) or **CDC** or **Platform Event** | CDC is preferred for record-change broadcast |
-| Long-running external job | **Salesforce Functions** or external job + **Platform Event callback** | Decouple compute from Salesforce |
+| Long-running external job | **External compute (containers / serverless / Heroku)** + **Platform Event callback** | Decouple compute from Salesforce — Salesforce Functions has been retired |
 | File-based exchange | **MuleSoft / File-based connector** | Salesforce is a poor file-mover |
 | Expose project capability to AI agents | **MCP Tool via /sf-dev-kit:mcp-bridge** | Schema-typed, discoverable in Agent Registry, auth bridged through platform |
 | Mobile agent authorization | **Trusted Agent Identity** | Salesforce-managed device + user identity; pairs with the Slack Agent Kit and mobile SDK |

@@ -1,35 +1,42 @@
-# Change Data Capture Pack (Stub)
+# Change Data Capture Pack
 
-Status: **Stub** — pack format and manifest are in place; pattern content is TODO.
+Patterns and guidance for **Change Data Capture (CDC)** — Salesforce's auto-emitted change-event stream for record-level diffs across the bus to internal triggers and external subscribers.
 
-## Intended scope
+## When to use this pack
 
-- **CDC-1**: Selecting which sObjects to publish CDC events for (Setup → Change Data Capture)
-- **CDC-2**: Apex trigger subscriber for `Account_Change_Event` style channels — handle `ChangeEventHeader.changeType` (CREATE / UPDATE / DELETE / UNDELETE / GAP_OVERFLOW)
-- **CDC-3**: External subscriber via the Pub/Sub API — gRPC-based, replay-id semantics, deduping
-- **CDC-4**: GAP_OVERFLOW handling — what to do when the bus drops events
-- **CDC-5**: CDC vs Platform Events — when to choose which
+Install with `/sf-dev-kit:pattern-pack add change-data-capture` if your project:
+- Broadcasts record changes to other Salesforce orgs (org-to-org sync)
+- Streams changes to external systems (data warehouses, MuleSoft pipelines, lakehouses)
+- Has internal subscribers that need cross-record visibility on every change
+- Already runs Platform Events and you need a related but distinct surface for raw record changes
 
-## When to use
+Don't install for:
+- Pure in-org automation (use Apex triggers / Flows)
+- Semantic, business-meaningful events with custom shape (use the `platform-events` pack — PE-1)
 
-Install when the project broadcasts record changes to:
-- Other Salesforce orgs (org-to-org sync)
-- External systems (data warehouses, MuleSoft pipelines)
-- Internal subscribers that need cross-record visibility
+## What's in the pack
 
-Don't use CDC for:
-- In-org automation (use Apex triggers / Flows)
-- One-off integrations (use Platform Events with explicit fields)
+- **CDC-1: Enabling Change Data Capture for an sObject** — source-controlled `PlatformEventChannel` + `PlatformEventChannelMember` selection
+- **CDC-2: Apex Trigger Subscriber for `<Object>ChangeEvent`** — switch on `changeType`, idempotency via `(commitNumber, sequenceNumber)`, GAP handling
+- **CDC-3: External Subscriber via Pub/Sub API** — gRPC, replayId as bytes, flow control via `numRequested`
+- **CDC-4: GAP_OVERFLOW Handling and Reconciliation** — sweep batch against `LastModifiedDate` when the bus drops events
+- **CDC-5: CDC vs. Platform Events Decision** — picking the right surface
 
-## Implementation notes
+Plus checklist additions covering CDC selection, subscriber idempotency, replayId persistence, reconciliation paths, and the CDC-vs-PE decision record.
 
-CDC is broadly similar to Platform Events with three key differences:
-1. Events are auto-emitted on persistence — no explicit `EventBus.publish` call
-2. Channel name is fixed: `<ObjectName>ChangeEvent` (e.g., `AccountChangeEvent`)
-3. Replay window is up to 3 days (vs 24h for standard-volume PE, 72h for high-volume PE)
+## What's not in the pack
 
-Refer to the `platform-events` pack for related patterns (publish-after-commit semantics, replay-id persistence, idempotent subscribers) — most of those apply to CDC too.
+- Platform Event design — that's the `platform-events` pack (PE-1..5). Many CDC patterns reuse PE building blocks (replay, trigger handler frame); the packs are complementary
+- Big-Object archival of change history — see the `big-objects` pack
 
-## Authoring
+## Cross-references
 
-To complete this pack, fill in `patterns.md` with at least 3–5 patterns following the format from `templates/packs/platform-events/patterns.md`. Then update this README to remove the "Stub" marker.
+- Companion pack: `platform-events` (PE-1..5) — same bus, different schema/trigger model
+- Base patterns: SF-7 (Trigger Handler Framework), SF-15 (Named Credentials, for Pub/Sub auth)
+- Specialist agents: `@integration-architect` for cross-system designs
+
+## References
+
+- [Change Data Capture Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.change_data_capture.meta/change_data_capture/)
+- [Pub/Sub API documentation](https://developer.salesforce.com/docs/platform/pub-sub-api/overview)
+- [PlatformEventChannelMember metadata](https://developer.salesforce.com/docs/atlas.en-us.api_meta.meta/api_meta/meta_platformeventchannelmember.htm)

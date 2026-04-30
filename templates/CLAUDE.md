@@ -125,7 +125,14 @@ All agents read both pattern docs and the relevant standards docs before writing
 - **`agentforce` v1.0** — AGT-1..7 for projects shipping Agentforce agents
 - **`react` v1.0** — RX-1..6 when `platform.frontend` includes react
 - `platform-events` v1.0 — PE-1..5
-- 8 stub packs ready to author (CDC, External Objects, Big Objects, Functions, Field Service, Industries, CMS, Data Cloud)
+- `change-data-capture` v1.0 — CDC-1..5 (paired with platform-events for the event-bus surface)
+- `external-objects` v1.0 — EXT-1..5 (Salesforce Connect: OData / Cross-Org / Custom Apex)
+- `big-objects` v1.0 — BIG-1..5 (append-only archival + Async SOQL)
+- `field-service` v1.0 — FS-1..5 (Work Orders, scheduling, mobile offline)
+- `industries` v1.0 — IND-1..6 (OmniStudio: OmniScripts, FlexCards, IPs, DataRaptors, EPC, Apex extensions)
+- `cms` v1.0 — CMS-1..5 (content types, channels, multi-locale, headless delivery)
+- `data-cloud` v1.0 — DC-1..5 (DLO/DMO, identity resolution, calculated insights, activations)
+- ~~`einstein-agentforce`~~ — deprecated redirect, superseded by `agentforce` (kept for back-compat)
 
 ### Per-environment overrides
 

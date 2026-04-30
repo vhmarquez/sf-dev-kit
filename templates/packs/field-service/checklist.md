@@ -1,0 +1,11 @@
+### Field Service
+- [ ] Apex automation keys off `Status.Category`, not status label (FS-1)
+- [ ] Status transitions configured via `WorkOrderStatus` metadata, not enforced in Apex
+- [ ] Service Appointments carry `EarliestStartTime` + `DueDate` + skill requirements before being submitted to the scheduler (FS-2)
+- [ ] Apex never sets `SchedStartTime` / `SchedEndTime` directly (engine-owned)
+- [ ] PTO modeled as `ResourceAbsence`, not `IsActive` toggles (FS-3)
+- [ ] Operating hours defined as templates and attached via `ServiceTerritoryMember`
+- [ ] Mobile-exposed Apex actions are idempotent and carry an `External_Key__c` for retry dedup (FS-4)
+- [ ] Briefcase payloads project the minimum useful field set, not full sObject snapshots
+- [ ] Each resource has exactly one Primary territory; secondaries used for cross-coverage (FS-5)
+- [ ] Territory mid-life changes use new `ServiceTerritoryMember` rows with `EffectiveStartDate`, not edits-in-place

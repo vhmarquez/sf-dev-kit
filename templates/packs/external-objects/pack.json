@@ -1,13 +1,13 @@
 {
   "name": "external-objects",
   "displayName": "External Objects (Salesforce Connect)",
-  "description": "Patterns and guidance for the External Objects (Salesforce Connect) domain.",
-  "version": "0.1.0",
+  "description": "Patterns for External Objects via Salesforce Connect — read-and-optionally-write live external data through OData, cross-org adapters, or a custom Apex Connector — without ETLing it into Salesforce.",
+  "version": "1.0.0",
   "patternsPrefix": "EXT",
   "extends": [],
   "requires": {
     "sfApiVersion": "60.0",
-    "edition": ["Developer", "Enterprise", "Performance", "Unlimited"]
+    "edition": ["Enterprise", "Performance", "Unlimited"]
   },
   "installs": {
     "patternsAppendTo": "patternsSalesforceDoc",

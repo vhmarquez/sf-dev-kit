@@ -1,13 +1,13 @@
 {
   "name": "industries",
-  "displayName": "Industries (Vlocity)",
-  "description": "Patterns and guidance for the Industries (Vlocity) domain.",
-  "version": "0.1.0",
+  "displayName": "Industries (OmniStudio)",
+  "description": "Patterns for Salesforce Industries / OmniStudio — OmniScripts, FlexCards, Integration Procedures, DataRaptors, Enterprise Product Catalog (EPC), and the Apex extension surface (the former Vlocity stack).",
+  "version": "1.0.0",
   "patternsPrefix": "IND",
   "extends": [],
   "requires": {
     "sfApiVersion": "60.0",
-    "edition": ["Developer", "Enterprise", "Performance", "Unlimited"]
+    "edition": ["Enterprise", "Performance", "Unlimited"]
   },
   "installs": {
     "patternsAppendTo": "patternsSalesforceDoc",

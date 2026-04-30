@@ -1,13 +1,13 @@
 {
   "name": "field-service",
   "displayName": "Field Service",
-  "description": "Patterns and guidance for the Field Service domain.",
-  "version": "0.1.0",
+  "description": "Patterns for Salesforce Field Service — work order lifecycle, scheduling and dispatch, mobile offline, service appointments, and service territory design.",
+  "version": "1.0.0",
   "patternsPrefix": "FS",
   "extends": [],
   "requires": {
     "sfApiVersion": "60.0",
-    "edition": ["Developer", "Enterprise", "Performance", "Unlimited"]
+    "edition": ["Enterprise", "Performance", "Unlimited"]
   },
   "installs": {
     "patternsAppendTo": "patternsSalesforceDoc",

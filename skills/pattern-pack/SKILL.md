@@ -1,6 +1,6 @@
 ---
 name: pattern-pack
-description: Install, list, or remove sf-dev-kit pattern packs (Platform Events, CDC, Big Objects, Functions, Field Service, Industries, CMS, Einstein/Agentforce, Data Cloud). Each pack adds domain-specific patterns, quality-checklist items, and optionally agents/skills to the project.
+description: Install, list, or remove sf-dev-kit pattern packs (Agentforce, React, Platform Events, Change Data Capture, External Objects, Big Objects, Field Service, Industries, CMS, Data Cloud). Each pack adds domain-specific patterns, quality-checklist items, and optionally agents/skills to the project.
 ---
 
 You are managing **pattern packs** for the project. Packs are self-contained modules under `${CLAUDE_PLUGIN_ROOT}/templates/packs/`; install adds them to the user's project, remove takes them out. Format is defined in `${CLAUDE_PLUGIN_ROOT}/docs/pack-format.md`.
@@ -64,9 +64,18 @@ echo "Checklist additions:"
    PACK_JSON="${PACK}/pack.json"
    API_REQ=$(jq -r '.requires.sfApiVersion // empty' "$PACK_JSON")
    API_HAVE=$(sf_config_get '.platform.apiVersion' "$ENV")
+   DEPRECATED=$(jq -r '.deprecated // false' "$PACK_JSON")
+   SUPERSEDED_BY=$(jq -r '.supersededBy // empty' "$PACK_JSON")
    ```
-3. Verify API version: numerically `API_HAVE >= API_REQ` (or warn if not)
-4. Check INSTALL_LOG; if already installed and not `--force`, exit 1 with a message
+3. **If the pack is deprecated**, refuse the install and print the migration command:
+   ```
+   [pattern-pack] '<name>' is deprecated and ships no patterns.
+   [pattern-pack] Use '<supersededBy>' instead:
+                    /sf-dev-kit:pattern-pack add <supersededBy>
+   ```
+   Exit code 1. (`remove <name>` still works on a deprecated pack — that's how a project pinned to the old name unsticks itself.)
+4. Verify API version: numerically `API_HAVE >= API_REQ` (or warn if not)
+5. Check INSTALL_LOG; if already installed and not `--force`, exit 1 with a message
 5. Append `patterns.md` to the project's `${PATTERNS_DOC}` with header markers:
    ```markdown
    <!-- pack:<name>@<version> begin -->

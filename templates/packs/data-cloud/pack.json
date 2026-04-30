@@ -1,13 +1,13 @@
 {
   "name": "data-cloud",
   "displayName": "Data Cloud (CDP)",
-  "description": "Patterns and guidance for the Data Cloud (CDP) domain.",
-  "version": "0.1.0",
+  "description": "Patterns for Salesforce Data Cloud — Data Streams, Data Lake Objects, identity resolution, calculated insights, segments and activations across CRM and external systems.",
+  "version": "1.0.0",
   "patternsPrefix": "DC",
   "extends": [],
   "requires": {
     "sfApiVersion": "60.0",
-    "edition": ["Developer", "Enterprise", "Performance", "Unlimited"]
+    "edition": ["Enterprise", "Performance", "Unlimited"]
   },
   "installs": {
     "patternsAppendTo": "patternsSalesforceDoc",

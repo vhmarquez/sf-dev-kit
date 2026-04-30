@@ -1,13 +1,13 @@
 {
   "name": "big-objects",
   "displayName": "Big Objects",
-  "description": "Patterns and guidance for the Big Objects domain.",
-  "version": "0.1.0",
+  "description": "Patterns for Big Objects — append-only archival, Async SOQL aggregation, billions-of-rows storage outside the standard data model.",
+  "version": "1.0.0",
   "patternsPrefix": "BIG",
   "extends": [],
   "requires": {
     "sfApiVersion": "60.0",
-    "edition": ["Developer", "Enterprise", "Performance", "Unlimited"]
+    "edition": ["Enterprise", "Performance", "Unlimited"]
   },
   "installs": {
     "patternsAppendTo": "patternsSalesforceDoc",

@@ -1,19 +1,22 @@
-_TODO: Authoring stub for Einstein / Agentforce. Replace this section with AI-1, AI-2, ... patterns._
+<!--
+  This pack is DEPRECATED. It was renamed to `agentforce` in v2.5 (Phase 17).
+  This file ships no patterns and is preserved for back-compat lookup only —
+  some installed projects pinned the old pack name in `.claude/sf-dev-kit-packs.json`.
 
-## AI-1: Title
+  See ../agentforce/patterns.md for the authoritative AGT-1..7 pattern set.
+-->
 
-_TODO_: Pattern body.
+# Einstein / Agentforce — DEPRECATED
 
-## AI-2: Title
+This pack ships **no patterns**. It was renamed to [`agentforce`](../agentforce/) in v2.5 and the directory is retained only so that `pattern-pack remove einstein-agentforce` continues to work for projects that pinned the old name.
 
-_TODO_: Pattern body.
+To migrate, run:
 
-## AI-3: Title
+```text
+/sf-dev-kit:pattern-pack remove einstein-agentforce
+/sf-dev-kit:pattern-pack add agentforce
+```
 
-_TODO_: Pattern body.
+The new pack ships **AGT-1..7** (topic boundaries, sub-agent decomposition, guardrails, MCP-tool actions, FLS-aware grounding, memory & state, escalation paths) plus 8 quality-checklist additions.
 
----
-
-## Anti-patterns
-
-_TODO_: Common mistakes specific to Einstein / Agentforce.
+> Subsequent v3.x or later releases may remove this directory entirely.

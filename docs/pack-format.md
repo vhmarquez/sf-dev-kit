@@ -4,7 +4,7 @@ A **pattern pack** is a self-contained directory under `templates/packs/<pack-na
 
 ## Why packs?
 
-The base plugin ships generic SF-1..20 patterns and agents. Salesforce has many specialized surfaces (Industries, Functions, Field Service, Data Cloud, etc.) that not every project uses. Bundling them all into the base plugin would bloat installation; ignoring them leaves expert teams without scaffolding. Packs are opt-in modules: install only the ones your project uses.
+The base plugin ships generic SF-1..20 patterns and agents. Salesforce has many specialized surfaces (Industries, Field Service, Data Cloud, CDC, etc.) that not every project uses. Bundling them all into the base plugin would bloat installation; ignoring them leaves expert teams without scaffolding. Packs are opt-in modules: install only the ones your project uses.
 
 ## Directory layout
 

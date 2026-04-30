@@ -141,7 +141,7 @@ Plus shared library helpers under `hooks/lib/`:
 - `pmd.sh` — lazy PMD download into `${CLAUDE_PLUGIN_DATA}` on first use
 - `sarif.sh` — SARIF 2.1.0 emitter for `--format sarif`
 
-### Domain pattern packs (`templates/packs/`) — 12 packs
+### Domain pattern packs (`templates/packs/`) — 11 packs
 
 Install via `/sf-dev-kit:pattern-pack add <name>`. Format documented in [`docs/pack-format.md`](docs/pack-format.md).
 
@@ -150,15 +150,14 @@ Install via `/sf-dev-kit:pattern-pack add <name>`. Format documented in [`docs/p
 | **`agentforce`** | ✅ v1.0 | **AGT-1..7** — Agent topic boundaries, sub-agent decomposition, guardrails, MCP-tool actions, FLS-aware grounding, memory & state, escalation paths |
 | **`react`** | ✅ v1.0 | **RX-1..6** — Platform GraphQL fetch, platform-aware auth, deployment, SLDS via tokens, i18n, LWC↔React interop |
 | `platform-events` | ✅ v1.0 | PE-1..5 |
-| `change-data-capture` | 🚧 v0.1 stub | CDC-1..5 outline |
-| `external-objects` | 🚧 stub | EXT-* — Salesforce Connect / OData |
-| `big-objects` | 🚧 stub | BIG-* — Async SOQL, append-only audit |
-| `functions` | 🚧 stub | FN-* — Salesforce Functions |
-| `field-service` | 🚧 stub | FS-* |
-| `industries` | 🚧 stub | IND-* — Vlocity |
-| `cms` | 🚧 stub | CMS-* — Experience Cloud + CMS |
-| `data-cloud` | 🚧 stub | DC-* |
-| ~~`einstein-agentforce`~~ | ⚠️ deprecated | Renamed to `agentforce` in v2.5; back-compat redirect README |
+| `change-data-capture` | ✅ v1.0 | **CDC-1..5** — Source-controlled CDC selection, trigger subscriber + idempotency, Pub/Sub API, GAP_OVERFLOW reconciliation, CDC vs. PE decision |
+| `external-objects` | ✅ v1.0 | **EXT-1..5** — Adapter selection, `__x` schema + Indirect/External Lookup, query/cache, write-back semantics, Custom Apex Connector |
+| `big-objects` | ✅ v1.0 | **BIG-1..5** — Index design, `Database.insertImmediate`, Async SOQL aggregation, index-aligned predicates, lifecycle and capacity |
+| `field-service` | ✅ v1.0 | **FS-1..5** — Work Order lifecycle, Service Appointment scheduling, Resource Absence + Operating Hours, mobile offline, territory design |
+| `industries` | ✅ v1.0 | **IND-1..6** — OmniScript composition, FlexCards, Integration Procedures, DataRaptors, EPC, Apex extensions |
+| `cms` | ✅ v1.0 | **CMS-1..5** — Content types, workspaces + channels, multi-locale variants, headless delivery, CMS vs Knowledge vs Files |
+| `data-cloud` | ✅ v1.0 | **DC-1..5** — Data Streams + DLOs, DMOs + identity resolution, calculated insights + segments, activations, SQL API for Apex/agents |
+| ~~`einstein-agentforce`~~ | ⚠️ deprecated | Renamed to `agentforce` in v2.5; redirect-only pack retained for back-compat with installs pinned to the old name |
 
 ### Bundled standards (`templates/docs/`)
 
@@ -309,7 +308,7 @@ sf-dev-kit/
 ├── templates/
 │   ├── CLAUDE.md
 │   ├── docs/                  bundled standards (apex/lwc/react), patterns, ADR template
-│   ├── packs/                 12 domain pattern packs (3 full + 8 stubs + 1 deprecated)
+│   ├── packs/                 11 domain pattern packs (10 full + 1 deprecated redirect)
 │   ├── gateway/               AI Gateway config profiles (dev/qa/prod)
 │   └── scratch/               seed.apex + seed-agents.apex
 ├── docs/

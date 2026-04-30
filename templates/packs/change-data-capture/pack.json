@@ -2,7 +2,7 @@
   "name": "change-data-capture",
   "displayName": "Change Data Capture",
   "description": "Patterns for publishing/consuming Change Data Capture (CDC) events that broadcast record changes to internal subscribers and external systems.",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "patternsPrefix": "CDC",
   "extends": [],
   "requires": {

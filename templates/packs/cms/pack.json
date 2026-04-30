@@ -1,13 +1,13 @@
 {
   "name": "cms",
   "displayName": "Salesforce CMS",
-  "description": "Patterns and guidance for the Salesforce CMS domain.",
-  "version": "0.1.0",
+  "description": "Patterns for Salesforce CMS — content types, channels, workspaces, multi-locale variants, and headless content delivery to Experience Cloud and external surfaces.",
+  "version": "1.0.0",
   "patternsPrefix": "CMS",
   "extends": [],
   "requires": {
     "sfApiVersion": "60.0",
-    "edition": ["Developer", "Enterprise", "Performance", "Unlimited"]
+    "edition": ["Enterprise", "Performance", "Unlimited"]
   },
   "installs": {
     "patternsAppendTo": "patternsSalesforceDoc",

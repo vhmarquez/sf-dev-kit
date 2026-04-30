@@ -4,6 +4,70 @@ All notable changes to **sf-dev-kit**. Format follows [Keep a Changelog](https:/
 
 ---
 
+## v3.1.0 — 2026-04-30
+
+The "fill-in-the-stubs" release. v3.0 shipped 3 fully-authored domain packs and 8 stub scaffolds; v3.1 finishes the stubs (now 7 of 8, with the 8th — `functions` — dropped because Salesforce Functions is retired), drags V1-era skills into v3 parity, and tightens the deprecated-pack story.
+
+### Added — pattern packs (7 new, all v1.0)
+
+- **`change-data-capture` v1.0** — **CDC-1..5**: source-controlled CDC selection (`PlatformEventChannelMember` metadata), Apex trigger subscriber with `(commitNumber, sequenceNumber)` idempotency and `GAP_*` handling, external Pub/Sub API subscriber with bytes-shaped replayId, `GAP_OVERFLOW` reconciliation via Bulk-API diff, CDC vs. Platform Events decision matrix
+- **`external-objects` v1.0** — **EXT-1..5**: adapter selection (OData 4 / OData 2 / Cross-Org / Custom Apex), `__x` schema with Indirect/External Lookup, query callout-budget guarding + Platform Cache, write-back semantics + partial-failure handling, Custom Apex Connector via `DataSource.Connection`/`Provider`
+- **`big-objects` v1.0** — **BIG-1..5**: index design (immutable; permanent), `Database.insertImmediate` and Bulk API 2.0 writes, Async SOQL aggregation into rollup sObjects, index-aligned predicates, capacity tier and decommission rehearsal
+- **`field-service` v1.0** — **FS-1..5**: Work Order lifecycle keyed off `Status.Category`, Service Appointment scheduling fields owned by the engine, `ResourceAbsence` + `OperatingHours` + `TimeSlot`, mobile-offline idempotency via `External_Key__c`, Service Territory Primary/Secondary membership
+- **`industries` v1.0** (renamed from "Vlocity") — **IND-1..6**: OmniScript composition + embedded scripts, FlexCards for read-only surfaces, Integration Procedures with cache, DataRaptors (Extract/Turbo/Transform/Load), Enterprise Product Catalog, Apex extensions via `omnistudio.VlocityOpenInterface`
+- **`cms` v1.0** — **CMS-1..5**: custom `ManagedContentType`, workspaces vs. channels + programmatic publishing via ConnectApi, multi-locale variants honoring `@salesforce/i18n/lang`, headless delivery via Connect Delivery API + CDN caching, CMS vs. Knowledge vs. Files decision
+- **`data-cloud` v1.0** — **DC-1..5**: Data Streams + Data Lake Objects, Data Model Objects + identity resolution, calculated insights + segments, activation to external systems with Named Credentials and suppression lists, Data Cloud SQL API for Apex / agent grounding (Data Spaces, caching, query budgets)
+
+Each pack ships `patterns.md`, `checklist.md`, `README.md`, and `pack.json`.
+
+### Added — bundled doc scaffolds
+
+- `templates/docs/react/README.md` — React component index stub, copied by `/sf-init` when `platform.frontend ∈ {react, both}`
+- `templates/docs/agents/README.md` — Agentforce agent index stub, copied by `/sf-init` when `paths.agentDefinitions` is configured
+
+### Changed — skills (V3 parity for V1-era skills)
+
+- **`/sf-init`** — Step 3's example JSON now reflects the v3 schema (adds `mcp.toolsets`, `platform.frontend`, `naming.react`, `paths.reactSource`, `paths.reactDocs`, `paths.agentDefinitions`, `paths.agentDocs`, `quality.agentEvalThreshold`, `notifications.webhooks`); Step 6 scaffolds `docs/react/README.md` and `docs/agents/README.md` when those surfaces are in scope. Documents which keys are conditional vs. unconditional
+- **`/code-review`** — Pattern Compliance table now lists SF-1..**SF-20** (was SF-1..SF-13) plus an explicit row for pack-installed prefixes (AGT-* / RX-* / PE-* / CDC-* / etc.); audit-mode header text updated to match
+- **`/generate-docs`** — adds React component + Agentforce agent doc generation, scoping rules per surface, full CI flag set (`--ci`, `--format json|sarif`, `--out`, `--fail-on`, `--env`), `<!-- manual:keep -->` block preservation. New rule IDs: `DOCS-MISSING`, `DOCS-STALE`, `DOCS-ORPHANED`, `DOCS-INDEX-DRIFT`
+- **`/deploy`** — adds `--ci`, `--env`, `--mcp`/`--no-mcp`, `--tests <level>`, MCP `metadata`-toolset routing (with CLI fallback when `mcp.toolsets` is read-only), React-bundle support, deploy-history JSONL append for `/quick-deploy` to consume, production-confirmation rule (`DEPLOY-PROD-REQUIRES-EXPLICIT`)
+- **`/pattern-pack`** — `add` honors a new `deprecated: true` field in `pack.json`: refuses to install the deprecated pack and prints the migration command pointing at `supersededBy`. Skill description updated to list current packs (Agentforce, React, Platform Events, CDC, External Objects, Big Objects, Field Service, Industries, CMS, Data Cloud)
+- **`/agent-discover`** — fixed an outdated reference: the Agent Registry is populated by `/sf-dev-kit:mcp-bridge --register`, not `/sf-dev-kit:mcp-setup`
+
+### Changed — template doc indexes
+
+- `templates/docs/README.md` — generic patterns range now `SF-1..20` (was `SF-1..14`); adds React + Agents component indexes; adds an ADR section
+- `templates/CLAUDE.md` — pattern-pack list updated to enumerate all 10 full packs (was "8 stub packs ready to author")
+
+### Changed — deprecated pack handling
+
+- `templates/packs/einstein-agentforce/` — `pack.json` now declares `deprecated: true` + `supersededBy: agentforce` and nulls out `installs.patternsAppendTo`/`checklistAppendTo` so an accidental `add` no longer half-installs anything; `patterns.md` rewritten as a redirect to `agentforce` (no more `_TODO_` placeholders); version bumped 0.1.0 → 0.2.0 to mark the cleanup. Directory still kept for back-compat with installs pinned to the old name; will be removed in a future major
+
+### Removed
+
+- **`templates/packs/functions/`** — dropped entirely. Salesforce Functions is retired; the pack was a stub. Removed from `README.md`, `templates/CLAUDE.md`, and `docs/pack-format.md`'s example domain list. The `CHANGELOG` v2.0.0 historical entry is preserved verbatim
+- The "8 stub packs" callout in `templates/CLAUDE.md` — superseded by the per-pack list above
+
+### Migration from v3.0.x
+
+1. Pull v3.1: `/plugin marketplace update sf-dev-kit`
+2. Existing pack installs continue to work; no schema changes
+3. (Optional) Install any of the seven newly-authored packs:
+   ```text
+   /sf-dev-kit:pattern-pack add change-data-capture
+   /sf-dev-kit:pattern-pack add data-cloud
+   ...
+   ```
+4. (Optional but recommended) If your project's `.claude/sf-project.json` was written before v3, re-run `/sf-dev-kit:sf-init update` to align with the v3 schema documented in the updated Step 3
+5. If your project pinned the deprecated `einstein-agentforce` pack:
+   ```text
+   /sf-dev-kit:pattern-pack remove einstein-agentforce
+   /sf-dev-kit:pattern-pack add agentforce
+   ```
+6. If your project pinned the dropped `functions` pack: remove it from `.claude/sf-dev-kit-packs.json` manually (the pack directory no longer ships)
+
+---
+
 ## v3.0.0 — 2026-04-28
 
 The Headless 360 release. v2.x → v3.0 brings the plugin in line with everything Salesforce announced at TDX 2026: native MCP routing via `@salesforce/mcp`, agents as a first-class deployable artifact, the new React framework, the Einstein Trust Layer + AI Gateway controls, AgentExchange listing prep, and the natural-language deploy surface.

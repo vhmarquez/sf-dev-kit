@@ -96,7 +96,15 @@ CI flags (per `${CLAUDE_PLUGIN_ROOT}/docs/ci-output-contract.md`):
 | Filter Whitelist | SF-11 | Yes/No | ✅/❌/Partial | (details) |
 | Apex Inline Docs | SF-12 | Yes/No | ✅/❌/Partial | (details) |
 | LWC Inline Docs | SF-13 | Yes/No | ✅/❌/Partial | (details) |
+| LWC Jest Test Structure | SF-14 | Yes/No | ✅/❌/Partial | (details) |
+| HTTP Callout via Named Credential | SF-15 | Yes/No | ✅/❌/Partial | (details) |
+| Apex REST Service | SF-16 | Yes/No | ✅/❌/Partial | (details) |
+| Custom Metadata Type Lookup | SF-17 | Yes/No | ✅/❌/Partial | (details) |
+| LWC Internationalization | SF-18 | Yes/No | ✅/❌/Partial | (details) |
+| Virtualized List for Large Datasets | SF-19 | Yes/No | ✅/❌/Partial | (details) |
+| Lazy-Loaded Sub-component | SF-20 | Yes/No | ✅/❌/Partial | (details) |
 | (Any project-specific patterns from project-patterns.md that apply) | PRJ-N | Yes/No | ✅/❌/Partial | (details) |
+| (Any pack-installed patterns that apply: AGT-* / RX-* / PE-* / CDC-* / etc.) | (prefix)-N | Yes/No | ✅/❌/Partial | (details) |
 
 ### Documentation Status
 - (Is the doc file up to date with the current code? Flag any drift.)
@@ -169,7 +177,7 @@ When the input is `audit`:
 1. List all in-scope LWC components and their Apex dependencies
 2. For each, do a lightweight pass against `docs/quality-checklist.md` and both pattern docs
 3. Produce a single compliance report at `code-reviews/AUDIT.md`:
-   - Compliance matrix: rows = components, columns = patterns (SF-1 through SF-14, plus any PRJ-* that apply), cells = Pass/Fail/N/A
+   - Compliance matrix: rows = components, columns = patterns (SF-1 through SF-20, plus any PRJ-* and pack-installed prefixes — AGT-* / RX-* / PE-* / CDC-* / etc. — that apply), cells = Pass/Fail/N/A
    - Summary of most common violations
    - Recommended priority fixes (grouped by category)
 4. Do NOT produce individual review files — the audit is a summary-only pass

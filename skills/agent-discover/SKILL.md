@@ -72,7 +72,7 @@ fi
 Also query:
 - `AgentVersion` — version + activation history
 - `AgentTopic` — topics per agent
-- `AgentRegistryEntry` (or via `/sf-dev-kit:mcp-setup` Registry endpoint) — externally-discoverable tools
+- `AgentRegistryEntry` (populated by `/sf-dev-kit:mcp-bridge --register`) — externally-discoverable MCP-tool bridges
 
 ### 3. Reconcile
 

@@ -123,29 +123,54 @@ Auto-detected from `sfdx-project.json` if present; otherwise the standard SFDX d
 
 Assemble the gathered values into the JSON structure below and write the file. Pretty-print with 2-space indentation.
 
+The shape below is the v3 schema. Keys with `// only when …` comments should be **omitted** (not written as `null`) when their gating condition is false; `jq` callers downstream tolerate missing keys but choke on `null`.
+
 ```json
 {
   "project":  { "name": "...", "description": "..." },
-  "naming":   { "lwc": { "prefix": "...", "excludePrefixes": [] },
-                "apex": { "controllerSuffix": "Controller", "serviceSuffix": "Service",
-                          "batchableSuffix": "Batchable", "schedulableSuffix": "Schedulable",
-                          "queueableSuffix": "Queueable", "triggerHandlerSuffix": "TriggerHandler",
-                          "testSuffix": "Test" } },
+  "naming":   { "lwc":   { "prefix": "...", "excludePrefixes": [] },
+                "react": { "prefix": "" },
+                "apex":  { "controllerSuffix": "Controller", "serviceSuffix": "Service",
+                           "batchableSuffix": "Batchable", "schedulableSuffix": "Schedulable",
+                           "queueableSuffix": "Queueable", "triggerHandlerSuffix": "TriggerHandler",
+                           "testSuffix": "Test" } },
   "platform": { "apiVersion": "66.0", "defaultTargetOrg": "default",
                 "lwcTargets": ["lightningCommunity__Page", "lightningCommunity__Default"],
-                "sharingDefault": "with sharing" },
-  "paths":    { "lwcSource": "force-app/main/default/lwc",
+                "sharingDefault": "with sharing",
+                "frontend": "lwc",
+                "devHubAlias": "DevHub",
+                "packageName": "" },
+  "paths":    { "lwcSource":  "force-app/main/default/lwc",
                 "apexSource": "force-app/main/default/classes",
-                "lwcDocs": "docs/lwc", "apexDocs": "docs/apex-classes",
+                "lwcDocs":    "docs/lwc",
+                "apexDocs":   "docs/apex-classes",
+                "reactSource":      "force-app/main/default/react",
+                "reactDocs":        "docs/react",
+                "agentDefinitions": "force-app/main/default/botDefinitions",
+                "agentDocs":        "docs/agents",
                 "patternsSalesforceDoc": "docs/patterns/salesforce-patterns.md",
-                "patternsProjectDoc": "docs/patterns/project-patterns.md",
-                "projectContextDoc": "docs/project-context.md",
+                "patternsProjectDoc":    "docs/patterns/project-patterns.md",
+                "projectContextDoc":     "docs/project-context.md",
                 "standardsDocs": ["docs/apex-standards.md", "docs/lwc-standards.md", "docs/quality-checklist.md"] },
-  "quality":  { "codeCoverageTarget": 85,
-                "lintCommand": "npm run lint",
-                "unitTestCommand": "npm run test:unit" }
+  "quality":  { "codeCoverageTarget":  85,
+                "agentEvalThreshold":  0.85,
+                "lintCommand":         "npm run lint",
+                "unitTestCommand":     "npm run test:unit" },
+  "mcp":      { "toolsets":         ["metadata", "data", "testing", "lwc", "code-analysis"],
+                "allowNonGaTools":  false },
+  "notifications": { "webhooks": { "slack": "", "teams": "" },
+                     "channels": { "deploy": "", "coverage": "", "security": "", "release": "" } }
 }
 ```
+
+**Conditional keys:**
+- `naming.react` — write only when `platform.frontend ∈ {"react", "both"}`
+- `paths.reactSource` / `paths.reactDocs` — same condition
+- `paths.agentDefinitions` / `paths.agentDocs` — write only when the project ships Agentforce agents (user opt-in or a `botDefinitions/` directory exists in source)
+- `paths.standardsDocs` — append `"docs/react-standards.md"` when react is in scope
+- `quality.agentEvalThreshold` — write only when agents are in scope; default `0.85`
+- `mcp` — write only after `/sf-dev-kit:mcp-setup` has been run; this skill writes the section if the user opts in during the walkthrough, otherwise leaves it for `mcp-setup` to manage
+- `notifications` — write only when the user provides at least one webhook
 
 ### 4. Copy generic standards docs from the plugin
 
@@ -178,6 +203,12 @@ For each, copy if the destination doesn't already exist, then substitute `{{proj
 - `docs/lwc/README.md` ← `${CLAUDE_PLUGIN_ROOT}/templates/docs/lwc/README.md`
 - `docs/apex-classes/README.md` ← `${CLAUDE_PLUGIN_ROOT}/templates/docs/apex-classes/README.md`
 - `docs/README.md` ← `${CLAUDE_PLUGIN_ROOT}/templates/docs/README.md`
+
+When `platform.frontend ∈ {"react", "both"}`, also copy:
+- `docs/react/README.md` ← `${CLAUDE_PLUGIN_ROOT}/templates/docs/react/README.md`
+
+When `paths.agentDefinitions` is set (project ships Agentforce agents), also copy:
+- `docs/agents/README.md` ← `${CLAUDE_PLUGIN_ROOT}/templates/docs/agents/README.md`
 
 ### 7. (Optional) Update CLAUDE.md
 

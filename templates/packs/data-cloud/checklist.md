@@ -1,0 +1,14 @@
+### Data Cloud (CDP)
+- [ ] Connector chosen by source freshness needs (CRM Connector / Ingestion API / S3+SFTP) — not "default to S3" (DC-1)
+- [ ] Every DLO has primary key + timestamp field for upserts to work
+- [ ] Every DLO is mapped to at least one DMO before activation depends on it (DC-2)
+- [ ] Identity resolution uses ≥2 match keys; email-only matching is reserved for low-stakes use cases
+- [ ] Calculated insights pre-compute expensive joins so segment refresh is cheap (DC-3)
+- [ ] Segments filter DMOs (or DMO-shaped insights), never raw DLOs
+- [ ] Activations use Named Credentials for target-system auth (DC-4)
+- [ ] Activations are incremental wherever the target supports it
+- [ ] Activation field mappings carry only the minimum needed; PII not exported unless required
+- [ ] Suppression lists applied at activation time, not in the source segment
+- [ ] Apex / agent queries use the Data Cloud SQL API via Named Credential, never SOQL on `__dlm` tables (DC-5)
+- [ ] Calculated insights consumed by agents are cached; agent calls do not stampede the SQL API
+- [ ] Data Space boundaries respected — running user / Connected App is authorized for the right space

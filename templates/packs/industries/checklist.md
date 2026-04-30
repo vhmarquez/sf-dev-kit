@@ -1,0 +1,13 @@
+### Industries (OmniStudio)
+- [ ] Each OmniScript represents one user journey; multi-purpose scripts decomposed into embedded scripts (IND-1)
+- [ ] Logic kept out of OmniScript JSON — orchestration in IPs, data shaping in DataRaptors, algorithms in Apex
+- [ ] FlexCards used for read-only surfaces; editable forms stay in OmniScripts or LWC (IND-2)
+- [ ] Integration Procedures use the cache option for read-mostly orchestrations (IND-3)
+- [ ] DataRaptors are reused, not copied per caller; Turbo Extract used for hot read paths (IND-4)
+- [ ] DataRaptor `Without Sharing` toggles documented with explicit justification
+- [ ] EPC catalog deploys via DataPacks / metadata, not in-prod edits (IND-5)
+- [ ] Promotional pricing plans always carry `EffectiveDate` and `ExpirationDate`
+- [ ] Apex extensions implement `omnistudio.VlocityOpenInterface` with one `invokeMethod` per class, dispatching by `methodName` (IND-6)
+- [ ] Domain logic lives in service classes; extension class delegates rather than embedding business logic
+- [ ] Apex extensions hit the project's `quality.codeCoverageTarget` — they count like any other Apex
+- [ ] OmniStudio components honor running-user FLS via `as user` DML and DataRaptor sharing settings

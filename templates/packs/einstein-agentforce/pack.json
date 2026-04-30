@@ -1,8 +1,10 @@
 {
   "name": "einstein-agentforce",
-  "displayName": "Einstein / Agentforce",
-  "description": "Patterns and guidance for the Einstein / Agentforce domain.",
-  "version": "0.1.0",
+  "displayName": "Einstein / Agentforce (deprecated — use 'agentforce')",
+  "description": "DEPRECATED. Renamed to 'agentforce' in v2.5. Retained as a redirect for projects pinned to the old name; ships no patterns.",
+  "version": "0.2.0",
+  "deprecated": true,
+  "supersededBy": "agentforce",
   "patternsPrefix": "AI",
   "extends": [],
   "requires": {
@@ -10,8 +12,8 @@
     "edition": ["Developer", "Enterprise", "Performance", "Unlimited"]
   },
   "installs": {
-    "patternsAppendTo": "patternsSalesforceDoc",
-    "checklistAppendTo": "quality-checklist.md",
+    "patternsAppendTo": null,
+    "checklistAppendTo": null,
     "agents": [],
     "skills": []
   }
