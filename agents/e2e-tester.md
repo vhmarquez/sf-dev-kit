@@ -21,7 +21,7 @@ If the project uses both, scope tests to one framework per file and put them und
 
 1. Read `.claude/sf-project.json` (with `--env` override merged)
 2. Read `docs/project-context.md` — understand the user journeys, profile assumptions, and required test data
-3. Verify a scratch org definition exists at `config/project-scratch-def.json` — if not, ask the user to provide one or recommend `/sf-dev-kit:scratch-org` (Phase 7) to create
+3. Verify a scratch org definition exists at `config/project-scratch-def.json` — if not, ask the user to provide one or recommend `/argo:scratch-org` (Phase 7) to create
 4. Read the LWC and any Apex it touches — your test should walk the same paths
 5. Read the **architect's Test Strategy block** if one was provided — E2E tests cover the user-journey rows of the test plan
 

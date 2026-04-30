@@ -117,8 +117,8 @@ Default Markdown:
 
 ## Next steps
 - Open: sf org open --target-org scratch-20260428-141500
-- Run tests: /sf-dev-kit:test-coverage all --target-org scratch-20260428-141500
-- Destroy: /sf-dev-kit:scratch-org destroy scratch-20260428-141500
+- Run tests: /argo:test-coverage all --target-org scratch-20260428-141500
+- Destroy: /argo:scratch-org destroy scratch-20260428-141500
 ```
 
 CI mode: emit one JSON line per phase with timing.

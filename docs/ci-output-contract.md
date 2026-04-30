@@ -1,6 +1,6 @@
 # CI Output Contract
 
-This document defines the machine-readable output contract for sf-dev-kit skills that support CI integration. Skills that emit findings (e.g., `/code-review`, `/test-coverage`, `/security-scan`, `/dead-code`, `/complexity`, `/perf-review`, `/soql-analyzer`) honor this contract.
+This document defines the machine-readable output contract for argo skills that support CI integration. Skills that emit findings (e.g., `/code-review`, `/test-coverage`, `/security-scan`, `/dead-code`, `/complexity`, `/perf-review`, `/soql-analyzer`) honor this contract.
 
 ## Modes
 
@@ -37,7 +37,7 @@ All emitting skills produce findings in a uniform internal JSON shape before for
     "line":     42,
     "column":   3,
     "endLine":  46,
-    "ruleHelpUri": "https://github.com/vmarquez/sf-dev-kit/blob/main/templates/docs/patterns/salesforce-patterns.md#sf-5",
+    "ruleHelpUri": "https://github.com/vmarquez/argo/blob/main/templates/docs/patterns/salesforce-patterns.md#sf-5",
     "tool":     "code-review"
   }
 ]
@@ -51,7 +51,7 @@ Required: `ruleId`, `message`, `file`. Defaults: `severity=warning`, `line=1`, `
 
 ```bash
 source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/sarif.sh"
-echo "$findings_json" | sarif_emit "sf-dev-kit/code-review" "1.1.0" > review.sarif
+echo "$findings_json" | sarif_emit "argo/code-review" "1.1.0" > review.sarif
 ```
 
 ## SARIF severity mapping

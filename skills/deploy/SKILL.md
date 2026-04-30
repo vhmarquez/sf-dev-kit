@@ -108,10 +108,10 @@ Before deploying (not validating) to an org whose alias matches `prod*` / `produ
 ### 6. Append to deploy history
 
 ```
-${CLAUDE_PLUGIN_DATA}/sf-dev-kit/deploy-history/<project>.jsonl
+${CLAUDE_PLUGIN_DATA}/argo/deploy-history/<project>.jsonl
 ```
 
-One JSON line per deploy: `{ deployId, org, env, mode (deploy|validate), route (mcp|cli), targetCount, status, durationSec, timestamp }`. `/sf-dev-kit:quick-deploy` reads this to find a recent successful validation.
+One JSON line per deploy: `{ deployId, org, env, mode (deploy|validate), route (mcp|cli), targetCount, status, durationSec, timestamp }`. `/argo:quick-deploy` reads this to find a recent successful validation.
 
 ### 7. Output
 
@@ -168,5 +168,5 @@ CI mode SARIF: surfaces deploy errors and test failures as findings (`ruleId: DE
 - **Include Apex dependencies** automatically when deploying an LWC or React component
 - **Include the matching test class** when deploying an Apex production class
 - **Don't override `--no-mcp`.** If the user explicitly disables MCP routing for this deploy, honor it without warning
-- **Append every run to deploy history** so `/sf-dev-kit:quick-deploy` can find the validation id later
+- **Append every run to deploy history** so `/argo:quick-deploy` can find the validation id later
 - Report results clearly: components deployed, status, any errors

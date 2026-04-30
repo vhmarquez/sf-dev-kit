@@ -84,7 +84,7 @@ Default Markdown:
 ```markdown
 # Test Plan: <ClassOrLwc>
 
-Generated: 2026-04-28T12:00:00Z (`/sf-dev-kit:test-plan`)
+Generated: 2026-04-28T12:00:00Z (`/argo:test-plan`)
 Coverage target: 85% (from quality.codeCoverageTarget)
 
 ## Surface
@@ -101,7 +101,7 @@ Coverage target: 85% (from quality.codeCoverageTarget)
 
 ## Hand-off
 @qa: implement these test methods; one per row above. Run `quality.unitTestCommand`
-and `/sf-dev-kit:test-coverage <Class>` after; coverage target 85%.
+and `/argo:test-coverage <Class>` after; coverage target 85%.
 ```
 
 CI mode: emit JSON (the rows from step 4 as an array of case objects). Useful when downstream tools want to validate that every row has a corresponding test method.

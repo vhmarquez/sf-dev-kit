@@ -21,7 +21,7 @@ react/
     └── README.md     (optional; doc lives in docs/react/)
 ```
 
-Use `/sf-dev-kit:react-init` to scaffold consistent bundles.
+Use `/argo:react-init` to scaffold consistent bundles.
 
 ---
 
@@ -219,7 +219,7 @@ State that only one component needs lives in that component, not in a shared sto
 
 ### Vitest (preferred) or Jest
 
-The skill `/sf-dev-kit:react-init` scaffolds Vitest by default. Match what `quality.unitTestCommand` runs.
+The skill `/argo:react-init` scaffolds Vitest by default. Match what `quality.unitTestCommand` runs.
 
 ### React Testing Library
 
@@ -279,9 +279,9 @@ Acceptable transition state during migration. Long-term, pick one framework per 
 
 React bundles deploy via `sf project deploy start` exactly like LWC bundles. The platform builds the React tree at deploy time; the deployed artifact is the source files plus a generated build manifest.
 
-- `/sf-dev-kit:diff-deploy` — deploys only changed React bundles since `<ref>`
-- `/sf-dev-kit:deploy` — full deploy (or specific paths)
-- `/sf-dev-kit:perf-review` — covers React bundles in v2.4+; reports bundle size, render-blocking imports, lazy-load opportunities
+- `/argo:diff-deploy` — deploys only changed React bundles since `<ref>`
+- `/argo:deploy` — full deploy (or specific paths)
+- `/argo:perf-review` — covers React bundles in v2.4+; reports bundle size, render-blocking imports, lazy-load opportunities
 
 ---
 
@@ -319,6 +319,6 @@ Index in `docs/react/README.md`.
 ## Cross-References
 
 - LWC standards (most rules apply identically): `docs/lwc-standards.md`
-- Pattern pack `react` (RX-1..6): install via `/sf-dev-kit:pattern-pack add react`
+- Pattern pack `react` (RX-1..6): install via `/argo:pattern-pack add react`
 - Apex standards (for backing controllers): `docs/apex-standards.md`
 - Quality checklist (unified pre-flight): `docs/quality-checklist.md`

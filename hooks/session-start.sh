@@ -13,11 +13,11 @@
 #
 # If any condition is false, exit 0 silently.
 #
-# Disable per-session for testing: SF_DEV_KIT_SESSION_NUDGE=0
+# Disable per-session for testing: ARGO_SESSION_NUDGE=0
 
 set -u
 
-if [[ "${SF_DEV_KIT_SESSION_NUDGE:-1}" == "0" ]]; then
+if [[ "${ARGO_SESSION_NUDGE:-1}" == "0" ]]; then
   exit 0
 fi
 
@@ -35,10 +35,10 @@ if find "${CLAUDE_PROJECT_DIR}/force-app" -maxdepth 6 -name '*.botDefinition-met
 fi
 
 cat <<EOF
-[sf-dev-kit] This looks like a Salesforce DX project (sfdx-project.json found)
+[argo] This looks like a Salesforce DX project (sfdx-project.json found)
             but \`.claude/sf-project.json\` doesn't exist yet.
 
-            Run \`/sf-dev-kit:sf-init\` to bootstrap. Detection is aggressive —
+            Run \`/argo:sf-init\` to bootstrap. Detection is aggressive —
             most fields auto-fill from sfdx-project.json, package.json, and
             \`sf org list\`. You'll typically only confirm the target org and
             answer one "what is this project for?" question.

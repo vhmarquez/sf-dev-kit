@@ -80,7 +80,7 @@ For each verb, emit a JSON tool spec following the MCP tool schema:
 }
 ```
 
-The `binding` block tells the bridge runtime how to dispatch the call. The default execution path is via the `metadata` MCP toolset, which can invoke Apex REST against the org without a logged-in user (Connect REST uses Connected App / JWT auth — see `/sf-dev-kit:mcp-setup` for setup).
+The `binding` block tells the bridge runtime how to dispatch the call. The default execution path is via the `metadata` MCP toolset, which can invoke Apex REST against the org without a logged-in user (Connect REST uses Connected App / JWT auth — see `/argo:mcp-setup` for setup).
 
 ### 4. Persist the bridge spec
 
@@ -149,7 +149,7 @@ Spec files:
 Suggested next steps:
 - Test from an agent: ask Claude (or the org's agents) to "look up order O-1234"
 - Add the new tool to your project's @agent-dev system prompt by listing it under `Available tools`
-- Run /sf-dev-kit:agent-discover to confirm it shows up in the registry inventory
+- Run /argo:agent-discover to confirm it shows up in the registry inventory
 ```
 
 CI mode JSON: `{"className": "OrderRestService", "tools": [{"name": "order_get", "verb": "GET"}, ...], "registered": true}`.
@@ -171,4 +171,4 @@ CI mode JSON: `{"className": "OrderRestService", "tools": [{"name": "order_get",
 
 - Agents in this org pick up bridge tools through their tool-palette discovery
 - `@agent-dev` and `@architect` reference bridge tools when planning new agents
-- `/sf-dev-kit:agent-discover` lists registered bridges per org
+- `/argo:agent-discover` lists registered bridges per org

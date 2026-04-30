@@ -109,8 +109,8 @@ sf project deploy start --target-org "$ORG"
 # Single component
 sf project deploy start --target-org "$ORG" --source-dir force-app/main/default/react/OrderList
 
-# Diff deploy via /sf-dev-kit:diff-deploy
-/sf-dev-kit:diff-deploy --vs main
+# Diff deploy via /argo:diff-deploy
+/argo:diff-deploy --vs main
 ```
 
 The deployable artifact is the source files plus a generated build manifest. The platform's React runtime serves the components like any other component metadata.
@@ -119,7 +119,7 @@ The deployable artifact is the source files plus a generated build manifest. The
 - Don't pre-bundle (no Webpack / Vite output committed) — the platform builds at deploy time
 - TypeScript is supported; the platform compiles `.tsx` to `.jsx` to `.js` server-side
 - Third-party npm dependencies must be on the platform's allowlist (a curated subset of npm). React, ReactDOM, popular utility libs (lodash-es, date-fns, zod, @tanstack/react-virtual) are allowed; UI frameworks (Material UI, Chakra) typically are not
-- Bundle size limits are enforced at deploy time — `/sf-dev-kit:perf-review` flags bundles approaching the limit before deploy
+- Bundle size limits are enforced at deploy time — `/argo:perf-review` flags bundles approaching the limit before deploy
 
 ## RX-4: SLDS via React Tokens {#rx-slds-tokens}
 

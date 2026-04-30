@@ -70,18 +70,18 @@ templates/packs/<pack-name>/
 
 ## Install flow
 
-`/sf-dev-kit:pattern-pack add <pack-name>`:
+`/argo:pattern-pack add <pack-name>`:
 1. Reads `${CLAUDE_PLUGIN_ROOT}/templates/packs/<pack-name>/pack.json`
 2. Verifies `requires.sfApiVersion` against `platform.apiVersion` from sf-project.json
 3. Appends `patterns.md` to the project's patterns doc, with a header comment marking the source pack and version
 4. Appends `checklist.md` to the project's quality-checklist.md if present
 5. Copies any agent / skill files into the user's project under `.claude/agents/` and `.claude/skills/` (project-local; doesn't pollute the plugin)
-6. Records the install in `.claude/sf-dev-kit-packs.json` so subsequent runs can detect already-installed packs
+6. Records the install in `.claude/argo-packs.json` so subsequent runs can detect already-installed packs
 
 ## Removal
 
-`/sf-dev-kit:pattern-pack remove <pack-name>`:
+`/argo:pattern-pack remove <pack-name>`:
 - Walks the pack-installed sections (marked with `<!-- pack:<name> begin -->` / `<!-- pack:<name> end -->` in the appended files)
 - Removes them
 - Deletes the project-local agent/skill files from `.claude/`
-- Updates `.claude/sf-dev-kit-packs.json`
+- Updates `.claude/argo-packs.json`

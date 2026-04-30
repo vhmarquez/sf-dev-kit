@@ -4,7 +4,7 @@ description: Install and configure the Salesforce MCP server (`@salesforce/mcp`)
 data-access: metadata-only
 ---
 
-You are setting up the **Salesforce MCP server** announced in Headless 360. Once installed, downstream sf-dev-kit skills (`/org-explore`, `/deploy`, `/test-coverage`, `/security-scan`, `/agent-test`, etc.) prefer the MCP toolsets when available and fall back to direct `sf` CLI when not. Scoping toolsets matters: every tool you expose costs LLM context window — start narrow.
+You are setting up the **Salesforce MCP server** announced in Headless 360. Once installed, downstream argo skills (`/org-explore`, `/deploy`, `/test-coverage`, `/security-scan`, `/agent-test`, etc.) prefer the MCP toolsets when available and fall back to direct `sf` CLI when not. Scoping toolsets matters: every tool you expose costs LLM context window — start narrow.
 
 ## Read Project Config First
 
@@ -127,10 +127,10 @@ Default Markdown:
 ✅ Smoke test: testing + data + metadata reachable
 
 ## Recommended next steps
-- Run /sf-dev-kit:org-explore (it now prefers the MCP `data` toolset; pass --no-mcp to use the legacy CLI path)
-- Run /sf-dev-kit:agent-discover to inventory existing AgentDefinitions
-- Run /sf-dev-kit:mcp-bridge if you want to expose a project Apex REST endpoint as an MCP tool
-- For CI: regenerate the env override with `/sf-dev-kit:mcp-setup --env ci --profile ci`
+- Run /argo:org-explore (it now prefers the MCP `data` toolset; pass --no-mcp to use the legacy CLI path)
+- Run /argo:agent-discover to inventory existing AgentDefinitions
+- Run /argo:mcp-bridge if you want to expose a project Apex REST endpoint as an MCP tool
+- For CI: regenerate the env override with `/argo:mcp-setup --env ci --profile ci`
 ```
 
 CI mode JSON: `{"installed": true, "version": "1.4.2", "toolsets": [...], "envOverrides": {"prod": [...]}}`.

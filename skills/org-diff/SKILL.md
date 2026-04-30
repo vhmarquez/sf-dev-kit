@@ -35,7 +35,7 @@ ORG="$(sf_config_get '.platform.defaultTargetOrg' "$ENV")"
 
 ### 2. Run preview retrieve
 ```bash
-sf project retrieve preview --target-org "$ORG" --json > .sf-dev-kit-tmp/diff-preview.json
+sf project retrieve preview --target-org "$ORG" --json > .argo-tmp/diff-preview.json
 ```
 Capture both stdout and exit code. If it fails (auth, network), exit 2 with the underlying error.
 

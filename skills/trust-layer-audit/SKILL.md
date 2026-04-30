@@ -135,6 +135,6 @@ CI mode: SARIF emit per finding. Exit 0 if no findings ≥ `--fail-on`; 1 otherw
 
 - **Don't bypass.** Trust Layer features are non-configurable per Salesforce policy; if a check shows as off, that's almost certainly a misconfigured org or a feature that hasn't propagated yet — escalate, don't suppress
 - **Static checks first.** Don't query the org for things grep can answer (e.g., "does the agent's prompt template contain a Salesforce ID")
-- **Don't run the LLM.** This is a config audit; eval-time behavior is `/sf-dev-kit:trust-eval`'s job
+- **Don't run the LLM.** This is a config audit; eval-time behavior is `/argo:trust-eval`'s job
 - **`/agent-deploy` runs this skill as a gate** by default (pass `--skip-trust` to opt out, but expect the deploy report to surface a warning)
 - **Per-env audits.** Run with `--env prod` to audit prod config; thresholds may be tighter (`quality.agentEvalThreshold` higher)

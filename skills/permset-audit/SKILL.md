@@ -15,7 +15,7 @@ The other queries used by this skill (`Profile`, `PermissionSet`, `ObjectPermiss
 When the assistant sees exit code `77` from `sf_cli_query` with `reason: SOQL_DATA_OBJECT` and `target: PermissionSetAssignment`:
 
 ```
-[sf-dev-kit/security] CONSENT REQUIRED
+[argo/security] CONSENT REQUIRED
 
 Skill:    /permset-audit
 Org:      <alias>
@@ -32,7 +32,7 @@ Choose:
   [c] Cancel        — abort the skill
 ```
 
-On `[a]` re-invoke the same `sf_cli_query` after `export SF_DEV_KIT_CONSENT_GRANTED=once`. Per the plugin contract this is a single-use override; a follow-up call inside the same skill run requires another consent.
+On `[a]` re-invoke the same `sf_cli_query` after `export ARGO_CONSENT_GRANTED=once`. Per the plugin contract this is a single-use override; a follow-up call inside the same skill run requires another consent.
 
 ## Read Project Config First
 

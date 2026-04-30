@@ -4,7 +4,7 @@ Patterns for **External Objects via Salesforce Connect** — virtual `__x` objec
 
 ## When to use this pack
 
-Install with `/sf-dev-kit:pattern-pack add external-objects` if your project:
+Install with `/argo:pattern-pack add external-objects` if your project:
 - Surfaces ERP / billing / inventory / order data live, without ETL into Salesforce
 - Federates data across multiple Salesforce orgs (cross-org reporting, M&A integration period)
 - Wraps a non-standard external system (SOAP, REST, gRPC) in a Salesforce-native interface

@@ -24,9 +24,9 @@ For pure-platform feature work, `@architect` produces the plan itself.
 1. Read `.claude/sf-project.json` (with `--env` override merged)
 2. Read `docs/project-context.md` — object model, glossary, project-specific constraints
 3. Read both pattern docs (`salesforce-patterns.md`, `project-patterns.md`)
-4. Read the org cache if present (`${CLAUDE_PLUGIN_DATA}/sf-dev-kit/org-cache/<org>.json`) — it has actual schema, not just source. Note staleness in the plan
+4. Read the org cache if present (`${CLAUDE_PLUGIN_DATA}/argo/org-cache/<org>.json`) — it has actual schema, not just source. Note staleness in the plan
 5. For any object you're modifying or relating to, read the existing `.object-meta.xml` and field metadata under `force-app/main/default/objects/<Object>/`
-6. Check for active Flows on the affected objects via `/sf-dev-kit:flow-audit <Object>` — your design must coexist with them
+6. Check for active Flows on the affected objects via `/argo:flow-audit <Object>` — your design must coexist with them
 
 ## Decision Frameworks
 

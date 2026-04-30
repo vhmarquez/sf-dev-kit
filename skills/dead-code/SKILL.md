@@ -119,7 +119,7 @@ CI mode: SARIF emit per finding with the appropriate `ruleId`.
 ## Rules
 
 - **Bias toward false positives in the medium/low buckets.** Hidden references via reflection / deserialization are real; the user must verify
-- **Don't auto-delete.** This is a report. The user runs `/sf-dev-kit:destructive-changes add ...` if they want to remove items
+- **Don't auto-delete.** This is a report. The user runs `/argo:destructive-changes add ...` if they want to remove items
 - **Skip test classes for "unused method" finding.** Test methods are entry points by definition (run by the test runner)
 - **Honor custom annotations.** `@AuraEnabled`, `@HttpGet`/etc., `@InvocableMethod`, `@RemoteAction`, `@future`, `@Schedulable`, `@Database.Batchable`, `@TestVisible` — all are entry-point markers
 - **Cross-link to /destructive-changes.** The next step after dead-code review is usually destructive-changes

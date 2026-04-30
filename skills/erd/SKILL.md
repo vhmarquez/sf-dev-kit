@@ -94,7 +94,7 @@ Cardinality rules (Mermaid `erDiagram`):
 ```markdown
 # Entity-Relationship Diagram: <project.name>
 
-Generated: 2026-04-28T11:30:00Z (`/sf-dev-kit:erd`)
+Generated: 2026-04-28T11:30:00Z (`/argo:erd`)
 Source: force-app/main/default/objects (27 custom + 4 standard referenced)
 Depth from seed: <n> | Seed: <Object> or "(all custom)"
 
@@ -135,5 +135,5 @@ CI mode: emit the JSON model on stdout, no Markdown side-effect.
 ## Consumers
 
 - `@architect` and `@data-architect` reference the latest ERD when designing changes
-- `/sf-dev-kit:generate-docs` may include a snippet of the ERD in `docs/README.md`
+- `/argo:generate-docs` may include a snippet of the ERD in `docs/README.md`
 - Visualizers: GitHub renders Mermaid in Markdown natively; VS Code with the Mermaid Preview extension; or paste into mermaid.live

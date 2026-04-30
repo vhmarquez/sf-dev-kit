@@ -4,7 +4,7 @@ Patterns and guidance for **Salesforce Platform Events** (PE) — Salesforce's b
 
 ## When to use this pack
 
-Install with `/sf-dev-kit:pattern-pack add platform-events` if your project:
+Install with `/argo:pattern-pack add platform-events` if your project:
 - Publishes events from Apex / Flow that other systems consume
 - Subscribes to external pub/sub events surfaced via Platform Events
 - Needs decoupled async patterns where Queueable would tightly couple producer and consumer

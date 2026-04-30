@@ -1,6 +1,6 @@
 # {{project.name}} — AI Workflow
 
-This project uses the **`sf-dev-kit`** Claude Code plugin for its Salesforce AI workflow (agents, skills, hooks, standards docs). The workflow is project-agnostic and driven by `.claude/sf-project.json`.
+This project uses the **`argo`** Claude Code plugin for its Salesforce AI workflow (agents, skills, hooks, standards docs). The workflow is project-agnostic and driven by `.claude/sf-project.json`.
 
 > **Project-specific context** — including project name, object model, message channels, domain glossary, and unique constraints — lives in `docs/project-context.md`. Read that file for the *what* of this project; this file describes the *how* of the workflow itself.
 
@@ -23,7 +23,7 @@ The single source of truth for project-specific values is **`.claude/sf-project.
 
 Agents and skills read this file at task start. Update the config rather than hardcoding values in the workflow files.
 
-To re-bootstrap or update the project config, run **`/sf-dev-kit:sf-init`**.
+To re-bootstrap or update the project config, run **`/argo:sf-init`**.
 
 ---
 
@@ -56,12 +56,12 @@ To re-bootstrap or update the project config, run **`/sf-dev-kit:sf-init`**.
 ## Testing
 
 - **LWC**: run `{quality.unitTestCommand}` (typically `npm run test:unit`); watch and coverage variants exist if package.json defines them
-- **Apex**: `sf apex run test --target-org {platform.defaultTargetOrg}` or use the `/sf-dev-kit:test-coverage` skill
+- **Apex**: `sf apex run test --target-org {platform.defaultTargetOrg}` or use the `/argo:test-coverage` skill
 - **Pre-commit hook**: Prettier → ESLint → Jest on modified LWC files (with `--passWithNoTests`)
 
 ## Deployment
 
-- **Deploy**: `sf project deploy start --target-org {platform.defaultTargetOrg}`, or use the `/sf-dev-kit:deploy` skill
+- **Deploy**: `sf project deploy start --target-org {platform.defaultTargetOrg}`, or use the `/argo:deploy` skill
 - **Validate only**: append `--dry-run`
 - **Excluded from deploy** (`.forceignore`): test directories, `node_modules/`, IDE config, `package.xml`
 
@@ -73,7 +73,7 @@ To re-bootstrap or update the project config, run **`/sf-dev-kit:sf-init`**.
 
 ---
 
-## Workflow Files (provided by `sf-dev-kit` plugin)
+## Workflow Files (provided by `argo` plugin)
 
 ### Subagents (11 specialists)
 
@@ -93,7 +93,7 @@ To re-bootstrap or update the project config, run **`/sf-dev-kit:sf-init`**.
 
 **Typical flow**: `@architect` plans → hands off to specialists → builders work in parallel → `@qa` reviews → `@e2e-tester` covers journeys → `@security-reviewer` + `@trust-reviewer` before prod.
 
-### Skills (invoke as `/sf-dev-kit:<name>`)
+### Skills (invoke as `/argo:<name>`)
 
 **Setup**: `sf-init`, `onboard`, `pattern-pack`, `mcp-setup`
 **Org awareness**: `org-explore`, `org-diff`, `flow-audit`, `permset-audit`, `field-impact`, `agent-discover`
@@ -106,7 +106,7 @@ To re-bootstrap or update the project config, run **`/sf-dev-kit:sf-init`**.
 **Deployment**: `deploy`, `diff-deploy`, `quick-deploy`, `scratch-org`, `package-version`, `destructive-changes`, `devops-natural`
 **Docs & release**: `generate-docs`, `release-notes`, `pr-prepare`, `notify`
 
-(See `${CLAUDE_PLUGIN_ROOT}/README.md` or run `/sf-dev-kit:pattern-pack list` for the full inventory.)
+(See `${CLAUDE_PLUGIN_ROOT}/README.md` or run `/argo:pattern-pack list` for the full inventory.)
 
 ### Standards & Patterns (in this project's `docs/`)
 
@@ -120,7 +120,7 @@ To re-bootstrap or update the project config, run **`/sf-dev-kit:sf-init`**.
 
 All agents read both pattern docs and the relevant standards docs before writing code.
 
-### Pattern Packs (opt-in, install with `/sf-dev-kit:pattern-pack add <name>`)
+### Pattern Packs (opt-in, install with `/argo:pattern-pack add <name>`)
 
 - **`agentforce` v1.0** — AGT-1..7 for projects shipping Agentforce agents
 - **`react` v1.0** — RX-1..6 when `platform.frontend` includes react
@@ -147,8 +147,8 @@ The plugin enforces four hard invariants (see `${CLAUDE_PLUGIN_ROOT}/docs/securi
 3. Anonymous Apex disabled by default
 4. Overrides are runtime-only — no persistent "always allow"
 
-`/sf-dev-kit:sf-init` requires every non-sandbox alias to be classified before it writes config. Three skills (`/trust-eval`, `/permset-audit`, `/agent-test`) prompt for consent on every run because they fundamentally need customer data.
+`/argo:sf-init` requires every non-sandbox alias to be classified before it writes config. Three skills (`/trust-eval`, `/permset-audit`, `/agent-test`) prompt for consent on every run because they fundamentally need customer data.
 
 ### MCP Toolsets (Headless 360)
 
-When `mcp.toolsets` is configured (run `/sf-dev-kit:mcp-setup`), the workflow routes through Salesforce's official `@salesforce/mcp` server. Toolsets: `metadata, data, testing, lwc, code-analysis, devops, aura`. The plugin's `hooks/lib/mcp.sh` falls back to direct `sf` CLI when the MCP server isn't available — every skill works either way.
+When `mcp.toolsets` is configured (run `/argo:mcp-setup`), the workflow routes through Salesforce's official `@salesforce/mcp` server. Toolsets: `metadata, data, testing, lwc, code-analysis, devops, aura`. The plugin's `hooks/lib/mcp.sh` falls back to direct `sf` CLI when the MCP server isn't available — every skill works either way.

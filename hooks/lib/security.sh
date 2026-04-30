@@ -1,5 +1,5 @@
 #!/bin/bash
-# security.sh — Centralized security gate for sf-dev-kit org-touching operations.
+# security.sh — Centralized security gate for argo org-touching operations.
 #
 # # Invariants
 #
@@ -20,7 +20,7 @@
 #
 #   77 — consent required. The assistant should present the JSON event to the
 #        user, and on grant, re-invoke the same command with the env var
-#        SF_DEV_KIT_CONSENT_GRANTED=once set. The library treats that env var as
+#        ARGO_CONSENT_GRANTED=once set. The library treats that env var as
 #        a single-use override, then unsets it (so a second restricted call in
 #        the same shell still prompts).
 #   78 — hard refusal. Cannot be overridden in this session. The assistant should
@@ -49,7 +49,7 @@
 #   sec_log_consent    <skill> <action> <scope> <decision>
 #                                           — append to consent log JSONL
 #   sec_classify_org   <alias>              — fetch and cache sandbox/prod state
-#   sec_is_disabled                          — true when SF_DEV_KIT_SECURITY=0 (NOT recommended; for tests)
+#   sec_is_disabled                          — true when ARGO_SECURITY=0 (NOT recommended; for tests)
 
 # shellcheck shell=bash
 
@@ -60,7 +60,7 @@ if ! declare -F sf_config_get >/dev/null 2>&1; then
   source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/config.sh"
 fi
 
-SEC_DATA_DIR="${CLAUDE_PLUGIN_DATA:-${HOME}/.claude/plugin-data}/sf-dev-kit"
+SEC_DATA_DIR="${CLAUDE_PLUGIN_DATA:-${HOME}/.claude/plugin-data}/argo"
 SEC_CACHE_DIR="${SEC_DATA_DIR}/org-cache"
 SEC_CONSENT_LOG="${SEC_DATA_DIR}/consent-log/$(basename "${CLAUDE_PROJECT_DIR:-unknown}").jsonl"
 
@@ -126,18 +126,18 @@ sec_metadata_allowlist() {
 # --- Disable switch (NOT recommended) -----------------------------------------
 
 sec_is_disabled() {
-  [[ "${SF_DEV_KIT_SECURITY:-1}" == "0" ]]
+  [[ "${ARGO_SECURITY:-1}" == "0" ]]
 }
 
 # --- Consent token (single-use) ------------------------------------------------
 
 sec_consent_granted_once() {
-  [[ "${SF_DEV_KIT_CONSENT_GRANTED:-}" == "once" ]]
+  [[ "${ARGO_CONSENT_GRANTED:-}" == "once" ]]
 }
 
 # Consume the token so a second restricted call in the same process must prompt again.
 sec_consent_consume() {
-  unset SF_DEV_KIT_CONSENT_GRANTED
+  unset ARGO_CONSENT_GRANTED
 }
 
 # --- Org classification --------------------------------------------------------
@@ -213,7 +213,7 @@ _sec_emit() {
 sec_check_org() {
   local alias="$1"
   if [[ -z "$alias" ]]; then
-    echo "[sf-dev-kit/security] sec_check_org requires an alias" >&2
+    echo "[argo/security] sec_check_org requires an alias" >&2
     return 2
   fi
 
@@ -274,7 +274,7 @@ sec_check_soql() {
   local soql="$1"
   local alias="${2:-}"
   if [[ -z "$soql" ]]; then
-    echo "[sf-dev-kit/security] sec_check_soql requires a SOQL string" >&2
+    echo "[argo/security] sec_check_soql requires a SOQL string" >&2
     return 2
   fi
 
@@ -307,7 +307,7 @@ sec_check_soql() {
   fi
 
   _sec_emit "consent_required" "SOQL_DATA_OBJECT" "soql" "$target" "$alias" \
-    "SOQL target '$target' is not on the metadata allowlist. This query would read customer data. Use SF_DEV_KIT_CONSENT_GRANTED=once to authorize a single retry."
+    "SOQL target '$target' is not on the metadata allowlist. This query would read customer data. Use ARGO_CONSENT_GRANTED=once to authorize a single retry."
   return 77
 }
 

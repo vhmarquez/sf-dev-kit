@@ -1,7 +1,7 @@
 {
   "name": "react",
   "displayName": "React on Salesforce",
-  "description": "Patterns for native React-on-Salesforce components — GraphQL data fetch, platform auth, deployment, SLDS via React tokens, i18n, LWC<->React interop. Pair with @react-dev and /sf-dev-kit:react-init.",
+  "description": "Patterns for native React-on-Salesforce components — GraphQL data fetch, platform auth, deployment, SLDS via React tokens, i18n, LWC<->React interop. Pair with @react-dev and /argo:react-init.",
   "version": "1.0.0",
   "patternsPrefix": "RX",
   "extends": [],

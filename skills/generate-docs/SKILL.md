@@ -128,7 +128,7 @@ In CI mode (`--ci`), produce findings in the internal shape (see `docs/ci-output
 ]
 ```
 
-For SARIF output, source `${CLAUDE_PLUGIN_ROOT}/hooks/lib/sarif.sh` and pipe through `sarif_emit "sf-dev-kit/generate-docs" "<plugin-version>"`.
+For SARIF output, source `${CLAUDE_PLUGIN_ROOT}/hooks/lib/sarif.sh` and pipe through `sarif_emit "argo/generate-docs" "<plugin-version>"`.
 
 Rule IDs:
 - `DOCS-MISSING` — in-scope surface has no doc file (severity: note)

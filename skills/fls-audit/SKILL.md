@@ -118,7 +118,7 @@ Run at: 2026-04-28T13:00:00Z
 - Manual checks: `Schema.sObjectType.Foo.fields.Bar.isAccessible()` before reading custom-extracted fields
 ```
 
-CI mode: emit findings via `sarif_emit "sf-dev-kit/fls-audit" "$VERSION"`.
+CI mode: emit findings via `sarif_emit "argo/fls-audit" "$VERSION"`.
 
 ### 8. Exit codes
 - 0 — no error-level findings

@@ -4,7 +4,7 @@ Patterns for **Salesforce CMS** — content types, workspaces, channels, multi-l
 
 ## When to use this pack
 
-Install with `/sf-dev-kit:pattern-pack add cms` if your project:
+Install with `/argo:pattern-pack add cms` if your project:
 - Authors marketing or external-facing content with a non-developer team
 - Publishes content to multiple surfaces (Experience site, mobile app, partner portal, marketing pages) from one source
 - Ships content in multiple locales

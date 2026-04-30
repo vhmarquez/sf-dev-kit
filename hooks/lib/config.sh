@@ -1,5 +1,5 @@
 #!/bin/bash
-# config.sh — Load sf-dev-kit project config with optional per-environment overrides.
+# config.sh — Load argo project config with optional per-environment overrides.
 #
 # Resolution order:
 #   1. Base:     ${CLAUDE_PROJECT_DIR}/.claude/sf-project.json
@@ -23,7 +23,7 @@ sf_config_override_path() {
 
 sf_config_check_jq() {
   if ! command -v jq >/dev/null 2>&1; then
-    echo "[sf-dev-kit] Error: jq is required. Install from https://stedolan.github.io/jq/" >&2
+    echo "[argo] Error: jq is required. Install from https://stedolan.github.io/jq/" >&2
     return 1
   fi
 }
@@ -34,7 +34,7 @@ sf_config_load() {
   base="$(sf_config_base_path)"
 
   if [[ ! -f "$base" ]]; then
-    echo "[sf-dev-kit] Error: ${base} not found. Run /sf-dev-kit:sf-init first." >&2
+    echo "[argo] Error: ${base} not found. Run /argo:sf-init first." >&2
     return 1
   fi
 
@@ -47,7 +47,7 @@ sf_config_load() {
       jq -s '.[0] * .[1]' "$base" "$override"
       return 0
     else
-      echo "[sf-dev-kit] Warning: env override ${override} not found; using base config" >&2
+      echo "[argo] Warning: env override ${override} not found; using base config" >&2
     fi
   fi
 
@@ -58,7 +58,7 @@ sf_config_get() {
   local path="$1"
   local env="${2:-}"
   if [[ -z "$path" ]]; then
-    echo "[sf-dev-kit] Error: sf_config_get requires a jq path (e.g., '.platform.defaultTargetOrg')" >&2
+    echo "[argo] Error: sf_config_get requires a jq path (e.g., '.platform.defaultTargetOrg')" >&2
     return 2
   fi
   sf_config_load "$env" | jq -r "$path"

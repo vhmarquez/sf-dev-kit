@@ -4,7 +4,7 @@
 # Triggered by the PostToolUse hook on Edit|Write of .cls / .trigger files.
 # Runs PMD with a minimal ruleset (errorprone + a subset of bestpractices)
 # tuned for fast feedback on save. The full security ruleset lives behind
-# /sf-dev-kit:security-scan; this hook is only for "did I forget a semicolon
+# /argo:security-scan; this hook is only for "did I forget a semicolon
 # / typo / obvious bug" feedback.
 #
 # Findings are surfaced on stderr; exit is always 0 (never blocks the edit).
@@ -50,7 +50,7 @@ fi
 source "$PMD_LIB"
 
 # Use a small fast ruleset for incremental feedback. The full apex-security
-# scan lives behind /sf-dev-kit:security-scan and is not run on every edit.
+# scan lives behind /argo:security-scan and is not run on every edit.
 RULESET="category/apex/errorprone.xml,category/apex/bestpractices.xml"
 
 pmd_out=$(pmd_run check --rulesets "$RULESET" --format text --no-progress --dir "$FILE_PATH" 2>&1)
@@ -58,10 +58,10 @@ pmd_exit=$?
 
 if [[ $pmd_exit -ne 0 ]] || [[ -n "$pmd_out" ]]; then
   {
-    echo "[sf-dev-kit/lint-apex] PMD findings on $FILE_PATH:"
+    echo "[argo/lint-apex] PMD findings on $FILE_PATH:"
     echo "$pmd_out"
     echo ""
-    echo "(Run /sf-dev-kit:security-scan for the full security ruleset.)"
+    echo "(Run /argo:security-scan for the full security ruleset.)"
   } >&2
 fi
 

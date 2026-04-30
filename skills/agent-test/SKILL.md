@@ -1,6 +1,6 @@
 ---
 name: agent-test
-description: Run agent evaluation tests via `sf agent test run` against the target org's Testing Center. Produces severity-graded findings; CI mode emits SARIF for GitHub Code Scanning. Persists each run to history for /sf-dev-kit:agent-eval-trend.
+description: Run agent evaluation tests via `sf agent test run` against the target org's Testing Center. Produces severity-graded findings; CI mode emits SARIF for GitHub Code Scanning. Persists each run to history for /argo:agent-eval-trend.
 data-access: data-with-consent
 ---
 
@@ -13,7 +13,7 @@ You are running **agent evaluation tests**. Testing Center scores agent response
 Production orgs are blocked outright (no eval runs against `security.prodOrgAliases` — production agent quality must be measured inside Salesforce's Testing Center web UI, not via this plugin).
 
 ```
-[sf-dev-kit/security] CONSENT REQUIRED
+[argo/security] CONSENT REQUIRED
 
 Skill:    /agent-test
 Org:      <alias>
@@ -61,7 +61,7 @@ The threshold is configurable in `sf-project.json` under `quality.agentEvalThres
 
 ```bash
 EVAL_DIR="tests/agent-evals"
-[[ -d "$EVAL_DIR" ]] || { echo "[agent-test] no eval directory found at ${EVAL_DIR} — run /sf-dev-kit:agent-spec first or create eval suites" >&2; exit 2; }
+[[ -d "$EVAL_DIR" ]] || { echo "[agent-test] no eval directory found at ${EVAL_DIR} — run /argo:agent-spec first or create eval suites" >&2; exit 2; }
 
 if [[ -n "$AGENT_NAME" ]]; then
   SUITES=( "${EVAL_DIR}/${AGENT_NAME}" )
@@ -139,17 +139,17 @@ Threshold: 0.85
 ]
 
 ## Persisted to history
-${CLAUDE_PLUGIN_DATA}/sf-dev-kit/agent-evals/<project>/order_helper.jsonl (1 line appended)
+${CLAUDE_PLUGIN_DATA}/argo/agent-evals/<project>/order_helper.jsonl (1 line appended)
 ```
 
 ### 5. Persist to history (always, in addition to user output)
 
 ```bash
 echo "{\"ranAt\":\"$(date -u +%FT%TZ)\",\"agent\":\"${name}\",\"git\":{\"sha\":\"$(git rev-parse HEAD)\"},\"overall\":${overall},\"perCase\":${perCase}}" \
-  >> "${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugin-data}/sf-dev-kit/agent-evals/<project>/${name}.jsonl"
+  >> "${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugin-data}/argo/agent-evals/<project>/${name}.jsonl"
 ```
 
-`/sf-dev-kit:agent-eval-trend` reads this history.
+`/argo:agent-eval-trend` reads this history.
 
 ### 6. Exit codes
 - 0 — all cases pass at threshold (security cases at 1.0)
@@ -167,6 +167,6 @@ echo "{\"ranAt\":\"$(date -u +%FT%TZ)\",\"agent\":\"${name}\",\"git\":{\"sha\":\
 ## Consumers
 
 - CI: gate merges on `agent-test --ci --fail-on error`
-- `/sf-dev-kit:agent-eval-trend` reads the persisted history for diffing
-- `/sf-dev-kit:agent-deploy` runs this skill before promoting; refuses to deploy if any error-level finding
+- `/argo:agent-eval-trend` reads the persisted history for diffing
+- `/argo:agent-deploy` runs this skill before promoting; refuses to deploy if any error-level finding
 - `@trust-reviewer` (Phase 15) reads the latest run as input to its review

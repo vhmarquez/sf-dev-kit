@@ -11,7 +11,7 @@
 # the MCP toolsets via `${CLAUDE_PLUGIN_ROOT}/hooks/lib/mcp.sh` (`mcp_prefer` +
 # `mcp_run <toolset> <tool>`). This file remains the always-works fallback path
 # and is the authoritative shim used when `@salesforce/mcp` is absent or
-# explicitly disabled (--no-mcp / SF_DEV_KIT_MCP_DISABLED=1). Both routes are
+# explicitly disabled (--no-mcp / ARGO_MCP_DISABLED=1). Both routes are
 # gated by the same security library.
 #
 # Public functions (return 0 on success; non-zero with a stderr message otherwise):
@@ -31,7 +31,7 @@ fi
 
 sf_cli_check() {
   if ! command -v sf >/dev/null 2>&1; then
-    echo "[sf-dev-kit] Error: 'sf' (Salesforce CLI) not found. Install from https://developer.salesforce.com/tools/salesforcecli" >&2
+    echo "[argo] Error: 'sf' (Salesforce CLI) not found. Install from https://developer.salesforce.com/tools/salesforcecli" >&2
     return 1
   fi
 }
@@ -40,11 +40,11 @@ sf_cli_check() {
 sf_cli_alias_exists() {
   local alias="$1"
   if [[ -z "$alias" ]]; then
-    echo "[sf-dev-kit] Error: sf_cli_alias_exists requires an alias" >&2
+    echo "[argo] Error: sf_cli_alias_exists requires an alias" >&2
     return 2
   fi
   sf_cli_check || return 1
-  command -v jq >/dev/null 2>&1 || { echo "[sf-dev-kit] Error: jq required" >&2; return 1; }
+  command -v jq >/dev/null 2>&1 || { echo "[argo] Error: jq required" >&2; return 1; }
 
   sf org list --json 2>/dev/null | jq -e --arg a "$alias" '
     .result as $r |
@@ -62,7 +62,7 @@ sf_cli_query() {
   local soql="$1"
   local alias="${2:-}"
   if [[ -z "$soql" ]]; then
-    echo "[sf-dev-kit] Error: sf_cli_query requires SOQL" >&2
+    echo "[argo] Error: sf_cli_query requires SOQL" >&2
     return 2
   fi
   sf_cli_check || return 1
@@ -79,7 +79,7 @@ sf_cli_describe() {
   local obj="$1"
   local alias="${2:-}"
   if [[ -z "$obj" ]]; then
-    echo "[sf-dev-kit] Error: sf_cli_describe requires an sObject API name" >&2
+    echo "[argo] Error: sf_cli_describe requires an sObject API name" >&2
     return 2
   fi
   sf_cli_check || return 1

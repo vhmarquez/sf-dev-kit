@@ -1,6 +1,6 @@
 ---
 name: devops-natural
-description: Natural-language deploy via the DevOps Center MCP toolset (Headless 360). Wraps an English description like "deploy the order changes from main to QA" into a structured deploy. Falls back to /sf-dev-kit:diff-deploy when MCP isn't configured.
+description: Natural-language deploy via the DevOps Center MCP toolset (Headless 360). Wraps an English description like "deploy the order changes from main to QA" into a structured deploy. Falls back to /argo:diff-deploy when MCP isn't configured.
 data-access: metadata-only
 ---
 
@@ -16,7 +16,7 @@ TOOLSETS="$(mcp_configured_toolsets "$ENV")"
 
 case ",$TOOLSETS," in
   *,devops,*) ;;
-  *) echo "[devops-natural] devops toolset not enabled. Run: /sf-dev-kit:mcp-setup --toolsets metadata,devops"; exit 2 ;;
+  *) echo "[devops-natural] devops toolset not enabled. Run: /argo:mcp-setup --toolsets metadata,devops"; exit 2 ;;
 esac
 ```
 
@@ -25,10 +25,10 @@ esac
 `$ARGUMENTS`: required — the natural-language request.
 
 Examples:
-- `"deploy the order changes since main to DevSandbox"` → equivalent to `/sf-dev-kit:diff-deploy --vs main --target-org DevSandbox`
+- `"deploy the order changes since main to DevSandbox"` → equivalent to `/argo:diff-deploy --vs main --target-org DevSandbox`
 - `"validate everything against prod"` → `--validate --target-org Prod`
 - `"deploy only the LWC components touched today"` → diff-since-today filtered to LWC bundles
-- `"promote v1.4.0-beta.7 to released"` → `/sf-dev-kit:package-version promote 04t...`
+- `"promote v1.4.0-beta.7 to released"` → `/argo:package-version promote 04t...`
 - `"roll back the last deploy"` → builds destructive changes from the last deploy log; not auto-applied
 - `--dry-run` — show what would happen, don't execute
 - `--ci` — non-interactive; the natural-language input must be unambiguous
@@ -71,25 +71,25 @@ The DevOps MCP returns a structured plan:
 This will:
   - Deploy 7 LWC bundles + 5 Apex classes
   - Run tests for the 5 production classes (RunSpecifiedTests)
-  - Append the deploy id to ${CLAUDE_PLUGIN_DATA}/sf-dev-kit/deploys/<project>/history.jsonl
+  - Append the deploy id to ${CLAUDE_PLUGIN_DATA}/argo/deploys/<project>/history.jsonl
 
 Proceed? (y/N)
 ```
 
 In CI mode, proceed if the plan has no warnings AND the user passed `--auto-approve`. Otherwise abort with the plan as output.
 
-### 3. Map to a sf-dev-kit skill
+### 3. Map to a argo skill
 
 Based on `intent`, dispatch to the right structured skill:
 | Intent | Skill |
 |--------|-------|
-| `diff-deploy` | `/sf-dev-kit:diff-deploy --vs <ref> --target-org <org>` |
-| `full-deploy` | `/sf-dev-kit:deploy <path> --target-org <org>` |
-| `quick-deploy` | `/sf-dev-kit:quick-deploy <id>` |
+| `diff-deploy` | `/argo:diff-deploy --vs <ref> --target-org <org>` |
+| `full-deploy` | `/argo:deploy <path> --target-org <org>` |
+| `quick-deploy` | `/argo:quick-deploy <id>` |
 | `validate-only` | (above with `--validate`) |
-| `package-promote` | `/sf-dev-kit:package-version promote <id>` |
-| `rollback` | `/sf-dev-kit:destructive-changes` (interactive) |
-| `agent-deploy` | `/sf-dev-kit:agent-deploy <agent>` |
+| `package-promote` | `/argo:package-version promote <id>` |
+| `rollback` | `/argo:destructive-changes` (interactive) |
+| `agent-deploy` | `/argo:agent-deploy <agent>` |
 
 This skill never invokes `sf project deploy start` directly — it routes through the structured skills so deploy history, gates, and notifications stay consistent.
 
@@ -131,5 +131,5 @@ CI JSON: `{"request":"...","intent":"diff-deploy","deployId":"0Af...XYZ","status
 ## Consumers
 
 - Interactive devs: faster than remembering exact CLI flags
-- Slack-deploy bots (paired with `/sf-dev-kit:slack-agent`): "@deploy-bot push the order changes to QA" → invokes this skill from Slack
+- Slack-deploy bots (paired with `/argo:slack-agent`): "@deploy-bot push the order changes to QA" → invokes this skill from Slack
 - Onboarding: new devs ramp without learning every flag

@@ -12,15 +12,15 @@
 #   - Refused       → exit 2 (PreToolUse contract: blocks the tool call) + JSON event on stderr
 #   - Consent required → exit 2 + JSON event with event="consent_required"
 #                        The assistant should present the event, get user OK,
-#                        and re-invoke with SF_DEV_KIT_CONSENT_GRANTED=once.
+#                        and re-invoke with ARGO_CONSENT_GRANTED=once.
 #
-# Disable per-session for testing: SF_DEV_KIT_SECURITY_GUARD=0 (NOT recommended;
+# Disable per-session for testing: ARGO_SECURITY_GUARD=0 (NOT recommended;
 # this defeats the safety net — the library still enforces, but raw `sf` calls
 # stop being audited).
 
 set -u
 
-if [[ "${SF_DEV_KIT_SECURITY_GUARD:-1}" == "0" ]]; then
+if [[ "${ARGO_SECURITY_GUARD:-1}" == "0" ]]; then
   exit 0
 fi
 
@@ -29,7 +29,7 @@ INPUT=$(cat)
 if ! command -v jq >/dev/null 2>&1; then
   # Without jq we can't parse — fail open, but surface a warning. The library
   # itself also requires jq, so this state is degenerate anyway.
-  echo "[sf-dev-kit/security-guard] jq not found — guard disabled for this call" >&2
+  echo "[argo/security-guard] jq not found — guard disabled for this call" >&2
   exit 0
 fi
 
@@ -49,7 +49,7 @@ if [[ -z "$PLUGIN_ROOT" ]] || [[ ! -f "${PLUGIN_ROOT}/hooks/lib/security.sh" ]];
   # allowlist. Without it we can't make a confident decision; fail closed for
   # known-dangerous patterns, fail open otherwise.
   if grep -qE '\bsf[[:space:]]+(data[[:space:]]+(query|create|update|delete|import|export)|apex[[:space:]]+run)\b' <<< "$COMMAND"; then
-    echo "[sf-dev-kit/security-guard] CLAUDE_PLUGIN_ROOT not set; refusing potentially-dangerous sf command" >&2
+    echo "[argo/security-guard] CLAUDE_PLUGIN_ROOT not set; refusing potentially-dangerous sf command" >&2
     exit 2
   fi
   exit 0

@@ -131,7 +131,7 @@ CI mode emits findings in the internal shape (see `docs/ci-output-contract.md`):
 
 ## Rules
 
-- **Don't try to read flow contents.** Flow XML parsing is heavy; this skill is metadata-only. Use `/sf-dev-kit:field-impact` if you need to know which fields a Flow touches
+- **Don't try to read flow contents.** Flow XML parsing is heavy; this skill is metadata-only. Use `/argo:field-impact` if you need to know which fields a Flow touches
 - **Don't audit inactive flows by default.** They're harmless and noisy
 - **Honor managed packages.** Flows from a managed package (`ManageableState != 'unmanaged'`) are not the user's concern; report them in a separate "From Managed Packages" section
 - **No row counts in the report unless you queried for them.** Run-history queries are expensive and not always available; don't fake metrics

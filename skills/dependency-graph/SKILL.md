@@ -59,7 +59,7 @@ Default Markdown (full graph):
 ```markdown
 # Dependency Graph: <project.name>
 
-Generated: 2026-04-28T15:30:00Z (`/sf-dev-kit:dependency-graph`)
+Generated: 2026-04-28T15:30:00Z (`/argo:dependency-graph`)
 Apex classes: 47 | LWC bundles: 18 | Cross-edges: 42
 
 ## Apex call graph
@@ -122,5 +122,5 @@ CI mode JSON edge list:
 ## Consumers
 
 - `@architect` and `@data-architect` use focused subgraphs to reason about refactor blast radius
-- `/sf-dev-kit:dead-code` shares the graph-building logic to find zero-incoming-edge nodes
-- `/sf-dev-kit:field-impact` uses LWC-to-Apex edges to find which LWCs depend on a controller that touches a given field
+- `/argo:dead-code` shares the graph-building logic to find zero-incoming-edge nodes
+- `/argo:field-impact` uses LWC-to-Apex edges to find which LWCs depend on a controller that touches a given field

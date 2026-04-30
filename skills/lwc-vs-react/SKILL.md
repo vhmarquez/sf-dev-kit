@@ -87,10 +87,10 @@ Mixing — incremental migration of an Aura/legacy app
 - `@salesforce/react/graphql` covers the data needs (RX-1); FLS auto-enforced
 
 ### Implementation outline
-- /sf-dev-kit:react-init BulletinFeed --type page
+- /argo:react-init BulletinFeed --type page
 - @react-dev: implement with useQuery + useVirtualizer
 - @qa: tests via Vitest + RTL (@react-dev's scaffold provides 4 starter cases)
-- Deploy via /sf-dev-kit:diff-deploy (handles React bundles same as LWC)
+- Deploy via /argo:diff-deploy (handles React bundles same as LWC)
 
 ### Patterns referenced
 - RX-1 (Platform GraphQL fetch)
@@ -114,5 +114,5 @@ Mixing — incremental migration of an Aura/legacy app
 ## Consumers
 
 - `@architect` invokes this when planning a new UI surface
-- `/sf-dev-kit:adr` captures the decision; future teammates know why
+- `/argo:adr` captures the decision; future teammates know why
 - `@lwc-dev` and `@react-dev` accept the recommendation and proceed

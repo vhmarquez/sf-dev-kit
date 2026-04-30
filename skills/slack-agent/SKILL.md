@@ -4,7 +4,7 @@ description: Scaffold a Slack-native Salesforce agent end-to-end via the Slack A
 data-access: none
 ---
 
-You are scaffolding a **Slack-native** agent — an Agentforce agent that lives in Slack as both a bot user and a workflow surface. This wraps Salesforce's **Slack Agent Kit** with sf-dev-kit's project conventions.
+You are scaffolding a **Slack-native** agent — an Agentforce agent that lives in Slack as both a bot user and a workflow surface. This wraps Salesforce's **Slack Agent Kit** with argo's project conventions.
 
 ## Read Project Config First
 
@@ -30,7 +30,7 @@ AGENT_DIR="$(sf_config_get '.paths.agentDefinitions // \"force-app/main/default/
 
 - Confirm Slack CLI authenticated: `slack auth list`
 - Confirm Salesforce CLI authenticated to `$ORG`: `sf_cli_alias_exists "$ORG"`
-- Confirm the project ships a base agent at `<AGENT_DIR>/<agent-name>/` (run `/sf-dev-kit:agent-spec <agent-name>` first if not)
+- Confirm the project ships a base agent at `<AGENT_DIR>/<agent-name>/` (run `/argo:agent-spec <agent-name>` first if not)
 
 ### 2. Generate the Slack manifest
 
@@ -147,7 +147,7 @@ slack run
 @<agent-name> hello
 ```
 
-If the agent has been deployed via `/sf-dev-kit:agent-deploy`, the org responds; the bridge converts to Block Kit; the user sees the formatted card.
+If the agent has been deployed via `/argo:agent-deploy`, the org responds; the bridge converts to Block Kit; the user sees the formatted card.
 
 ## Output
 
@@ -185,14 +185,14 @@ Required secrets (not committed; add via your secret manager):
 
 ## Rules
 
-- **The base agent must exist first.** Run `/sf-dev-kit:agent-spec` and `/sf-dev-kit:agent-deploy` before this skill — Slack is a delivery surface, not the source of truth
+- **The base agent must exist first.** Run `/argo:agent-spec` and `/argo:agent-deploy` before this skill — Slack is a delivery surface, not the source of truth
 - **Block Kit responses are the agent's structured output**, not free text. The agent's `slack_handoff` topic returns a typed payload; the bridge maps to Block Kit. Free text is the fallback for unstructured cases
 - **Secrets are never written to the project.** `.env.example` documents required vars; users add to their secret manager
-- **Refuse to scaffold without a deployed base agent.** Slack-only agents don't gate via `/sf-dev-kit:agent-test` and are a Trust Layer escape route — the workflow assumes the org-side agent exists
+- **Refuse to scaffold without a deployed base agent.** Slack-only agents don't gate via `/argo:agent-test` and are a Trust Layer escape route — the workflow assumes the org-side agent exists
 - **Per-workspace deploys.** A multi-workspace install needs a per-workspace manifest; this skill scaffolds for one workspace at a time
 
 ## Consumers
 
 - Internal collab: an agent that anyone in the workspace can `@mention`
-- Deploy bots: `@deploy-bot push the order changes to QA` → routes through `/sf-dev-kit:devops-natural`
+- Deploy bots: `@deploy-bot push the order changes to QA` → routes through `/argo:devops-natural`
 - Onboarding helpers: a `@helper` bot that answers FAQs grounded in `docs/project-context.md`

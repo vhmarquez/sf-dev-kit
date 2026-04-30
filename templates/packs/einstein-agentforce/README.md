@@ -6,8 +6,8 @@
 ## Migrate
 
 ```text
-/sf-dev-kit:pattern-pack remove einstein-agentforce
-/sf-dev-kit:pattern-pack add agentforce
+/argo:pattern-pack remove einstein-agentforce
+/argo:pattern-pack add agentforce
 ```
 
 The new pack ships AGT-1..7 (topic boundaries, sub-agent decomposition, guardrails, MCP-tool actions, FLS-aware grounding, memory & state, escalation paths) plus 8 quality-checklist additions.

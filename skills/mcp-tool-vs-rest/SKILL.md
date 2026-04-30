@@ -34,7 +34,7 @@ source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/mcp.sh"
 ```
 Caller is an agent (LLM-driven)
   → MCP Tool
-    Bridged via /sf-dev-kit:mcp-bridge from an Apex REST class (SF-16)
+    Bridged via /argo:mcp-bridge from an Apex REST class (SF-16)
     Schema-typed input/output, registered in Agent Registry (AGT-4)
 
 Caller is a third-party system, sync request/response
@@ -66,7 +66,7 @@ Bulk import from external
 
 ## When to combine
 
-- **MCP Tool wrapping an Apex REST endpoint** — most common. The Apex REST is the source of truth (versioned, deployable); the MCP tool is the agent-facing facade with type schema. `/sf-dev-kit:mcp-bridge` does this in one step
+- **MCP Tool wrapping an Apex REST endpoint** — most common. The Apex REST is the source of truth (versioned, deployable); the MCP tool is the agent-facing facade with type schema. `/argo:mcp-bridge` does this in one step
 - **REST + PE** — REST for the synchronous "create order" call; PE for the asynchronous "order created" broadcast that other systems pick up
 - **MCP Tool + PE subscription** — an agent invokes the tool, which fires a PE; a separate Apex subscriber handles the side effects
 
@@ -93,10 +93,10 @@ Bulk import from external
 
 ### Implementation outline
 - @apex-dev: implement OrderRestService (SF-16) with @HttpGet returning a typed Response envelope
-- /sf-dev-kit:mcp-bridge OrderRestService — generates mcp/bridges/order_get.json
+- /argo:mcp-bridge OrderRestService — generates mcp/bridges/order_get.json
 - @apex-dev: implement OrderRestServiceTest with HttpCalloutMock-style coverage
 - @agent-dev: bind `order_get` to the lookup_order topic in the agent spec (AGT-4)
-- /sf-dev-kit:mcp-bridge --register — registers the tool in the Agent Registry so other agents can discover it
+- /argo:mcp-bridge --register — registers the tool in the Agent Registry so other agents can discover it
 
 ### Patterns referenced
 - SF-16 (Apex REST service)
@@ -120,4 +120,4 @@ Bulk import from external
 
 - `@integration-architect` invokes this for any new external-facing operation
 - `@agent-dev` accepts the recommendation when defining new agent actions
-- `/sf-dev-kit:adr` captures the decision
+- `/argo:adr` captures the decision

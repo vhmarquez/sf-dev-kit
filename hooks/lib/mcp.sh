@@ -1,7 +1,7 @@
 #!/bin/bash
 # mcp.sh — Helpers for the Salesforce MCP server (`@salesforce/mcp`).
 #
-# This lib lets sf-dev-kit skills *prefer* the official Salesforce MCP toolsets
+# This lib lets argo skills *prefer* the official Salesforce MCP toolsets
 # (data, metadata, testing, lwc, code-analysis, devops, aura) when available,
 # and fall back to direct `sf` CLI calls when not.
 #
@@ -31,15 +31,15 @@ fi
 
 mcp_check() {
   if ! command -v npx >/dev/null 2>&1; then
-    echo "[sf-dev-kit/mcp] Error: npx (Node.js) not found. Install Node 20+." >&2
+    echo "[argo/mcp] Error: npx (Node.js) not found. Install Node 20+." >&2
     return 1
   fi
   if ! command -v jq >/dev/null 2>&1; then
-    echo "[sf-dev-kit/mcp] Error: jq required." >&2
+    echo "[argo/mcp] Error: jq required." >&2
     return 1
   fi
   if ! npx -y @salesforce/mcp --version >/dev/null 2>&1; then
-    echo "[sf-dev-kit/mcp] Salesforce MCP server not reachable. Install with /sf-dev-kit:mcp-setup." >&2
+    echo "[argo/mcp] Salesforce MCP server not reachable. Install with /argo:mcp-setup." >&2
     return 1
   fi
   npx -y @salesforce/mcp --version 2>/dev/null
@@ -61,7 +61,7 @@ mcp_configured_toolsets() {
 }
 
 mcp_prefer() {
-  if [[ -n "${SF_DEV_KIT_MCP_DISABLED:-}" ]]; then
+  if [[ -n "${ARGO_MCP_DISABLED:-}" ]]; then
     return 1
   fi
   mcp_available
@@ -125,7 +125,7 @@ mcp_run() {
   local alias="${4:-}"
 
   if [[ -z "$toolset" ]] || [[ -z "$tool" ]]; then
-    echo "[sf-dev-kit/mcp] Usage: mcp_run <toolset> <tool> [json-args] [alias]" >&2
+    echo "[argo/mcp] Usage: mcp_run <toolset> <tool> [json-args] [alias]" >&2
     return 2
   fi
 
@@ -151,7 +151,7 @@ mcp_run() {
 mcp_list_tools() {
   local toolset="$1"
   if [[ -z "$toolset" ]]; then
-    echo "[sf-dev-kit/mcp] Usage: mcp_list_tools <toolset>" >&2
+    echo "[argo/mcp] Usage: mcp_list_tools <toolset>" >&2
     return 2
   fi
   mcp_check >/dev/null || return 1

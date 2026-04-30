@@ -1,19 +1,19 @@
 ---
 name: trust-eval
-description: Run Custom Scoring Evals + Session Tracing against a deployed agent to surface drift (factuality regressions, hallucinations, grounding leaks). Counterpart to /sf-dev-kit:trust-layer-audit (config) — this skill is runtime / behavior.
+description: Run Custom Scoring Evals + Session Tracing against a deployed agent to surface drift (factuality regressions, hallucinations, grounding leaks). Counterpart to /argo:trust-layer-audit (config) — this skill is runtime / behavior.
 data-access: data-with-consent
 ---
 
-You are running **runtime trust evaluation** of a deployed agent. Where `/sf-dev-kit:trust-layer-audit` checks config, this skill checks behavior — does the deployed agent ground correctly, refuse adversarial prompts, and stay within its scope under live conditions?
+You are running **runtime trust evaluation** of a deployed agent. Where `/argo:trust-layer-audit` checks config, this skill checks behavior — does the deployed agent ground correctly, refuse adversarial prompts, and stay within its scope under live conditions?
 
 ## Security: data-with-consent
 
 This skill queries `AgentSessionTrace`, which contains **user conversation transcripts**. That's customer data per the plugin's security model — refused by default. The Custom Scoring Eval portion (`sf agent test run`) also exposes test inputs/outputs that may carry test-PII; it's also gated.
 
-Before running, the assistant must present the consent block below to the user. On grant, re-invoke the gated commands with `SF_DEV_KIT_CONSENT_GRANTED=once` set per call (one-shot tokens — every call prompts again).
+Before running, the assistant must present the consent block below to the user. On grant, re-invoke the gated commands with `ARGO_CONSENT_GRANTED=once` set per call (one-shot tokens — every call prompts again).
 
 ```
-[sf-dev-kit/security] CONSENT REQUIRED
+[argo/security] CONSENT REQUIRED
 
 Skill:    /trust-eval
 Org:      <alias>
@@ -163,7 +163,7 @@ CI mode: SARIF per finding.
 ## Rules
 
 - **Don't run during prod incidents.** Heavy `sf data query` on AgentSessionTrace can slow the org. Run during low-traffic windows
-- **Drift, not absolute.** A 0.92 score isn't a finding by itself; a 0.92 down from 0.97 last week IS. Cross-reference `/sf-dev-kit:agent-eval-trend`
+- **Drift, not absolute.** A 0.92 score isn't a finding by itself; a 0.92 down from 0.97 last week IS. Cross-reference `/argo:agent-eval-trend`
 - **PII masking ≠ failure.** Trust Layer masking is the system working correctly. But sustained input PII may indicate adversarial use; surface as warning
 - **Per-env tuning.** prod has tighter thresholds (set in env override files); dev runs are informational
 
@@ -171,4 +171,4 @@ CI mode: SARIF per finding.
 
 - Periodic CI job: weekly `trust-eval --ci` per active customer-facing agent; alerts on regression
 - `@trust-reviewer` reads this skill's findings as input to its review
-- `/sf-dev-kit:notify` posts a summary card to a `#agent-quality` channel after each run
+- `/argo:notify` posts a summary card to a `#agent-quality` channel after each run

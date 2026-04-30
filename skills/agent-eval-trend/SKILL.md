@@ -1,10 +1,10 @@
 ---
 name: agent-eval-trend
-description: Persist Salesforce agent evaluation scores over time and surface regressions per agent and per axis (factuality, completeness, tone, refusal-correctness, action-correctness). Sibling to /sf-dev-kit:coverage-trend but for agent evals.
+description: Persist Salesforce agent evaluation scores over time and surface regressions per agent and per axis (factuality, completeness, tone, refusal-correctness, action-correctness). Sibling to /argo:coverage-trend but for agent evals.
 data-access: none
 ---
 
-You are tracking **agent evaluation scores** over time. The history is per-project, stored in `${CLAUDE_PLUGIN_DATA}/sf-dev-kit/agent-evals/<project>/<agent>.jsonl` (one JSON line per `/sf-dev-kit:agent-test` run).
+You are tracking **agent evaluation scores** over time. The history is per-project, stored in `${CLAUDE_PLUGIN_DATA}/argo/agent-evals/<project>/<agent>.jsonl` (one JSON line per `/argo:agent-test` run).
 
 ## Read Project Config First
 
@@ -13,7 +13,7 @@ source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/config.sh"
 PROJECT_NAME="$(sf_config_get '.project.name' "$ENV")"
 THRESHOLD="$(sf_config_get '.quality.agentEvalThreshold // 0.85' "$ENV")"
 SLUG="$(printf '%s' "$PROJECT_NAME" | tr '[:upper:] /' '[:lower:]_-' | tr -cd 'a-z0-9_-')"
-HISTORY_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugin-data}/sf-dev-kit/agent-evals/${SLUG}"
+HISTORY_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugin-data}/argo/agent-evals/${SLUG}"
 mkdir -p "$HISTORY_DIR"
 ```
 
@@ -116,5 +116,5 @@ Append a JSON line to `${HISTORY_DIR}/<agent>.jsonl`. Used by `/agent-test` afte
 ## Consumers
 
 - CI: `agent-eval-trend pr --ci` gates merges on regression
-- `/sf-dev-kit:release-notes` pulls the latest line per agent for the "Agents" section
-- `/sf-dev-kit:agent-deploy` reads the latest run before deploy; refuses if regression vs. baseline
+- `/argo:release-notes` pulls the latest line per agent for the "Agents" section
+- `/argo:agent-deploy` reads the latest run before deploy; refuses if regression vs. baseline

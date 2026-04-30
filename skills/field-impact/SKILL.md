@@ -26,7 +26,7 @@ APEX_SRC="$(sf_config_get '.paths.apexSource' "$ENV")"
 ## Steps
 
 ### 1. Validate the field exists (if `--target-org`/cache available)
-- Read `${CLAUDE_PLUGIN_DATA}/sf-dev-kit/org-cache/<org>.json` if present
+- Read `${CLAUDE_PLUGIN_DATA}/argo/org-cache/<org>.json` if present
 - If absent, run `sf_cli_describe <Object> <ORG>` and extract field list
 - If the field doesn't exist, warn but continue with source-only search
 

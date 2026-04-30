@@ -1,10 +1,10 @@
 ---
 name: sf-init
-description: Bootstrap or update a Salesforce project for the sf-dev-kit AI workflow. Detects existing SFDX state aggressively, presents a single review screen with confidence indicators, edits only what the user picks, writes `.claude/sf-project.json`, scaffolds standards/docs, then runs a smoke test to verify everything resolves. Modes: full bootstrap, `auto`, `update <fields>`, `env <name>`, `verify`.
+description: Bootstrap or update a Salesforce project for the argo AI workflow. Detects existing SFDX state aggressively, presents a single review screen with confidence indicators, edits only what the user picks, writes `.claude/sf-project.json`, scaffolds standards/docs, then runs a smoke test to verify everything resolves. Modes: full bootstrap, `auto`, `update <fields>`, `env <name>`, `verify`.
 data-access: metadata-only
 ---
 
-You are bootstrapping a Salesforce project for the **`sf-dev-kit`** Claude Code plugin. The interaction model is **detect → review → edit → write → verify**: detection does the heavy lifting, the user only edits what's ambiguous or missing, and a smoke test catches misconfigurations before they break downstream skills.
+You are bootstrapping a Salesforce project for the **`argo`** Claude Code plugin. The interaction model is **detect → review → edit → write → verify**: detection does the heavy lifting, the user only edits what's ambiguous or missing, and a smoke test catches misconfigurations before they break downstream skills.
 
 ## When to Use
 
@@ -67,11 +67,11 @@ Run all detectors via Bash; collect (value, confidence, evidence) per field. Con
 | 26 | `security.metadataOnly` | (none) | always `true` | (n/a) | When true (default), SOQL queries are restricted to a metadata allowlist; data queries require per-call consent |
 | 27 | `security.allowAnonymousApex` | (none) | always `false` | (n/a) | When false (default), `sf apex run` is refused outright |
 
-For each non-scratch alias from `sf org list --json`, run `sf org display --target-org <alias> --json` once during detection to capture `isSandbox` and cache the classification under `${CLAUDE_PLUGIN_DATA}/sf-dev-kit/org-cache/<alias>.json`. Aliases reporting `isSandbox: false` AND not yet listed in `security.prodOrgAliases` or `security.knownNonSandboxNonProd` surface on the review screen as ⚠️ required — the user must classify them before the write proceeds.
+For each non-scratch alias from `sf org list --json`, run `sf org display --target-org <alias> --json` once during detection to capture `isSandbox` and cache the classification under `${CLAUDE_PLUGIN_DATA}/argo/org-cache/<alias>.json`. Aliases reporting `isSandbox: false` AND not yet listed in `security.prodOrgAliases` or `security.knownNonSandboxNonProd` surface on the review screen as ⚠️ required — the user must classify them before the write proceeds.
 
 Detection is read-only. It produces a struct: each field has `{value, confidence, evidence}`.
 
-### 2. Detect existing sf-dev-kit state
+### 2. Detect existing argo state
 
 Check whether each of these already exists:
 - `.claude/sf-project.json` (and any `.claude/sf-project.<env>.json`)
@@ -291,7 +291,7 @@ Skipped if `--no-verify`. Run all checks; render a checklist; record exit status
 | API version compatible | within 2 versions of org's reported API | Edit `platform.apiVersion` to match the org |
 | Lint command in scripts | `package.json.scripts[<lintCommand minus 'npm run '>]` present | Update `quality.lintCommand` or add the script |
 | Unit test command in scripts | same shape | Same |
-| MCP reachable (when configured) | `mcp_check` (sources `hooks/lib/mcp.sh`) returns 0 | Run `/sf-dev-kit:mcp-setup` to install/configure |
+| MCP reachable (when configured) | `mcp_check` (sources `hooks/lib/mcp.sh`) returns 0 | Run `/argo:mcp-setup` to install/configure |
 | Standards docs copied | each `paths.standardsDocs` exists | Re-run `/sf-init` (will detect existing config and just re-copy) |
 | Doc indexes scaffolded | `lwc/README.md`, `apex-classes/README.md`, `docs/README.md`, conditional `react/`/`agents/` | Same |
 | All non-sandbox orgs classified | every alias from `sf org list` is either in `security.prodOrgAliases` or `security.knownNonSandboxNonProd` (sandboxes skipped) | Edit one of those lists; an unclassified non-sandbox is refused at runtime |
@@ -320,8 +320,8 @@ If any ❌:
 ```
 ✅ Org alias DevVM resolves
 ❌ paths.reactSource not found            (force-app/main/default/react missing — frontend is "react")
-   Fix: create the directory, or run `/sf-dev-kit:sf-init update paths.reactSource`,
-        or change frontend back to "lwc" via `/sf-dev-kit:sf-init update platform.frontend`
+   Fix: create the directory, or run `/argo:sf-init update paths.reactSource`,
+        or change frontend back to "lwc" via `/argo:sf-init update platform.frontend`
 …
 
 7 passed, 1 failed, 0 skipped. Config written but won't work end-to-end until fixed.
@@ -338,9 +338,9 @@ After verify, summarize what was created/updated and recommend next steps:
 
 - Fill in the `_TODO_` sections of `docs/project-context.md`
 - Add project-specific patterns to `docs/patterns/project-patterns.md` as they emerge
-- (If MCP wasn't configured) Run `/sf-dev-kit:mcp-setup --profile dev`
-- Run `/sf-dev-kit:org-explore` to populate the org cache so `@architect` can ground designs in real org state
-- Run `/sf-dev-kit:code-review all` once a few components exist
+- (If MCP wasn't configured) Run `/argo:mcp-setup --profile dev`
+- Run `/argo:org-explore` to populate the org cache so `@architect` can ground designs in real org state
+- Run `/argo:code-review all` once a few components exist
 
 ---
 

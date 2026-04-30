@@ -1,15 +1,15 @@
 ---
 name: agent-vs-flow-vs-apex
-description: Decide whether a feature should be built as an Agentforce Agent, a Flow, an Apex Trigger, or other mechanism. Replaces /sf-dev-kit:flow-vs-apex when agents are in scope; otherwise falls through to it. Asks 6–10 questions and recommends with rationale.
+description: Decide whether a feature should be built as an Agentforce Agent, a Flow, an Apex Trigger, or other mechanism. Replaces /argo:flow-vs-apex when agents are in scope; otherwise falls through to it. Asks 6–10 questions and recommends with rationale.
 data-access: none
 ---
 
 You are extending the **flow-vs-apex** decision with **Agent** as a first-class option (Headless 360). Many things that used to be Flow + LWC + Apex are now better expressed as agents — especially conversational, multi-step, or reasoning-over-data workflows.
 
-## When to use this vs /sf-dev-kit:flow-vs-apex
+## When to use this vs /argo:flow-vs-apex
 
 - **This skill** — when the project ships agents (`platform.frontend` includes agents OR `paths.agentDefinitions` is populated). Adds Agent to the decision space
-- **`/sf-dev-kit:flow-vs-apex`** — when the project is non-agent. Same decisions but without the agent option
+- **`/argo:flow-vs-apex`** — when the project is non-agent. Same decisions but without the agent option
 
 ## Read Project Config First
 
@@ -38,7 +38,7 @@ HAS_AGENTS="$(test -d \"$(sf_config_get '.paths.agentDefinitions // \"force-app/
 7. **Confirmation needed before destructive action?**
 8. **Sharing/security — must respect FLS, sharing, profile?**
 9. **Latency — synchronous user wait acceptable / can be async?**
-10. **Existing automation on the affected objects?** (Cross-reference `/sf-dev-kit:flow-audit` and `/sf-dev-kit:agent-discover`)
+10. **Existing automation on the affected objects?** (Cross-reference `/argo:flow-audit` and `/argo:agent-discover`)
 
 ## Decision tree
 
@@ -81,7 +81,7 @@ Cross-system event broadcast
 
 ### When to combine
 
-- **Agent + Apex action** — most common pattern. Agent handles the conversational layer; Apex does the deterministic work. Bridge via `/sf-dev-kit:mcp-bridge` (AGT-4)
+- **Agent + Apex action** — most common pattern. Agent handles the conversational layer; Apex does the deterministic work. Bridge via `/argo:mcp-bridge` (AGT-4)
 - **Agent + Flow** — agent calls a flow as an action. Reasonable when admins own the underlying workflow
 - **LWC + Agent** — LWC embeds an agent for a specific interactive surface (e.g., a help chat in a record page). Use the LWC's `<lightning-agent-chat>` shell
 
@@ -112,16 +112,16 @@ Cross-system event broadcast
 
 ### Implementation outline
 - @architect: produce the design (agent topics + Apex actions + Slack manifest)
-- @agent-dev: author /sf-dev-kit:agent-spec for order_helper, generate AgentDefinition
-- @apex-dev: implement OrderApiClient.fetchOrder + cancelOrder; bridge via /sf-dev-kit:mcp-bridge
+- @agent-dev: author /argo:agent-spec for order_helper, generate AgentDefinition
+- @apex-dev: implement OrderApiClient.fetchOrder + cancelOrder; bridge via /argo:mcp-bridge
 - @qa: write Apex tests; @agent-dev: write 12+ eval cases including 3 jailbreak scenarios
-- /sf-dev-kit:slack-agent: scaffold the Slack delivery surface
-- /sf-dev-kit:trust-layer-audit + /sf-dev-kit:agent-test: gate before deploy
+- /argo:slack-agent: scaffold the Slack delivery surface
+- /argo:trust-layer-audit + /argo:agent-test: gate before deploy
 
 ### Patterns referenced
 - AGT-1, AGT-3, AGT-4, AGT-5, AGT-7 (agentforce pack)
 - SF-15 (HTTP callout via Named Credential — for any external touch)
-- SF-16 (Apex REST service — bridged via /sf-dev-kit:mcp-bridge)
+- SF-16 (Apex REST service — bridged via /argo:mcp-bridge)
 
 ### Alternatives considered
 - **Pure Apex + LWC**: would work in the Salesforce UI but doesn't reach the Slack surface
@@ -139,5 +139,5 @@ Cross-system event broadcast
 ## Consumers
 
 - `@architect` invokes this when a feature might involve agents
-- `@agent-dev` reads the recommendation as the seed for `/sf-dev-kit:agent-spec`
-- Project ADRs (`/sf-dev-kit:adr`) capture the choice for future teammates
+- `@agent-dev` reads the recommendation as the seed for `/argo:agent-spec`
+- Project ADRs (`/argo:adr`) capture the choice for future teammates

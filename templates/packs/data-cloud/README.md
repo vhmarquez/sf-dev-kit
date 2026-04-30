@@ -4,7 +4,7 @@ Patterns for **Salesforce Data Cloud** — the harmonized customer data platform
 
 ## When to use this pack
 
-Install with `/sf-dev-kit:pattern-pack add data-cloud` if your project:
+Install with `/argo:pattern-pack add data-cloud` if your project:
 - Ingests data from multiple systems (CRM, web, POS, ERP) and needs unified individuals
 - Computes derived metrics (LTV, churn risk, engagement scores) for activation
 - Pushes audiences to Marketing Cloud, ad platforms, or custom webhooks via Data Cloud activations
@@ -29,7 +29,7 @@ Plus checklist items covering connector choice, identity match-key strength, seg
 
 - Marketing Cloud send / journey design — that's a Marketing Cloud concern
 - Tableau CRM / Tableau Cloud analytics — separate analytical product
-- Generative-AI grounding rules / Trust Layer — see the `agentforce` pack and `/sf-dev-kit:trust-layer-audit`
+- Generative-AI grounding rules / Trust Layer — see the `agentforce` pack and `/argo:trust-layer-audit`
 
 ## Cross-references
 

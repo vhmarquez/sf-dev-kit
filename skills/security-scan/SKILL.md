@@ -122,7 +122,7 @@ Run at: 2026-04-28T12:45:00Z
 (See ${paths.patternsSalesforceDoc} for full pattern docs.)
 ```
 
-CI mode: pipe internal findings through `sarif_emit "sf-dev-kit/security-scan" "$VERSION"`.
+CI mode: pipe internal findings through `sarif_emit "argo/security-scan" "$VERSION"`.
 
 ### 6. Exit codes
 - 0 — no findings
@@ -139,6 +139,6 @@ CI mode: pipe internal findings through `sarif_emit "sf-dev-kit/security-scan" "
 
 ## Consumers
 
-- `/sf-dev-kit:code-review` and `@qa` recommend running `/security-scan` for any class touching DML, callouts, or dynamic SOQL
+- `/argo:code-review` and `@qa` recommend running `/security-scan` for any class touching DML, callouts, or dynamic SOQL
 - CI pipelines run `/security-scan --ci --format sarif --out scan.sarif` and upload to GitHub Code Scanning
 - `@security-reviewer` (Phase 5) reads scan results to focus its analysis

@@ -128,12 +128,12 @@ systemPrompt: |
 
 **Rules**:
 - The eval suite includes ≥1 case per guardrail layer (input-too-long, jailbreak, role-reversal)
-- Run `/sf-dev-kit:trust-layer-audit` to verify the guardrails block; rule `TRUST-PROMPT-LEAKY` flags weak phrasing
-- Prompt-injection resistance is binary: refusal-correctness must be 1.0 on jailbreak eval cases (`/sf-dev-kit:agent-test` rule `AGENT-EVAL-SECURITY-FAIL`)
+- Run `/argo:trust-layer-audit` to verify the guardrails block; rule `TRUST-PROMPT-LEAKY` flags weak phrasing
+- Prompt-injection resistance is binary: refusal-correctness must be 1.0 on jailbreak eval cases (`/argo:agent-test` rule `AGENT-EVAL-SECURITY-FAIL`)
 
 ## AGT-4: Action via MCP Tool {#agt-action-mcp-tool}
 
-Prefer **MCP tools** (built via `/sf-dev-kit:mcp-bridge`) over inline Apex actions. Tools are versioned, schema-typed, and discoverable by other agents.
+Prefer **MCP tools** (built via `/argo:mcp-bridge`) over inline Apex actions. Tools are versioned, schema-typed, and discoverable by other agents.
 
 ```yaml
 # specs/agent-order_helper.yaml
@@ -155,7 +155,7 @@ topics:
 ```
 
 **Rules**:
-- Every action references a tool that exists in `mcp/bridges/<tool-name>.json` (verify with `/sf-dev-kit:agent-discover`)
+- Every action references a tool that exists in `mcp/bridges/<tool-name>.json` (verify with `/argo:agent-discover`)
 - Each tool has both `inputSchema` and `outputSchema` defined — `outputSchema` constrains what the agent can claim about the result (no hallucinated fields)
 - `args` are interpolated from slot fills (`{{slot:order_id}}`) or from the conversation context (`{{context.user.id}}`); never from raw user input without validation
 - For destructive actions, wrap in confirm-before-execute (AGT-3)
@@ -168,7 +168,7 @@ topics:
   className: SomeService
   method: doSomething
 ```
-Inline Apex bypasses the bridge layer and loses output validation. Bridge it via `/sf-dev-kit:mcp-bridge` first.
+Inline Apex bypasses the bridge layer and loses output validation. Bridge it via `/argo:mcp-bridge` first.
 
 ## AGT-5: Grounding with FLS {#agt-grounding-fls}
 
@@ -208,7 +208,7 @@ public with sharing class OrderGroundingAction {
 - Cross-record grounding (e.g., "show me peer companies' orders") goes through an aggregator that masks identifying fields, never raw cross-record SOQL
 - The agent's prompt template names exactly which fields it's authorized to ground from; if the response references a field not in that list, that's a `TRUST-GROUNDING-OUT-OF-SCOPE` finding
 
-**Audit**: `/sf-dev-kit:trust-layer-audit` and `/sf-dev-kit:fls-audit` both flag grounding queries missing `WITH USER_MODE`.
+**Audit**: `/argo:trust-layer-audit` and `/argo:fls-audit` both flag grounding queries missing `WITH USER_MODE`.
 
 ## AGT-6: Memory & State {#agt-memory-state}
 
@@ -294,7 +294,7 @@ escalation:
 
 **Rules**:
 - The escalation topic is the agent's last resort — no further LLM reasoning, just structured action
-- Case creation goes through an MCP tool (case_create), bridged from a project-owned Apex REST endpoint (SF-16). Tested via `/sf-dev-kit:agent-test` with at least one escalation eval case
+- Case creation goes through an MCP tool (case_create), bridged from a project-owned Apex REST endpoint (SF-16). Tested via `/argo:agent-test` with at least one escalation eval case
 - The user is told concretely what's happening: case number, ETA, what was logged
 - Don't over-trigger: a polite "I can't help with that" should not auto-escalate. Reserve for genuine handoff
 - Internal-only agents (@-mentioned in Slack) can escalate to a Slack channel instead of a Case (use the slack-agent pack's primitives)

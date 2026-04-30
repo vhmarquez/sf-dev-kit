@@ -18,7 +18,7 @@ FRONTEND="$(sf_config_get '.platform.frontend // \"lwc\"' "$ENV")"
 
 case "$FRONTEND" in
   *react*) ;;
-  *) echo "[react-init] Project's platform.frontend does not include 'react'. Run: /sf-dev-kit:sf-init update platform.frontend"; exit 2 ;;
+  *) echo "[react-init] Project's platform.frontend does not include 'react'. Run: /argo:sf-init update platform.frontend"; exit 2 ;;
 esac
 ```
 

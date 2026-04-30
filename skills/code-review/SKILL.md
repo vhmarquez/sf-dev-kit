@@ -140,7 +140,7 @@ In CI mode (`--ci`), produce findings in the internal shape (see `docs/ci-output
 ]
 ```
 
-For SARIF output, source `${CLAUDE_PLUGIN_ROOT}/hooks/lib/sarif.sh` and pipe through `sarif_emit "sf-dev-kit/code-review" "<plugin-version>"`.
+For SARIF output, source `${CLAUDE_PLUGIN_ROOT}/hooks/lib/sarif.sh` and pipe through `sarif_emit "argo/code-review" "<plugin-version>"`.
 
 Exit codes (per contract):
 - 0 — no findings at or above `--fail-on` threshold
@@ -154,7 +154,7 @@ Rule ID prefixes used by code-review:
 
 ## PR Mode
 
-Invoked as `/sf-dev-kit:code-review pr`:
+Invoked as `/argo:code-review pr`:
 1. Run `git diff --name-only main...HEAD` to find changed source files
 2. For each changed file, dispatch into the per-file review path
 3. Aggregate findings; emit a single report (Markdown or CI JSON)

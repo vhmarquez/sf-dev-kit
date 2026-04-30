@@ -46,7 +46,7 @@ prettier_out=$(npx --no-install prettier --write "$FILE_PATH" 2>&1)
 prettier_exit=$?
 if [[ $prettier_exit -ne 0 ]]; then
   {
-    echo "[sf-dev-kit/lint-lwc] Prettier failed on $FILE_PATH (exit $prettier_exit):"
+    echo "[argo/lint-lwc] Prettier failed on $FILE_PATH (exit $prettier_exit):"
     echo "$prettier_out"
   } >&2
 fi
@@ -58,7 +58,7 @@ eslint_out=$(npx --no-install eslint "$FILE_PATH" 2>&1)
 eslint_exit=$?
 if [[ $eslint_exit -ne 0 ]]; then
   {
-    echo "[sf-dev-kit/lint-lwc] ESLint findings on $FILE_PATH:"
+    echo "[argo/lint-lwc] ESLint findings on $FILE_PATH:"
     echo "$eslint_out"
   } >&2
 fi

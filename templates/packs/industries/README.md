@@ -4,7 +4,7 @@ Patterns for **Salesforce Industries / OmniStudio** (the former Vlocity stack) â
 
 ## When to use this pack
 
-Install with `/sf-dev-kit:pattern-pack add industries` if your project:
+Install with `/argo:pattern-pack add industries` if your project:
 - Builds on top of Salesforce Industries (Communications, Media, Energy, Insurance, Health, Public Sector)
 - Uses OmniStudio components for guided customer journeys, agent screens, or partner portals
 - Configures product catalogs through EPC for industry-shaped CPQ

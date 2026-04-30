@@ -109,7 +109,7 @@ Conventions:
 ```markdown
 # Sequence: <LWC>.<method>
 
-Generated: 2026-04-28T11:45:00Z (`/sf-dev-kit:sequence-diagram`)
+Generated: 2026-04-28T11:45:00Z (`/argo:sequence-diagram`)
 Entry: <LWC> (handler: <method>)
 Depth: <n>
 

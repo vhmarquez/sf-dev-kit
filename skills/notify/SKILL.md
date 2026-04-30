@@ -35,7 +35,7 @@ TEAMS_URL="$(sf_config_get '.notifications.webhooks.teams // empty' "$ENV")"
 
 The `channels` map says which event types go to which platforms. If empty, all configured platforms receive every event.
 
-`/sf-dev-kit:sf-init` (Phase 1) does not prompt for these by default — they're sensitive. Recommend adding to a per-env override file (`.claude/sf-project.prod.json`) so dev/QA don't post to the team channel during testing.
+`/argo:sf-init` (Phase 1) does not prompt for these by default — they're sensitive. Recommend adding to a per-env override file (`.claude/sf-project.prod.json`) so dev/QA don't post to the team channel during testing.
 
 ## Input
 
@@ -124,7 +124,7 @@ CI mode: emit `{"posted": ["slack", "teams"], "errors": []}`.
 
 ## Consumers
 
-- CI deploy pipeline: `/sf-dev-kit:notify deploy "$DEPLOY_RESULT_JSON"`
-- `/sf-dev-kit:test-coverage` posts a `coverage` event when run with `--notify`
-- `/sf-dev-kit:security-scan` posts a `security` event when run with `--notify`
-- Release process: `/sf-dev-kit:release-notes` + `/sf-dev-kit:notify release ...`
+- CI deploy pipeline: `/argo:notify deploy "$DEPLOY_RESULT_JSON"`
+- `/argo:test-coverage` posts a `coverage` event when run with `--notify`
+- `/argo:security-scan` posts a `security` event when run with `--notify`
+- Release process: `/argo:release-notes` + `/argo:notify release ...`

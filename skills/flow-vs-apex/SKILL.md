@@ -34,7 +34,7 @@ Ask in order. Skip questions that are obviously answered by the description.
 5. **Does it need transaction control?** rollback on partial failure, savepoints?
 6. **Does it need callouts?** outbound HTTP, MuleSoft, external systems?
 7. **Are there sharing/security implications?** must respect record-level sharing? Or run as system?
-8. **Existing automation on the object?** (Check `/sf-dev-kit:flow-audit <Object>` if available)
+8. **Existing automation on the object?** (Check `/argo:flow-audit <Object>` if available)
 
 ## Decision tree
 

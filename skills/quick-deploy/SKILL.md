@@ -11,7 +11,7 @@ You are running a **quick-deploy** — taking a deploy ID that's already passed 
 ```bash
 source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/config.sh"
 ORG="$(sf_config_get '.platform.defaultTargetOrg' "$ENV")"
-HISTORY="${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugin-data}/sf-dev-kit/deploys/${PROJECT_SLUG}/history.jsonl"
+HISTORY="${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugin-data}/argo/deploys/${PROJECT_SLUG}/history.jsonl"
 ```
 
 ## Input
@@ -19,7 +19,7 @@ HISTORY="${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugin-data}/sf-dev-kit/deploys/${P
 `$ARGUMENTS`:
 - (empty) — show available validated deploy IDs from history; prompt for one
 - `<deployId>` — quick-deploy the specified ID
-- `--validate-first` — run `/sf-dev-kit:diff-deploy --validate` first, then quick-deploy the resulting ID
+- `--validate-first` — run `/argo:diff-deploy --validate` first, then quick-deploy the resulting ID
 - `--target-org <alias>` / `--env <name>` — standard overrides
 - `--ci` — machine output
 
@@ -35,7 +35,7 @@ jq -r 'select(.status == "ValidatedSucceeded" and (.validatedAt | fromdate) > (n
 ```
 Prompt the user to pick one.
 
-If `--validate-first`, dispatch to `/sf-dev-kit:diff-deploy --validate` and capture the deploy ID from its output.
+If `--validate-first`, dispatch to `/argo:diff-deploy --validate` and capture the deploy ID from its output.
 
 ### 2. Verify the deploy ID is still valid for quick-deploy
 

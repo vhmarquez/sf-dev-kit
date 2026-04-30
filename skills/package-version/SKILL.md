@@ -49,7 +49,7 @@ The package name comes from `sf-project.json` `platform.packageName` (you may ne
 
 3. Capture the new `SubscriberPackageVersionId` (`04t...`) and the `PackageVersionId` (`05i...`) from the JSON.
 
-4. Append to `${CLAUDE_PLUGIN_DATA}/sf-dev-kit/packages/<project>/versions.jsonl`:
+4. Append to `${CLAUDE_PLUGIN_DATA}/argo/packages/<project>/versions.jsonl`:
    ```json
    {"createdAt":"...","subscriberId":"04t...","packageId":"05i...","versionNumber":"1.4.0.NEXT","released":false,"codeCoverage":89.2}
    ```
@@ -96,8 +96,8 @@ Created at:        2026-04-28T14:30:00Z
 https://login.salesforce.com/packaging/installPackage.apexp?p0=04t1b00000XYZ
 
 ## Next steps
-- Test install in a sandbox: /sf-dev-kit:package-version install 04t1b00000XYZ --target-org Sandbox
-- Promote to released: /sf-dev-kit:package-version promote 04t1b00000XYZ
+- Test install in a sandbox: /argo:package-version install 04t1b00000XYZ --target-org Sandbox
+- Promote to released: /argo:package-version promote 04t1b00000XYZ
 - (After release tag git: git tag v1.4.0)
 ```
 

@@ -1,10 +1,10 @@
 ---
 name: coverage-trend
-description: Persist Apex code-coverage results over time and surface regressions. After each /sf-dev-kit:test-coverage run (or via this skill directly), append the result to a per-project history file and show the trend. PR-mode diffs against the baseline.
+description: Persist Apex code-coverage results over time and surface regressions. After each /argo:test-coverage run (or via this skill directly), append the result to a per-project history file and show the trend. PR-mode diffs against the baseline.
 data-access: metadata-only
 ---
 
-You are tracking Apex coverage over time so regressions are visible. The history is per-project, stored in `${CLAUDE_PLUGIN_DATA}/sf-dev-kit/coverage/<project>/history.jsonl` (one JSON line per run).
+You are tracking Apex coverage over time so regressions are visible. The history is per-project, stored in `${CLAUDE_PLUGIN_DATA}/argo/coverage/<project>/history.jsonl` (one JSON line per run).
 
 ## Read Project Config First
 
@@ -13,7 +13,7 @@ source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/config.sh"
 PROJECT_NAME="$(sf_config_get '.project.name' "$ENV")"
 COVERAGE_TARGET="$(sf_config_get '.quality.codeCoverageTarget' "$ENV")"
 SLUG="$(printf '%s' "$PROJECT_NAME" | tr '[:upper:] /' '[:lower:]_-' | tr -cd 'a-z0-9_-')"
-HISTORY_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugin-data}/sf-dev-kit/coverage/${SLUG}"
+HISTORY_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugin-data}/argo/coverage/${SLUG}"
 mkdir -p "$HISTORY_DIR"
 ```
 
@@ -117,5 +117,5 @@ CI integration: emit findings (one per regression) following the standard contra
 ## Consumers
 
 - CI pipelines run `coverage-trend pr` to gate merges on coverage regression
-- `/sf-dev-kit:release-notes` pulls the latest record to include "Coverage: X%" in release notes
+- `/argo:release-notes` pulls the latest record to include "Coverage: X%" in release notes
 - `@qa` consults the history when a class drops below target to recommend which tests to add

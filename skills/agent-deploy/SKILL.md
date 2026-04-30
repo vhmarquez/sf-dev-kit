@@ -1,10 +1,10 @@
 ---
 name: agent-deploy
-description: Deploy AgentDefinition metadata + register the eval suite with Testing Center, with Trust Layer + eval-regression gating. Refuses to deploy if /sf-dev-kit:trust-layer-audit or /sf-dev-kit:agent-test fail.
+description: Deploy AgentDefinition metadata + register the eval suite with Testing Center, with Trust Layer + eval-regression gating. Refuses to deploy if /argo:trust-layer-audit or /argo:agent-test fail.
 data-access: metadata-only
 ---
 
-You are deploying an **agent** — AgentDefinition + AgentVersion + topics + actions + sub-agents — and registering its eval suite with Testing Center so future runs are tracked. This is the agent-side counterpart to `/sf-dev-kit:diff-deploy` for code.
+You are deploying an **agent** — AgentDefinition + AgentVersion + topics + actions + sub-agents — and registering its eval suite with Testing Center so future runs are tracked. This is the agent-side counterpart to `/argo:diff-deploy` for code.
 
 ## Read Project Config First
 
@@ -24,7 +24,7 @@ AGENT_DIR="$(sf_config_get '.paths.agentDefinitions // empty' "$ENV")"
 - `<agent-name>` — deploy this agent (must exist under `<AGENT_DIR>/<name>/`)
 - `--validate` — dry-run via `sf project deploy start --dry-run`
 - `--skip-evals` — deploy without running eval gates (NOT recommended; emits a warning)
-- `--skip-trust` — skip `/sf-dev-kit:trust-layer-audit` (NOT recommended; emits a warning)
+- `--skip-trust` — skip `/argo:trust-layer-audit` (NOT recommended; emits a warning)
 - `--target-org <alias>` / `--env <name>` — overrides
 - `--ci` — machine output
 
@@ -32,10 +32,10 @@ AGENT_DIR="$(sf_config_get '.paths.agentDefinitions // empty' "$ENV")"
 
 The skill refuses to deploy unless the following pass (or are explicitly skipped with the `--skip-*` flags):
 
-1. **Trust Layer audit** — `/sf-dev-kit:trust-layer-audit <agent-name> --ci` exits 0
-2. **Eval suite passes** — `/sf-dev-kit:agent-test <agent-name> --ci --fail-on error` exits 0
-3. **Eval-regression check vs. main** — `/sf-dev-kit:agent-eval-trend pr <agent-name>` exits 0
-4. **Agent discoverable** — `/sf-dev-kit:agent-discover <agent-name> --ci` confirms source exists
+1. **Trust Layer audit** — `/argo:trust-layer-audit <agent-name> --ci` exits 0
+2. **Eval suite passes** — `/argo:agent-test <agent-name> --ci --fail-on error` exits 0
+3. **Eval-regression check vs. main** — `/argo:agent-eval-trend pr <agent-name>` exits 0
+4. **Agent discoverable** — `/argo:agent-discover <agent-name> --ci` confirms source exists
 
 If any fails, emit a `[agent-deploy] BLOCKED` message with the failing gate name and the underlying skill's output.
 
@@ -51,9 +51,9 @@ AGENT_PATH="${AGENT_DIR}/${NAME}"
 
 ```bash
 gate_trust=0; gate_eval=0; gate_trend=0
-[[ "$SKIP_TRUST" != "1" ]] && /sf-dev-kit:trust-layer-audit "$NAME" --ci || gate_trust=$?
-[[ "$SKIP_EVALS" != "1" ]] && /sf-dev-kit:agent-test "$NAME" --ci --fail-on error || gate_eval=$?
-[[ "$SKIP_EVALS" != "1" ]] && /sf-dev-kit:agent-eval-trend pr "$NAME" || gate_trend=$?
+[[ "$SKIP_TRUST" != "1" ]] && /argo:trust-layer-audit "$NAME" --ci || gate_trust=$?
+[[ "$SKIP_EVALS" != "1" ]] && /argo:agent-test "$NAME" --ci --fail-on error || gate_eval=$?
+[[ "$SKIP_EVALS" != "1" ]] && /argo:agent-eval-trend pr "$NAME" || gate_trend=$?
 
 if (( gate_trust + gate_eval + gate_trend > 0 )); then
   echo "[agent-deploy] BLOCKED: gates failed (trust=${gate_trust} eval=${gate_eval} trend=${gate_trend})" >&2
@@ -119,7 +119,7 @@ The skill prints the activation command rather than running it. Activation is an
 
 ```bash
 echo '{"deployedAt":"...","org":"...","agent":"'"$NAME"'","version":"v3","validate":'"$VALIDATE"'}' \
-  >> "${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugin-data}/sf-dev-kit/agent-deploys/<project>/history.jsonl"
+  >> "${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugin-data}/argo/agent-deploys/<project>/history.jsonl"
 ```
 
 ### 7. Output

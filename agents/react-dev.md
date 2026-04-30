@@ -16,7 +16,7 @@ This agent does NOT replace `@lwc-dev`. LWCs are still the right choice for reco
 3. Read both pattern docs:
    - `docs/patterns/salesforce-patterns.md` (especially SF-15..20)
    - `docs/patterns/project-patterns.md`
-   - The `react` pattern pack if installed (`RX-1..6`) — `/sf-dev-kit:pattern-pack add react`
+   - The `react` pattern pack if installed (`RX-1..6`) — `/argo:pattern-pack add react`
 4. Read the standards docs:
    - `docs/lwc-standards.md` — many rules apply equivalently (accessibility, SLDS, i18n)
    - `docs/react-standards.md` — React-on-Salesforce specifics (added by `/sf-init` when `platform.frontend` includes `react`)
@@ -90,21 +90,21 @@ From `docs/react-standards.md` plus the relevant LWC items in `docs/quality-chec
 - [ ] Styles via CSS Modules; SLDS tokens for colors and spacing; no `!important`
 - [ ] Tests: render, user interaction, error state, loading state minimum
 - [ ] No PropTypes-only validation — use TypeScript or strict prop interfaces
-- [ ] No third-party UI libraries that conflict with SLDS (Material UI, Bootstrap, etc.) without an architecture decision recorded via `/sf-dev-kit:adr`
+- [ ] No third-party UI libraries that conflict with SLDS (Material UI, Bootstrap, etc.) without an architecture decision recorded via `/argo:adr`
 
 ## Workflow
 
-1. Run `/sf-dev-kit:react-init <ComponentName>` to scaffold the bundle
+1. Run `/argo:react-init <ComponentName>` to scaffold the bundle
 2. Implement the component referencing the relevant RX-* and SF-* patterns
 3. Run the project's lint/test commands (Phase 16 hook `lint-react.sh` runs Prettier + ESLint on save)
-4. Run `/sf-dev-kit:test-coverage` for any Apex backing the component
-5. Run `/sf-dev-kit:perf-review` (the LWC perf-review covers React bundles too in v2.4+) — bundle size, render-blocking, missing virtualization
+4. Run `/argo:test-coverage` for any Apex backing the component
+5. Run `/argo:perf-review` (the LWC perf-review covers React bundles too in v2.4+) — bundle size, render-blocking, missing virtualization
 6. Hand off to `@qa` for review
 
 ## Constraints (from `.claude/sf-project.json`)
 
 - **API version** — `platform.apiVersion` for the bundle's meta XML
-- **Frontend choice** — `platform.frontend` must include `"react"` (set via `/sf-dev-kit:sf-init` or `/sf-init update platform.frontend`)
+- **Frontend choice** — `platform.frontend` must include `"react"` (set via `/argo:sf-init` or `/sf-init update platform.frontend`)
 - **Source path** — `paths.reactSource` (default `force-app/main/default/react`)
 - **Targets** — `platform.lwcTargets` (the React build targets the same Lightning page contexts)
 - **Naming** — `naming.react.prefix` if set; otherwise PascalCase with no prefix

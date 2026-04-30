@@ -1,17 +1,17 @@
 ---
 name: org-explore
-description: Snapshot the target Salesforce org's schema (objects, fields, profiles, permission sets, installed packages) into a local cache for downstream sf-dev-kit skills. In MCP mode (Headless 360) this is optional — agents read live via the `data`/`metadata` toolsets. Cache is for offline use, batch reports, and snapshot-vs-snapshot diffs.
+description: Snapshot the target Salesforce org's schema (objects, fields, profiles, permission sets, installed packages) into a local cache for downstream argo skills. In MCP mode (Headless 360) this is optional — agents read live via the `data`/`metadata` toolsets. Cache is for offline use, batch reports, and snapshot-vs-snapshot diffs.
 data-access: metadata-only
 ---
 
-You are populating the **org cache** that downstream sf-dev-kit skills (especially `@architect`, `/sf-dev-kit:flow-audit`, `/sf-dev-kit:permset-audit`, `/sf-dev-kit:field-impact`) read for grounded design and analysis.
+You are populating the **org cache** that downstream argo skills (especially `@architect`, `/argo:flow-audit`, `/argo:permset-audit`, `/argo:field-impact`) read for grounded design and analysis.
 
-> **Headless 360 note**: with `@salesforce/mcp` configured (run `/sf-dev-kit:mcp-setup`), agents already see the live org via the `data` toolset. The cache is now **opt-in** — useful for offline work, deterministic reports, and historical comparisons. In MCP mode, `@architect` and friends read live by default; pass `--cache` to use a snapshot.
+> **Headless 360 note**: with `@salesforce/mcp` configured (run `/argo:mcp-setup`), agents already see the live org via the `data` toolset. The cache is now **opt-in** — useful for offline work, deterministic reports, and historical comparisons. In MCP mode, `@architect` and friends read live by default; pass `--cache` to use a snapshot.
 
 ## Cache Location
 
 ```
-${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugin-data}/sf-dev-kit/org-cache/<orgAlias>.json
+${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugin-data}/argo/org-cache/<orgAlias>.json
 ```
 
 Cache is per-org alias. A project may have several (dev / qa / prod), each cached separately. The cache file embeds a `_meta` block with timestamp and ttlSeconds so consumers can detect staleness.
@@ -65,7 +65,7 @@ sf_cli_alias_exists "$ORG" || { echo "[org-explore] Org alias '$ORG' not found i
 
 ### 2. Check cache freshness
 ```bash
-CACHE_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugin-data}/sf-dev-kit/org-cache"
+CACHE_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugin-data}/argo/org-cache"
 CACHE_FILE="$CACHE_DIR/$ORG.json"
 mkdir -p "$CACHE_DIR"
 TTL="${TTL:-86400}"
@@ -150,7 +150,7 @@ Default output:
   Permission set groups: 6
   Installed packages:    2
   Active flows:          12
-  Cache:                 <CLAUDE_PLUGIN_DATA>/sf-dev-kit/org-cache/DevVM.json
+  Cache:                 <CLAUDE_PLUGIN_DATA>/argo/org-cache/DevVM.json
   Fresh until:           2026-04-29T10:30:00Z (24h TTL)
 ```
 
@@ -172,7 +172,7 @@ CI mode (`--ci`): emit one line of JSON to stdout:
 Skills and agents that read the cache:
 - `@architect` — pre-design data-model verification
 - `@data-architect` (Phase 3) — schema design
-- `/sf-dev-kit:org-diff` — diff against this snapshot
-- `/sf-dev-kit:permset-audit` — combine cache profiles/permsets with ObjectPermissions queries
-- `/sf-dev-kit:field-impact` — verify field exists in target before searching source
-- `/sf-dev-kit:flow-audit` — combine activeFlows summary with detailed run-history queries
+- `/argo:org-diff` — diff against this snapshot
+- `/argo:permset-audit` — combine cache profiles/permsets with ObjectPermissions queries
+- `/argo:field-impact` — verify field exists in target before searching source
+- `/argo:flow-audit` — combine activeFlows summary with detailed run-history queries

@@ -4,7 +4,7 @@ Patterns and guidance for **Change Data Capture (CDC)** — Salesforce's auto-em
 
 ## When to use this pack
 
-Install with `/sf-dev-kit:pattern-pack add change-data-capture` if your project:
+Install with `/argo:pattern-pack add change-data-capture` if your project:
 - Broadcasts record changes to other Salesforce orgs (org-to-org sync)
 - Streams changes to external systems (data warehouses, MuleSoft pipelines, lakehouses)
 - Has internal subscribers that need cross-record visibility on every change

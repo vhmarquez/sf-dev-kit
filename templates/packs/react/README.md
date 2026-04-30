@@ -4,7 +4,7 @@ Patterns and guidance for **native React** components on the Salesforce platform
 
 ## When to use this pack
 
-Install with `/sf-dev-kit:pattern-pack add react` if your project:
+Install with `/argo:pattern-pack add react` if your project:
 - Has `platform.frontend = "react"` or `"both"` in `sf-project.json`
 - Builds React components under `paths.reactSource` (default `force-app/main/default/react/`)
 - Uses `@salesforce/react/graphql` for org data
@@ -24,15 +24,15 @@ Plus four checklist items appended to `docs/quality-checklist.md` covering funct
 
 ## What's not in the pack
 
-- Component scaffolding — that's `/sf-dev-kit:react-init`
+- Component scaffolding — that's `/argo:react-init`
 - Lint enforcement — that's `hooks/lint-react.sh` (registered automatically when `platform.frontend` includes `react`)
-- React-specific perf review — covered by `/sf-dev-kit:perf-review` (which gained React-bundle awareness in v2.4)
+- React-specific perf review — covered by `/argo:perf-review` (which gained React-bundle awareness in v2.4)
 
 ## Cross-references
 
 - Companion docs: `docs/react-standards.md` (deeper rules, more cross-cutting)
 - Specialist agent: `@react-dev`
-- Skills: `/sf-dev-kit:react-init`, `/sf-dev-kit:perf-review`
+- Skills: `/argo:react-init`, `/argo:perf-review`
 - Base patterns that apply equivalently: SF-1 (lists), SF-2 (record details), SF-8 (toasts via SLDS components), SF-18 (i18n), SF-19 (virtualization), SF-20 (lazy-load)
 
 ## References

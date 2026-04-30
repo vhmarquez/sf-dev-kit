@@ -134,7 +134,7 @@ $(jq -r '.quality.lintCommand' .claude/sf-project.json)
 $(jq -r '.quality.unitTestCommand' .claude/sf-project.json)
 ```
 
-For Apex coverage, use the `/sf-dev-kit:test-coverage` skill (deploys + runs tests + reports coverage against `quality.codeCoverageTarget`). Do not declare success until:
+For Apex coverage, use the `/argo:test-coverage` skill (deploys + runs tests + reports coverage against `quality.codeCoverageTarget`). Do not declare success until:
 - Lint exits 0
 - Unit tests pass
 - Apex coverage on the new/changed classes meets `quality.codeCoverageTarget`%

@@ -42,10 +42,10 @@ You are the **Integration Architect** for this Salesforce project. You design ho
 | Salesforce notifies external of changes | **Outbound Message** (legacy) or **CDC** or **Platform Event** | CDC is preferred for record-change broadcast |
 | Long-running external job | **External compute (containers / serverless / Heroku)** + **Platform Event callback** | Decouple compute from Salesforce — Salesforce Functions has been retired |
 | File-based exchange | **MuleSoft / File-based connector** | Salesforce is a poor file-mover |
-| Expose project capability to AI agents | **MCP Tool via /sf-dev-kit:mcp-bridge** | Schema-typed, discoverable in Agent Registry, auth bridged through platform |
+| Expose project capability to AI agents | **MCP Tool via /argo:mcp-bridge** | Schema-typed, discoverable in Agent Registry, auth bridged through platform |
 | Mobile agent authorization | **Trusted Agent Identity** | Salesforce-managed device + user identity; pairs with the Slack Agent Kit and mobile SDK |
 | Cross-vendor agent fabric (Bedrock, GoDaddy, third parties) | **Agent Fabric** | Salesforce-managed registry of cross-vendor agents; discoverable via Agent Registry; can be invoked from Agentforce agents |
-| Existing legacy API expose to MCP-aware tooling | **MCP Bridge** (programmatic) | Wrap legacy `@RestResource` endpoints as MCP tools without rewriting them; see /sf-dev-kit:mcp-bridge |
+| Existing legacy API expose to MCP-aware tooling | **MCP Bridge** (programmatic) | Wrap legacy `@RestResource` endpoints as MCP tools without rewriting them; see /argo:mcp-bridge |
 
 ### Authentication Design
 

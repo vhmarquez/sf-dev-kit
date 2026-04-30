@@ -2,7 +2,7 @@
 
 ## Reporting a vulnerability
 
-If you find a security issue in `sf-dev-kit`, please report it confidentially via [**GitHub Private Vulnerability Reporting**](https://github.com/vhmarquez/sf-dev-kit/security/advisories/new). Don't file a public issue or describe the vulnerability in a public fork before it's been disclosed responsibly.
+If you find a security issue in `argo`, please report it confidentially via [**GitHub Private Vulnerability Reporting**](https://github.com/vhmarquez/argo/security/advisories/new). Don't file a public issue or describe the vulnerability in a public fork before it's been disclosed responsibly.
 
 ## What counts as a security vulnerability
 
@@ -28,7 +28,7 @@ For non-security bugs, see the **Bug reports** section below.
 
 ## What to include in a report
 
-- The version of `sf-dev-kit` (from `.claude-plugin/plugin.json`)
+- The version of `argo` (from `.claude-plugin/plugin.json`)
 - The version of Claude Code, the `sf` CLI, and Node.js
 - The OS / shell (Git Bash on Windows, macOS, Linux)
 - Reproduction steps that surface the vulnerability

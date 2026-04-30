@@ -119,5 +119,5 @@ CI: SARIF per finding with severity mapped from threshold bands.
 
 ## Consumers
 
-- `/sf-dev-kit:code-review` rolls hotspots into the LWC/Apex sections
+- `/argo:code-review` rolls hotspots into the LWC/Apex sections
 - `@architect` consults complexity before approving large additions to existing methods

@@ -1,5 +1,5 @@
-// sf-dev-kit/scratch-org seed.apex
-// Invoked by /sf-dev-kit:scratch-org create after deploy.
+// argo/scratch-org seed.apex
+// Invoked by /argo:scratch-org create after deploy.
 //
 // Convention: define a public static `seed()` method on TestDataFactory that
 // inserts a representative dataset. The factory class should be `@isTest`-
@@ -11,10 +11,10 @@
 
 try {
     TestDataFactory.seed();
-    System.debug(LoggingLevel.INFO, '[sf-dev-kit] TestDataFactory.seed() completed.');
+    System.debug(LoggingLevel.INFO, '[argo] TestDataFactory.seed() completed.');
 } catch (NoSuchMethodException nme) {
-    System.debug(LoggingLevel.WARN, '[sf-dev-kit] TestDataFactory.seed() not found. Define one to enable scratch-org seeding.');
+    System.debug(LoggingLevel.WARN, '[argo] TestDataFactory.seed() not found. Define one to enable scratch-org seeding.');
 } catch (Exception e) {
-    System.debug(LoggingLevel.ERROR, '[sf-dev-kit] Seed failed: ' + e.getMessage() + '\n' + e.getStackTraceString());
+    System.debug(LoggingLevel.ERROR, '[argo] Seed failed: ' + e.getMessage() + '\n' + e.getStackTraceString());
     throw e;
 }

@@ -1,4 +1,4 @@
-# sf-dev-kit
+# argo
 
 > Opinionated, security-first AI workflow for Salesforce DX projects in Claude Code.
 
@@ -27,8 +27,8 @@ npm install -g @anthropic-ai/claude-code
 In Claude Code:
 
 ```text
-/plugin marketplace add https://github.com/vhmarquez/sf-dev-kit
-/plugin install sf-dev-kit@sf-dev-kit
+/plugin marketplace add https://github.com/vhmarquez/argo
+/plugin install argo@argo
 ```
 
 Restart your session so the agents, skills, and hooks register.
@@ -38,7 +38,7 @@ Restart your session so the agents, skills, and hooks register.
 `cd` into your SFDX project, then:
 
 ```text
-/sf-dev-kit:sf-init
+/argo:sf-init
 ```
 
 Detection runs automatically (`sfdx-project.json`, `package.json`, `sf org list`, etc.) and presents one screen with everything pre-filled. You typically only fill in:
@@ -51,7 +51,7 @@ A smoke test runs after the write to verify the org alias resolves, paths exist,
 ### 4. (Optional but recommended) Configure MCP
 
 ```text
-/sf-dev-kit:mcp-setup --profile dev
+/argo:mcp-setup --profile dev
 ```
 
 Installs `@salesforce/mcp`, scopes the toolsets to a sensible dev set (`metadata, data, testing, lwc, code-analysis`), and writes `.mcp.json`. The plugin runs without it via direct `sf` CLI calls; MCP unlocks richer routing for Headless-360 features.
@@ -67,10 +67,10 @@ The architect produces a structured plan (data model, automation type, governor 
 Before merging:
 
 ```text
-/sf-dev-kit:code-review pr
-/sf-dev-kit:security-scan
-/sf-dev-kit:diff-deploy --validate
-/sf-dev-kit:pr-prepare --push
+/argo:code-review pr
+/argo:security-scan
+/argo:diff-deploy --validate
+/argo:pr-prepare --push
 ```
 
 That's the loop.
@@ -125,103 +125,103 @@ Typical flow: `@architect` plans → hands off to specialists → builders work 
 
 ### Skills (`skills/`) — 56 total
 
-Invoke any as `/sf-dev-kit:<name>`. Most accept `--ci`, `--format json|sarif`, `--out`, `--env <name>` per the [CI output contract](docs/ci-output-contract.md). Each skill declares a `data-access` field in its frontmatter (`none` / `metadata-only` / `data-with-consent`); see the [security model](#security-model).
+Invoke any as `/argo:<name>`. Most accept `--ci`, `--format json|sarif`, `--out`, `--env <name>` per the [CI output contract](docs/ci-output-contract.md). Each skill declares a `data-access` field in its frontmatter (`none` / `metadata-only` / `data-with-consent`); see the [security model](#security-model).
 
 **Setup & onboarding**
 | Skill | Purpose |
 |-------|---------|
-| `/sf-dev-kit:sf-init` | Detect → review → edit → verify bootstrap. Aggressive auto-detection populates a single review screen with confidence markers; the user edits only what's ambiguous or required; a smoke test verifies the result. Modes: `auto`, `update <fields>`, `env <name>`, `verify` |
-| `/sf-dev-kit:onboard` | Verify a developer's machine + smoke-test the dev loop end-to-end |
-| `/sf-dev-kit:pattern-pack` | Install/list/info/remove domain pattern packs |
-| `/sf-dev-kit:mcp-setup` | **Install/configure `@salesforce/mcp` toolsets** (metadata/data/testing/lwc/code-analysis/devops/aura) |
+| `/argo:sf-init` | Detect → review → edit → verify bootstrap. Aggressive auto-detection populates a single review screen with confidence markers; the user edits only what's ambiguous or required; a smoke test verifies the result. Modes: `auto`, `update <fields>`, `env <name>`, `verify` |
+| `/argo:onboard` | Verify a developer's machine + smoke-test the dev loop end-to-end |
+| `/argo:pattern-pack` | Install/list/info/remove domain pattern packs |
+| `/argo:mcp-setup` | **Install/configure `@salesforce/mcp` toolsets** (metadata/data/testing/lwc/code-analysis/devops/aura) |
 
 **Org awareness**
 | Skill | Purpose |
 |-------|---------|
-| `/sf-dev-kit:org-explore` | Optional org-schema snapshot (in MCP mode, agents read live; cache is `--cache` opt-in) |
-| `/sf-dev-kit:org-diff` | Source-vs-org drift report (setup-only / source-only / conflicts) |
-| `/sf-dev-kit:flow-audit` | Active-flow inventory; flags Apex/Flow overlap and untracked-in-source flows |
-| `/sf-dev-kit:permset-audit` | Object/field × principal access matrix; flags fields with no read access |
-| `/sf-dev-kit:field-impact` | Field references across LWC, Apex, layouts, validation rules, formulas, flows, reports |
-| `/sf-dev-kit:agent-discover` | **Agentforce agent inventory** — source vs org reconciliation; bridge tools per agent |
+| `/argo:org-explore` | Optional org-schema snapshot (in MCP mode, agents read live; cache is `--cache` opt-in) |
+| `/argo:org-diff` | Source-vs-org drift report (setup-only / source-only / conflicts) |
+| `/argo:flow-audit` | Active-flow inventory; flags Apex/Flow overlap and untracked-in-source flows |
+| `/argo:permset-audit` | Object/field × principal access matrix; flags fields with no read access |
+| `/argo:field-impact` | Field references across LWC, Apex, layouts, validation rules, formulas, flows, reports |
+| `/argo:agent-discover` | **Agentforce agent inventory** — source vs org reconciliation; bridge tools per agent |
 
 **Architecture & design**
 | Skill | Purpose |
 |-------|---------|
-| `/sf-dev-kit:erd` | Mermaid ERD from `.object-meta.xml` (idempotent, depth-bounded) |
-| `/sf-dev-kit:sequence-diagram` | Mermaid sequence from an LWC entry point through Apex / DB / external |
-| `/sf-dev-kit:adr` | Architecture Decision Records under `docs/adr/` |
-| `/sf-dev-kit:flow-vs-apex` | Flow vs Trigger vs Queueable vs Batch decision helper |
-| `/sf-dev-kit:agent-vs-flow-vs-apex` | **Extends flow-vs-apex with Agent** as first-class option |
-| `/sf-dev-kit:lwc-vs-react` | **Frontend framework decision** (LWC vs React vs both) |
-| `/sf-dev-kit:mcp-tool-vs-rest` | **Integration pattern decision** (MCP Tool vs Apex REST vs Platform Event) |
-| `/sf-dev-kit:before-vs-after-trigger` | Trigger phase decision |
-| `/sf-dev-kit:queueable-vs-batch` | Async mechanism decision |
+| `/argo:erd` | Mermaid ERD from `.object-meta.xml` (idempotent, depth-bounded) |
+| `/argo:sequence-diagram` | Mermaid sequence from an LWC entry point through Apex / DB / external |
+| `/argo:adr` | Architecture Decision Records under `docs/adr/` |
+| `/argo:flow-vs-apex` | Flow vs Trigger vs Queueable vs Batch decision helper |
+| `/argo:agent-vs-flow-vs-apex` | **Extends flow-vs-apex with Agent** as first-class option |
+| `/argo:lwc-vs-react` | **Frontend framework decision** (LWC vs React vs both) |
+| `/argo:mcp-tool-vs-rest` | **Integration pattern decision** (MCP Tool vs Apex REST vs Platform Event) |
+| `/argo:before-vs-after-trigger` | Trigger phase decision |
+| `/argo:queueable-vs-batch` | Async mechanism decision |
 
 **Agent dev (Headless 360)**
 | Skill | Purpose |
 |-------|---------|
-| `/sf-dev-kit:agent-spec` | Wrap `sf agent generate agent-spec` with project context; iterative refinement |
-| `/sf-dev-kit:agent-test` | Run agent eval suite via Testing Center; per-axis severity (factuality, completeness, refusal-correctness, etc.) |
-| `/sf-dev-kit:agent-eval-trend` | Per-agent eval history; PR-mode regression diff; security regressions zero-tolerance |
-| `/sf-dev-kit:agent-deploy` | Deploy AgentDefinition + register evals; gates by trust-layer-audit + agent-test + eval-regression |
-| `/sf-dev-kit:mcp-bridge` | **Wrap an Apex REST class as an MCP tool** — closes SF-16 → agent ecosystem loop |
-| `/sf-dev-kit:slack-agent` | **Scaffold a Slack-native agent** end-to-end via Slack Agent Kit |
-| `/sf-dev-kit:agent-exchange-list` | **Validate readiness for AgentExchange listing** |
+| `/argo:agent-spec` | Wrap `sf agent generate agent-spec` with project context; iterative refinement |
+| `/argo:agent-test` | Run agent eval suite via Testing Center; per-axis severity (factuality, completeness, refusal-correctness, etc.) |
+| `/argo:agent-eval-trend` | Per-agent eval history; PR-mode regression diff; security regressions zero-tolerance |
+| `/argo:agent-deploy` | Deploy AgentDefinition + register evals; gates by trust-layer-audit + agent-test + eval-regression |
+| `/argo:mcp-bridge` | **Wrap an Apex REST class as an MCP tool** — closes SF-16 → agent ecosystem loop |
+| `/argo:slack-agent` | **Scaffold a Slack-native agent** end-to-end via Slack Agent Kit |
+| `/argo:agent-exchange-list` | **Validate readiness for AgentExchange listing** |
 
 **React (Headless 360)**
 | Skill | Purpose |
 |-------|---------|
-| `/sf-dev-kit:react-init` | Scaffold a React component bundle with `@salesforce/react/graphql` + i18n + SLDS |
+| `/argo:react-init` | Scaffold a React component bundle with `@salesforce/react/graphql` + i18n + SLDS |
 
 **Testing**
 | Skill | Purpose |
 |-------|---------|
-| `/sf-dev-kit:test-plan` | Generate a structured test plan (positive/negative/bulk/edge/security) before writing tests |
-| `/sf-dev-kit:test-data` | Scaffold an Apex `TestDataFactory` from sObject describes |
-| `/sf-dev-kit:test-coverage` | Apex coverage **or** agent eval (modes: `apex` / `agent`) |
-| `/sf-dev-kit:coverage-trend` | Coverage history; PR-mode regression gate |
-| `/sf-dev-kit:flaky-test-finder` | Re-run a test class N times to identify non-deterministic methods |
+| `/argo:test-plan` | Generate a structured test plan (positive/negative/bulk/edge/security) before writing tests |
+| `/argo:test-data` | Scaffold an Apex `TestDataFactory` from sObject describes |
+| `/argo:test-coverage` | Apex coverage **or** agent eval (modes: `apex` / `agent`) |
+| `/argo:coverage-trend` | Coverage history; PR-mode regression gate |
+| `/argo:flaky-test-finder` | Re-run a test class N times to identify non-deterministic methods |
 
 **Code review & static analysis**
 | Skill | Purpose |
 |-------|---------|
-| `/sf-dev-kit:code-review` | Per-component, batch (`all`/`audit`), and PR-mode review |
-| `/sf-dev-kit:security-scan` | PMD `apex-security` ruleset; SARIF for GitHub Code Scanning |
-| `/sf-dev-kit:fls-audit` | Static check for missing CRUD/FLS on DML / SOQL |
-| `/sf-dev-kit:sharing-review` | `without sharing` audit; flag privilege escalation from `@AuraEnabled` |
-| `/sf-dev-kit:soql-analyzer` | Selectivity check (indexed fields, LDV awareness, leading-wildcard) |
-| `/sf-dev-kit:limit-usage` | Per-method governor-budget estimator |
-| `/sf-dev-kit:perf-review` | LWC/React bundle size, @wire waterfall, render-blocking, missing virtualization |
-| `/sf-dev-kit:dead-code` | Unused Apex methods/fields, LWC/React bundles, custom labels, custom permissions |
-| `/sf-dev-kit:complexity` | Cyclomatic + cognitive complexity per method |
-| `/sf-dev-kit:dependency-graph` | Apex call graph + LWC/React import graph |
+| `/argo:code-review` | Per-component, batch (`all`/`audit`), and PR-mode review |
+| `/argo:security-scan` | PMD `apex-security` ruleset; SARIF for GitHub Code Scanning |
+| `/argo:fls-audit` | Static check for missing CRUD/FLS on DML / SOQL |
+| `/argo:sharing-review` | `without sharing` audit; flag privilege escalation from `@AuraEnabled` |
+| `/argo:soql-analyzer` | Selectivity check (indexed fields, LDV awareness, leading-wildcard) |
+| `/argo:limit-usage` | Per-method governor-budget estimator |
+| `/argo:perf-review` | LWC/React bundle size, @wire waterfall, render-blocking, missing virtualization |
+| `/argo:dead-code` | Unused Apex methods/fields, LWC/React bundles, custom labels, custom permissions |
+| `/argo:complexity` | Cyclomatic + cognitive complexity per method |
+| `/argo:dependency-graph` | Apex call graph + LWC/React import graph |
 
 **Trust & governance (Headless 360)**
 | Skill | Purpose |
 |-------|---------|
-| `/sf-dev-kit:trust-layer-audit` | **Einstein Trust Layer config audit** (org-level + per-agent: PII masking, FLS-on-grounding, ZDR, jailbreak eval, etc.) |
-| `/sf-dev-kit:trust-eval` | **Runtime drift audit** via Testing Center Custom Scoring Evals + Session Tracing sampling |
-| `/sf-dev-kit:gateway-config` | **Generate/validate AI Gateway config** (model allowlist, token quotas, fallback chain) per environment |
+| `/argo:trust-layer-audit` | **Einstein Trust Layer config audit** (org-level + per-agent: PII masking, FLS-on-grounding, ZDR, jailbreak eval, etc.) |
+| `/argo:trust-eval` | **Runtime drift audit** via Testing Center Custom Scoring Evals + Session Tracing sampling |
+| `/argo:gateway-config` | **Generate/validate AI Gateway config** (model allowlist, token quotas, fallback chain) per environment |
 
 **Deployment**
 | Skill | Purpose |
 |-------|---------|
-| `/sf-dev-kit:deploy` | Deploy or `--validate` configured paths against the default org |
-| `/sf-dev-kit:diff-deploy` | Deploy only metadata changed since `<ref>` |
-| `/sf-dev-kit:quick-deploy` | Promote a validated deploy id to production without re-running tests |
-| `/sf-dev-kit:scratch-org` | Create/destroy/recreate scratch orgs; seed Apex + agent data |
-| `/sf-dev-kit:package-version` | 2GP/unlocked package version create/promote/list/install |
-| `/sf-dev-kit:destructive-changes` | Interactive `destructiveChanges.xml` builder with reference validation |
-| `/sf-dev-kit:devops-natural` | **Natural-language deploy** via DevOps Center MCP (Headless 360) |
+| `/argo:deploy` | Deploy or `--validate` configured paths against the default org |
+| `/argo:diff-deploy` | Deploy only metadata changed since `<ref>` |
+| `/argo:quick-deploy` | Promote a validated deploy id to production without re-running tests |
+| `/argo:scratch-org` | Create/destroy/recreate scratch orgs; seed Apex + agent data |
+| `/argo:package-version` | 2GP/unlocked package version create/promote/list/install |
+| `/argo:destructive-changes` | Interactive `destructiveChanges.xml` builder with reference validation |
+| `/argo:devops-natural` | **Natural-language deploy** via DevOps Center MCP (Headless 360) |
 
 **Documentation & release**
 | Skill | Purpose |
 |-------|---------|
-| `/sf-dev-kit:generate-docs` | Generate or update LWC, Apex, React, and agent docs (`audit` mode flags stale/orphaned/missing) |
-| `/sf-dev-kit:release-notes` | Conventional-commits release notes + ADRs + coverage stats |
-| `/sf-dev-kit:pr-prepare` | Assemble a PR body from review/coverage/deploy/security gates |
-| `/sf-dev-kit:notify` | Slack/Teams webhook poster for deploy/coverage/security/release events |
+| `/argo:generate-docs` | Generate or update LWC, Apex, React, and agent docs (`audit` mode flags stale/orphaned/missing) |
+| `/argo:release-notes` | Conventional-commits release notes + ADRs + coverage stats |
+| `/argo:pr-prepare` | Assemble a PR body from review/coverage/deploy/security gates |
+| `/argo:notify` | Slack/Teams webhook poster for deploy/coverage/security/release events |
 
 ### Hooks (`hooks/`)
 
@@ -243,7 +243,7 @@ Plus shared library helpers under `hooks/lib/`:
 
 ### Domain pattern packs (`templates/packs/`) — 11 packs
 
-Install via `/sf-dev-kit:pattern-pack add <name>`. Format documented in [`docs/pack-format.md`](docs/pack-format.md).
+Install via `/argo:pattern-pack add <name>`. Format documented in [`docs/pack-format.md`](docs/pack-format.md).
 
 | Pack | Status | Patterns |
 |------|--------|----------|
@@ -261,7 +261,7 @@ Install via `/sf-dev-kit:pattern-pack add <name>`. Format documented in [`docs/p
 
 ### Bundled standards (`templates/docs/`)
 
-Generic Salesforce standards copied into each new project by `/sf-dev-kit:sf-init`:
+Generic Salesforce standards copied into each new project by `/argo:sf-init`:
 
 - `apex-standards.md` — governor limits, security, SOQL/DML, async, naming
 - `lwc-standards.md` — CSS, JavaScript, accessibility, template directives
@@ -281,14 +281,14 @@ Plus stubs the user fills in:
 ### As a marketplace (recommended)
 
 ```text
-/plugin marketplace add https://github.com/vhmarquez/sf-dev-kit
-/plugin install sf-dev-kit@sf-dev-kit
+/plugin marketplace add https://github.com/vhmarquez/argo
+/plugin install argo@argo
 ```
 
 ### Local dev loop
 
 ```bash
-claude --plugin-dir /path/to/sf-dev-kit
+claude --plugin-dir /path/to/argo
 ```
 
 Restart the Claude Code session after install so agents, skills, and hooks register.
@@ -297,13 +297,13 @@ Restart the Claude Code session after install so agents, skills, and hooks regis
 
 - **Salesforce CLI** (`sf`) — latest
 - **Node.js** 20+
-- **`@salesforce/mcp`** — recommended; the plugin runs without it (CLI fallback) but Headless 360 features unlock when available. Install: `/sf-dev-kit:mcp-setup`
+- **`@salesforce/mcp`** — recommended; the plugin runs without it (CLI fallback) but Headless 360 features unlock when available. Install: `/argo:mcp-setup`
 - **git** 2.30+
 - **jq** 1.6+
 - **bash** 4+ (Git Bash on Windows)
 - **Java** 11+ (only if using PMD-based skills: `/security-scan`, `/complexity`, `lint-apex.sh`)
 
-PMD is downloaded automatically on first use of any PMD-based skill into `${CLAUDE_PLUGIN_DATA}/sf-dev-kit/pmd/<version>/`. Run `/sf-dev-kit:onboard` to verify all prerequisites.
+PMD is downloaded automatically on first use of any PMD-based skill into `${CLAUDE_PLUGIN_DATA}/argo/pmd/<version>/`. Run `/argo:onboard` to verify all prerequisites.
 
 ---
 
@@ -318,7 +318,7 @@ PMD is downloaded automatically on first use of any PMD-based skill into `${CLAU
 | `platform` | `apiVersion`, `defaultTargetOrg`, `lwcTargets`, `sharingDefault`, `devHubAlias`, `packageName`, **`frontend`** | `frontend` ∈ `"lwc" \| "react" \| "both"` |
 | `paths` | `lwcSource`, `apexSource`, `reactSource`, `reactDocs`, **`agentDefinitions`**, `agentDocs`, `lwcDocs`, `apexDocs`, doc paths | |
 | `quality` | `codeCoverageTarget`, `lintCommand`, `unitTestCommand`, **`agentEvalThreshold`** | Agent eval threshold default 0.85 (Trust Layer band) |
-| **`mcp`** | **`toolsets`**, `allowNonGaTools` | Configured by `/sf-dev-kit:mcp-setup`; downstream skills route through `@salesforce/mcp` when present |
+| **`mcp`** | **`toolsets`**, `allowNonGaTools` | Configured by `/argo:mcp-setup`; downstream skills route through `@salesforce/mcp` when present |
 | `notifications.webhooks` | `slack`, `teams` | For `/notify` |
 | **`security`** | **`prodOrgAliases`**, **`knownNonSandboxNonProd`**, **`metadataOnly`**, **`allowAnonymousApex`** | Restrictive defaults; see [security model](#security-model). Production aliases are **hard-blocked, no override** |
 
@@ -339,7 +339,7 @@ Enforcement is centralized in `hooks/lib/security.sh` (every `sf-cli.sh` and `mc
 
 Three skills fundamentally need data access and prompt for consent every run: `/trust-eval` (queries `AgentSessionTrace`), `/permset-audit` (queries `PermissionSetAssignment`), `/agent-test` (eval inputs / outputs may carry test PII).
 
-`/sf-dev-kit:sf-init` detects every non-sandbox alias `sf org list` knows about and requires the user to classify each one as production (refused) or known-non-prod (allowed) before writing config.
+`/argo:sf-init` detects every non-sandbox alias `sf org list` knows about and requires the user to classify each one as production (refused) or known-non-prod (allowed) before writing config.
 
 ---
 
@@ -350,24 +350,24 @@ Skills with the `--ci` flag follow the [CI output contract](docs/ci-output-contr
 A typical PR pipeline:
 
 ```yaml
-- run: /sf-dev-kit:code-review pr --ci --format sarif --out review.sarif
-- run: /sf-dev-kit:security-scan --ci --format sarif --out security.sarif
-- run: /sf-dev-kit:trust-layer-audit --ci --format sarif --out trust.sarif
-- run: /sf-dev-kit:agent-test --ci --fail-on error
-- run: /sf-dev-kit:diff-deploy --validate --ci
-- run: /sf-dev-kit:coverage-trend pr
+- run: /argo:code-review pr --ci --format sarif --out review.sarif
+- run: /argo:security-scan --ci --format sarif --out security.sarif
+- run: /argo:trust-layer-audit --ci --format sarif --out trust.sarif
+- run: /argo:agent-test --ci --fail-on error
+- run: /argo:diff-deploy --validate --ci
+- run: /argo:coverage-trend pr
 - uses: github/codeql-action/upload-sarif@v3
   with: { sarif_file: review.sarif }
 ```
 
-CI guidance: `SF_DEV_KIT_CONSENT_GRANTED` must never be set in CI. CI cannot grant consent; runs that would prompt fail loudly.
+CI guidance: `ARGO_CONSENT_GRANTED` must never be set in CI. CI cannot grant consent; runs that would prompt fail loudly.
 
 ---
 
 ## Plugin layout
 
 ```
-sf-dev-kit/
+argo/
 ├── .claude-plugin/
 │   ├── plugin.json
 │   └── marketplace.json
@@ -410,7 +410,7 @@ sf-dev-kit/
 
 ## Project status
 
-`sf-dev-kit` is currently a **solo project** — I develop it primarily for my own use and ship it MIT-licensed so others can try it, fork it, and adapt it freely.
+`argo` is currently a **solo project** — I develop it primarily for my own use and ship it MIT-licensed so others can try it, fork it, and adapt it freely.
 
 - **External contributions aren't accepted right now.** I'm keeping the dev process single-author for the moment to maintain a coherent design and security posture. **If the project gains enough traction that a contribution path makes sense, I'll revisit and publish a `CONTRIBUTING.md` at that point** — so this isn't a permanent "no," just a "not yet."
 - **Security disclosures are welcome regardless of project stage.** See [`SECURITY.md`](SECURITY.md) for how to report a vulnerability privately via GitHub.
@@ -429,7 +429,7 @@ If you build something interesting on top, I'd love to hear about it.
 
 ## Trademarks
 
-`sf-dev-kit` is an independent open-source project. It is **not** affiliated with, endorsed by, or sponsored by Salesforce, Inc. or Anthropic.
+`argo` is an independent open-source project. It is **not** affiliated with, endorsed by, or sponsored by Salesforce, Inc. or Anthropic.
 
 "Salesforce", "Apex", "Lightning", "Lightning Web Components", "Agentforce", "Experience Cloud", "Einstein Trust Layer", "OmniStudio", "Data Cloud", "MuleSoft", and other Salesforce product names referenced in this repository are trademarks of Salesforce, Inc., used here descriptively to indicate compatibility. "Claude" and "Claude Code" are trademarks of Anthropic, PBC.
 

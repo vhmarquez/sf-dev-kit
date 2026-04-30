@@ -124,11 +124,11 @@ CI mode JSON shape:
 - **LWC/Aura bundles deploy whole.** Even if only the CSS changed, the meta file must be in the deploy or the package is invalid
 - **Renames are tricky.** `--diff-filter=AMR` includes Renames; the renamed source path is what we deploy. Salesforce sees this as "delete old, add new" — confirm `.forceignore` doesn't accidentally exclude the new name
 - **Include test classes for changed production classes.** `--include-tests` to also include all test classes in the diff (rare; mostly when refactoring tests themselves)
-- **Persist the deploy ID.** Append the result to `${CLAUDE_PLUGIN_DATA}/sf-dev-kit/deploys/<project>/history.jsonl` so `/quick-deploy` can find it later
+- **Persist the deploy ID.** Append the result to `${CLAUDE_PLUGIN_DATA}/argo/deploys/<project>/history.jsonl` so `/quick-deploy` can find it later
 - **Don't auto-deploy to prod.** If the alias matches `prod*` or `*production*`, require `--validate` first or an explicit confirmation prompt
 
 ## Consumers
 
 - CI pipelines run `--validate` on PRs
-- `/sf-dev-kit:quick-deploy` reads the persisted deploy ID
-- `/sf-dev-kit:release-notes` lists components since the last successful prod deploy
+- `/argo:quick-deploy` reads the persisted deploy ID
+- `/argo:release-notes` lists components since the last successful prod deploy

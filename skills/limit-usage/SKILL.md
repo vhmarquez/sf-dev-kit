@@ -115,4 +115,4 @@ CI: SARIF emission per finding.
 ## Consumers
 
 - `@architect` consumes the per-method summary when planning the "Governor Limit Budget" section of a design
-- `/sf-dev-kit:code-review` rolls findings into the High/Medium severity sections
+- `/argo:code-review` rolls findings into the High/Medium severity sections

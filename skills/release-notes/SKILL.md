@@ -67,7 +67,7 @@ For each new ADR, parse its front-matter for title and status. Surface in a "Dec
 ### 4. Pull latest coverage
 
 ```bash
-HISTORY="${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugin-data}/sf-dev-kit/coverage/<slug>/history.jsonl"
+HISTORY="${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugin-data}/argo/coverage/<slug>/history.jsonl"
 [[ -f "$HISTORY" ]] && jq -s 'last' "$HISTORY"
 ```
 
@@ -76,7 +76,7 @@ Include `overall.percent` and any `perClass.*` below `quality.codeCoverageTarget
 ### 5. Pull deploys in range (optional)
 
 ```bash
-DEPLOYS="${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugin-data}/sf-dev-kit/deploys/<slug>/history.jsonl"
+DEPLOYS="${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugin-data}/argo/deploys/<slug>/history.jsonl"
 [[ -f "$DEPLOYS" ]] && jq -s --arg from "$(git show -s --format=%cI "$FROM")" 'map(select(.deployedAt > $from))' "$DEPLOYS"
 ```
 

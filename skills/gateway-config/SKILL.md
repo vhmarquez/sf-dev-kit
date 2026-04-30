@@ -133,8 +133,8 @@ Audit:
 
 ## Next steps
 - Apply via the org's AI Gateway admin (Setup → Einstein → AI Gateway → Import)
-- Schedule periodic /sf-dev-kit:gateway-config --validate runs to detect drift
-- Review /sf-dev-kit:trust-eval reports to tune token quotas based on actual usage
+- Schedule periodic /argo:gateway-config --validate runs to detect drift
+- Review /argo:trust-eval reports to tune token quotas based on actual usage
 ```
 
 `--validate` output:
@@ -165,5 +165,5 @@ Audit:
 ## Consumers
 
 - Gateway operators (admins) import the JSON via Setup
-- `/sf-dev-kit:agent-deploy` cross-references the agent against the gateway model allowlist; warns if a deployed agent references a non-allowed model
-- `/sf-dev-kit:trust-eval` references quota-exceeded events captured in the audit log
+- `/argo:agent-deploy` cross-references the agent against the gateway model allowlist; warns if a deployed agent references a non-allowed model
+- `/argo:trust-eval` references quota-exceeded events captured in the audit log

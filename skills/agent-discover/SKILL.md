@@ -73,7 +73,7 @@ fi
 Also query:
 - `AgentVersion` — version + activation history
 - `AgentTopic` — topics per agent
-- `AgentRegistryEntry` (populated by `/sf-dev-kit:mcp-bridge --register`) — externally-discoverable MCP-tool bridges
+- `AgentRegistryEntry` (populated by `/argo:mcp-bridge --register`) — externally-discoverable MCP-tool bridges
 
 ### 3. Reconcile
 
@@ -83,7 +83,7 @@ For each agent, classify:
 | ✅ in source AND active in org | tracked |
 | ⚠️ in source AND inactive in org | source-only / draft |
 | ⚠️ active in org NOT in source | untracked (won't deploy elsewhere; missing from CI/CD) |
-| ⚠️ in source but org has newer version | drift — run `/sf-dev-kit:org-diff` to inspect |
+| ⚠️ in source but org has newer version | drift — run `/argo:org-diff` to inspect |
 
 ### 4. Output
 
@@ -94,7 +94,7 @@ Default Markdown:
 Run at: 2026-04-28T16:30:00Z
 Agent definitions in source: 4
 Active agents in org: 5
-MCP bridges registered: 8 (see /sf-dev-kit:mcp-bridge)
+MCP bridges registered: 8 (see /argo:mcp-bridge)
 
 ## Tracked agents
 
@@ -123,10 +123,10 @@ MCP bridges registered: 8 (see /sf-dev-kit:mcp-bridge)
 ## Findings
 
 ### High
-- **Onboarding_Bot drift**: org has v2 but source has v1. Run `/sf-dev-kit:org-diff` to inspect. Prefer the org version (`sf project retrieve start`) or the source version (deploy + activate)
+- **Onboarding_Bot drift**: org has v2 but source has v1. Run `/argo:org-diff` to inspect. Prefer the org version (`sf project retrieve start`) or the source version (deploy + activate)
 
 ### Medium
-- **Legacy_Sales_Coach untracked**: live in production but no source representation. Decide: retrieve into source (`sf project retrieve start`) or retire via `/sf-dev-kit:destructive-changes`
+- **Legacy_Sales_Coach untracked**: live in production but no source representation. Decide: retrieve into source (`sf project retrieve start`) or retire via `/argo:destructive-changes`
 ```
 
 CI mode emits:
@@ -141,13 +141,13 @@ CI mode emits:
 
 ## Rules
 
-- **Don't read agent prompts in detail.** Topic & action enumeration is enough; full prompt diffing belongs in `/sf-dev-kit:org-diff` or a code review
+- **Don't read agent prompts in detail.** Topic & action enumeration is enough; full prompt diffing belongs in `/argo:org-diff` or a code review
 - **Honor managed-package agents.** Agents owned by an installed package are reported in a separate "From Managed Packages" section, not as findings
-- **Cross-link to /sf-dev-kit:mcp-bridge.** When an agent uses a bridge tool, surface the bridge file path so reviewers can audit both sides
+- **Cross-link to /argo:mcp-bridge.** When an agent uses a bridge tool, surface the bridge file path so reviewers can audit both sides
 - **Don't auto-resolve drift.** Report; the user picks retrieve vs. deploy
 
 ## Consumers
 
 - `@architect`, `@agent-dev`: read the source-side inventory before planning a new agent (avoid topic collisions)
-- `/sf-dev-kit:flow-audit`: paired view — Flows AND agents on the same record-triggered surface need careful coexistence
-- `/sf-dev-kit:release-notes`: groups new/modified agents into a "Agents" section
+- `/argo:flow-audit`: paired view — Flows AND agents on the same record-triggered surface need careful coexistence
+- `/argo:release-notes`: groups new/modified agents into a "Agents" section

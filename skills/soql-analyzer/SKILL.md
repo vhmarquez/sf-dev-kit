@@ -12,7 +12,7 @@ You are analyzing SOQL queries for **selectivity**. A selective query uses an in
 source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/config.sh"
 APEX_SRC="$(sf_config_get '.paths.apexSource' "$ENV")"
 ORG="$(sf_config_get '.platform.defaultTargetOrg' "$ENV")"
-CACHE="${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugin-data}/sf-dev-kit/org-cache/${ORG}.json"
+CACHE="${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugin-data}/argo/org-cache/${ORG}.json"
 ```
 
 ## Indexed Fields (Salesforce-managed by default)
@@ -128,11 +128,11 @@ CI mode: SARIF emit per finding.
 ## Rules
 
 - **Heuristic, not perfect.** Apex parsing without an AST is approximate. Mark dynamic SOQL as a note and let the human inspect
-- **Honor the org cache.** If `${CACHE}` lists a custom index on `Status__c`, don't flag `WHERE Status__c =` as non-selective. Run `/sf-dev-kit:org-explore --refresh` to update
+- **Honor the org cache.** If `${CACHE}` lists a custom index on `Status__c`, don't flag `WHERE Status__c =` as non-selective. Run `/argo:org-explore --refresh` to update
 - **Don't flag tests.** `*<testSuffix>.cls` is excluded by default
 - **Cross-link to fixes.** Each finding's message should mention the appropriate fix: "add a custom index" / "filter by Id or lookup field" / "consider archiving" / "convert to a paginated report"
 
 ## Consumers
 
-- `/sf-dev-kit:code-review` consumes the JSON output and rolls up into the review report
+- `/argo:code-review` consumes the JSON output and rolls up into the review report
 - `@architect` and `@data-architect` reference the report when designing new query paths

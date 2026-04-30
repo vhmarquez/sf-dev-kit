@@ -4,11 +4,11 @@ Patterns and guidance for building production Salesforce **Agentforce** agents �
 
 ## When to use this pack
 
-Install with `/sf-dev-kit:pattern-pack add agentforce` if your project:
+Install with `/argo:pattern-pack add agentforce` if your project:
 - Ships customer-facing or internal agents (defined under `botDefinitions/`)
 - Calls Apex from agent actions
-- Uses MCP-tool bridges (built via `/sf-dev-kit:mcp-bridge`)
-- Has a defined Trust Layer audit posture (run `/sf-dev-kit:trust-layer-audit`)
+- Uses MCP-tool bridges (built via `/argo:mcp-bridge`)
+- Has a defined Trust Layer audit posture (run `/argo:trust-layer-audit`)
 
 If you're not yet building agents, defer — the base SF-1..20 patterns plus the integration patterns are enough.
 
@@ -26,9 +26,9 @@ Plus the eight quality-checklist items appended to `docs/quality-checklist.md` c
 
 ## What's not in the pack
 
-- Trust Layer config — that's `/sf-dev-kit:trust-layer-audit`
-- Agent eval drift — that's `/sf-dev-kit:agent-eval-trend`
-- AI Gateway tuning — that's `/sf-dev-kit:gateway-config`
+- Trust Layer config — that's `/argo:trust-layer-audit`
+- Agent eval drift — that's `/argo:agent-eval-trend`
+- AI Gateway tuning — that's `/argo:gateway-config`
 - Slack-specific agent assembly — see `slack-agent` pack (Phase 18)
 
 This pack is the *design* knowledge. The skills above are the *runtime* tooling.
@@ -37,7 +37,7 @@ This pack is the *design* knowledge. The skills above are the *runtime* tooling.
 
 - Base patterns: SF-15 (Named Credentials), SF-16 (Apex REST), SF-17 (Custom Metadata)
 - Specialist agents: `@agent-dev`, `@trust-reviewer`
-- Skills: `/sf-dev-kit:agent-spec`, `/sf-dev-kit:agent-test`, `/sf-dev-kit:agent-deploy`, `/sf-dev-kit:trust-layer-audit`
+- Skills: `/argo:agent-spec`, `/argo:agent-test`, `/argo:agent-deploy`, `/argo:trust-layer-audit`
 - Standards: the Agent section appended to `docs/quality-checklist.md`
 
 ## References

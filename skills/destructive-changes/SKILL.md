@@ -28,7 +28,7 @@ API_VERSION="$(sf_config_get '.platform.apiVersion' "$ENV")"
 
 ## State
 
-The in-progress set lives in `${CLAUDE_PLUGIN_DATA}/sf-dev-kit/destructive/<project>/pending.json`:
+The in-progress set lives in `${CLAUDE_PLUGIN_DATA}/argo/destructive/<project>/pending.json`:
 ```json
 {
   "items": [
@@ -51,7 +51,7 @@ Append to the pending set; refuse duplicates.
 
 ### `validate`
 
-For each pending item, run the equivalent of `/sf-dev-kit:field-impact` (for fields) or a grep for the symbol (for classes/components):
+For each pending item, run the equivalent of `/argo:field-impact` (for fields) or a grep for the symbol (for classes/components):
 - ApexClass: grep references to `ClassName.` and `new ClassName(`
 - LightningComponentBundle: grep `c-<lwc-name>` in HTML and `from 'c/<lwcName>'` in JS
 - CustomField: full field-impact across all metadata types
@@ -134,7 +134,7 @@ sf project deploy start \
 - Use `--pre-destructive-changes` when the new components depend on the deletion (e.g., renaming a field requires deleting the old name first)
 
 ## Reminder
-Run `/sf-dev-kit:diff-deploy --validate` first against prod to catch Salesforce-side dependency errors that source-side validation can't see.
+Run `/argo:diff-deploy --validate` first against prod to catch Salesforce-side dependency errors that source-side validation can't see.
 ```
 
 ## Exit codes
@@ -153,4 +153,4 @@ Run `/sf-dev-kit:diff-deploy --validate` first against prod to catch Salesforce-
 ## Consumers
 
 - Release pipeline: build the destructive manifest as part of a release that retires legacy components
-- `/sf-dev-kit:field-impact` is the underlying scanner for `validate` mode
+- `/argo:field-impact` is the underlying scanner for `validate` mode

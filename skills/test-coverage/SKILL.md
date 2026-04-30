@@ -1,13 +1,13 @@
 ---
 name: test-coverage
-description: Run Apex code coverage or agent evaluation tests against the project's default org. Two modes — `apex` (default; deploys + runs Apex tests with coverage) and `agent` (delegates to /sf-dev-kit:agent-test for Agentforce eval suites).
+description: Run Apex code coverage or agent evaluation tests against the project's default org. Two modes — `apex` (default; deploys + runs Apex tests with coverage) and `agent` (delegates to /argo:agent-test for Agentforce eval suites).
 data-access: metadata-only
 ---
 
 You are running test coverage for this project. Two modes:
 
 - **`apex`** (default) — deploy + run Apex tests + report coverage; appends to coverage history for `/coverage-trend`
-- **`agent`** — delegate to `/sf-dev-kit:agent-test`; appends to agent-eval history for `/agent-eval-trend`
+- **`agent`** — delegate to `/argo:agent-test`; appends to agent-eval history for `/agent-eval-trend`
 
 Mode is selected by the first positional argument: `apex` (or `apex <ClassName>`) vs. `agent` (or `agent <agent-name>`). When the first argument is a class name (no `apex`/`agent` prefix), Apex mode is assumed for backwards compatibility with v1.
 
@@ -28,21 +28,21 @@ The user provided: `$ARGUMENTS`
 This could be:
 - `apex <ClassName>` — Apex mode: a test class or production class name (infer test by appending `naming.apex.testSuffix`)
 - `apex all` — run every Apex test class
-- `agent <agent-name>` — agent mode: dispatch to `/sf-dev-kit:agent-test <agent-name>`
-- `agent all` — dispatch to `/sf-dev-kit:agent-test` (full eval suite run)
+- `agent <agent-name>` — agent mode: dispatch to `/argo:agent-test <agent-name>`
+- `agent all` — dispatch to `/argo:agent-test` (full eval suite run)
 - `<ClassName>` (legacy) — equivalent to `apex <ClassName>`
 - An override `--target-org <alias>` — use a different org instead of `platform.defaultTargetOrg`
 - An override `--env <name>` — load `.claude/sf-project.<name>.json` overrides
 - Empty — prompt the user to specify a mode + target
 
-In agent mode, this skill is a thin dispatcher to `/sf-dev-kit:agent-test`; all agent-specific options (`--fail-on`, `--suite`, etc.) pass through.
+In agent mode, this skill is a thin dispatcher to `/argo:agent-test`; all agent-specific options (`--fail-on`, `--suite`, etc.) pass through.
 
 CI flags (per `${CLAUDE_PLUGIN_ROOT}/docs/ci-output-contract.md`):
 - `--ci` — machine-readable output, exit codes per contract
 - `--format json|sarif` — output format (default `json` in CI mode)
 - `--out <path>` — write to file instead of stdout
 
-In CI mode, after running tests, also append the result to `${CLAUDE_PLUGIN_DATA}/sf-dev-kit/coverage/<project>/history.jsonl` so `/sf-dev-kit:coverage-trend` can show the trend later.
+In CI mode, after running tests, also append the result to `${CLAUDE_PLUGIN_DATA}/argo/coverage/<project>/history.jsonl` so `/argo:coverage-trend` can show the trend later.
 
 ## Steps
 
@@ -93,7 +93,7 @@ Exit codes:
 - 1 — any test failed, or any class below target
 - 2 — deploy or test-run failure
 
-For SARIF output, source `${CLAUDE_PLUGIN_ROOT}/hooks/lib/sarif.sh` and pipe through `sarif_emit "sf-dev-kit/test-coverage" "<plugin-version>"`.
+For SARIF output, source `${CLAUDE_PLUGIN_ROOT}/hooks/lib/sarif.sh` and pipe through `sarif_emit "argo/test-coverage" "<plugin-version>"`.
 
 ## Rules
 

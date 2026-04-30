@@ -29,8 +29,8 @@ AGENT_DIR="$(sf_config_get '.paths.agentDefinitions // \"force-app/main/default/
 | Agent has been deployed and is currently `Active` in at least one org | error | `LIST-AGENT-NOT-ACTIVE` |
 | Eval suite ≥ 10 cases (vs ≥5 for internal agents) | error | `LIST-EVAL-THIN` |
 | Eval suite includes ≥ 2 prompt-injection / jailbreak cases | error | `LIST-EVAL-NO-JAILBREAK` |
-| Latest `/sf-dev-kit:agent-test` run scored ≥ 0.92 overall (vs 0.85 internal) | error | `LIST-EVAL-LOW-SCORE` |
-| Latest `/sf-dev-kit:trust-layer-audit` exits 0 | error | `LIST-TRUST-AUDIT-FAILED` |
+| Latest `/argo:agent-test` run scored ≥ 0.92 overall (vs 0.85 internal) | error | `LIST-EVAL-LOW-SCORE` |
+| Latest `/argo:trust-layer-audit` exits 0 | error | `LIST-TRUST-AUDIT-FAILED` |
 | Listing icon at `<listing-dir>/icon.png` (256×256, ≤200 KB) | error | `LIST-NO-ICON` |
 | Listing screenshots at `<listing-dir>/screenshots/*.png` (≥3, max 1 MB each) | error | `LIST-NO-SCREENSHOTS` |
 | Listing description at `<listing-dir>/description.md` (≥200 chars, ≤1000) | error | `LIST-NO-DESCRIPTION` |
@@ -47,7 +47,7 @@ AGENT_DIR="$(sf_config_get '.paths.agentDefinitions // \"force-app/main/default/
 | Agent has a sub-agent for any topic with > 3 actions (decomposition; AGT-2) | warning | `LIST-MISSING-DECOMPOSITION` |
 | Documented escalation path with concrete user response template (AGT-7) | warning | `LIST-WEAK-ESCALATION` |
 | Memory pattern documented (Curated vs custom Agent_Conversation__c; AGT-6) | warning | `LIST-NO-MEMORY-DOC` |
-| Coverage of `/sf-dev-kit:trust-eval` runtime metrics in privacy.md | warning | `LIST-NO-RUNTIME-DISCLOSURE` |
+| Coverage of `/argo:trust-eval` runtime metrics in privacy.md | warning | `LIST-NO-RUNTIME-DISCLOSURE` |
 | Demo video (linked in description.md) | note | `LIST-NO-VIDEO` |
 | Per-edition compatibility matrix in description.md | note | `LIST-NO-EDITION-MATRIX` |
 
@@ -56,11 +56,11 @@ AGENT_DIR="$(sf_config_get '.paths.agentDefinitions // \"force-app/main/default/
 ### 1. Run prerequisite skills
 
 ```bash
-/sf-dev-kit:agent-test "$NAME" --ci --format json --out /tmp/list-eval.json     || true
-/sf-dev-kit:trust-layer-audit "$NAME" --ci --format json --out /tmp/list-trust.json || true
-/sf-dev-kit:agent-discover "$NAME" --ci --format json --out /tmp/list-disc.json    || true
-/sf-dev-kit:fls-audit --ci --format json --out /tmp/list-fls.json                  || true
-/sf-dev-kit:sharing-review --ci --format json --out /tmp/list-share.json           || true
+/argo:agent-test "$NAME" --ci --format json --out /tmp/list-eval.json     || true
+/argo:trust-layer-audit "$NAME" --ci --format json --out /tmp/list-trust.json || true
+/argo:agent-discover "$NAME" --ci --format json --out /tmp/list-disc.json    || true
+/argo:fls-audit --ci --format json --out /tmp/list-fls.json                  || true
+/argo:sharing-review --ci --format json --out /tmp/list-share.json           || true
 ```
 
 ### 2. Validate listing artifacts
@@ -129,8 +129,8 @@ Recommended fixes (not blocking submission, but Salesforce reviewers may request
 
 ## Submission checklist (after fixes)
 
-1. Re-run /sf-dev-kit:agent-exchange-list <name> --ci --fail-on error → exits 0
-2. Re-run /sf-dev-kit:trust-layer-audit and /sf-dev-kit:trust-eval → no regression
+1. Re-run /argo:agent-exchange-list <name> --ci --fail-on error → exits 0
+2. Re-run /argo:trust-layer-audit and /argo:trust-eval → no regression
 3. Submit via the AgentExchange portal: https://agentexchange.salesforce.com/publish
 4. Expect a security review (~5-10 business days)
 ```

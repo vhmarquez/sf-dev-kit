@@ -4,7 +4,7 @@ Patterns for **Salesforce Field Service** — work order lifecycle, scheduling a
 
 ## When to use this pack
 
-Install with `/sf-dev-kit:pattern-pack add field-service` if your project:
+Install with `/argo:pattern-pack add field-service` if your project:
 - Manages Work Orders, Service Appointments, and Service Resources
 - Customizes the Field Service Mobile experience for technicians
 - Integrates the Salesforce Scheduling Engine with custom skill or territory logic

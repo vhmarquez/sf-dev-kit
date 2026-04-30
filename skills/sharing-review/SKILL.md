@@ -102,5 +102,5 @@ CI mode: emit findings via SARIF.
 ## Consumers
 
 - `@security-reviewer` reads this skill's findings as part of its review
-- `/sf-dev-kit:code-review` cross-links to this skill when it sees a class touch DML
+- `/argo:code-review` cross-links to this skill when it sees a class touch DML
 - ADRs may justify a `without sharing` choice — `/adr` linkable from the justification comment

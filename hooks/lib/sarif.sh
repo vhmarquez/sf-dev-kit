@@ -1,5 +1,5 @@
 #!/bin/bash
-# sarif.sh — Convert sf-dev-kit internal findings JSON to SARIF 2.1.0.
+# sarif.sh — Convert argo internal findings JSON to SARIF 2.1.0.
 #
 # Internal finding shape (input on stdin, JSON array):
 #   [
@@ -20,11 +20,11 @@
 #   sarif_emit  [tool-name] [tool-version]  — read findings JSON from stdin, write SARIF to stdout
 
 sarif_emit() {
-  local tool_name="${1:-sf-dev-kit}"
+  local tool_name="${1:-argo}"
   local tool_version="${2:-1.1.0}"
 
   if ! command -v jq >/dev/null 2>&1; then
-    echo "[sf-dev-kit] Error: jq required for SARIF output" >&2
+    echo "[argo] Error: jq required for SARIF output" >&2
     return 1
   fi
 
@@ -41,7 +41,7 @@ sarif_emit() {
           driver: {
             name: $name,
             version: $version,
-            informationUri: "https://github.com/vmarquez/sf-dev-kit",
+            informationUri: "https://github.com/vmarquez/argo",
             rules: (
               [.[] | { id: .ruleId, helpUri: (.ruleHelpUri // null) }]
               | unique_by(.id)

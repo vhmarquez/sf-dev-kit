@@ -123,5 +123,5 @@ CI: SARIF per finding; bundle-size table emitted as a sidecar JSON if `--format 
 
 ## Consumers
 
-- `/sf-dev-kit:code-review` rolls per-component findings into the LWC sections of the review report
+- `/argo:code-review` rolls per-component findings into the LWC sections of the review report
 - `@architect` references the bundle-size summary when planning new components

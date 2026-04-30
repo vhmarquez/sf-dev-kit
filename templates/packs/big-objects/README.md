@@ -4,7 +4,7 @@ Patterns for **Big Objects** — Salesforce's append-only, billions-of-rows stor
 
 ## When to use this pack
 
-Install with `/sf-dev-kit:pattern-pack add big-objects` if your project:
+Install with `/argo:pattern-pack add big-objects` if your project:
 - Captures audit / change-history data that would blow standard storage limits
 - Stores append-only event records (telemetry, signals, log-style data)
 - Archives standard-object records past retention into queryable cold storage

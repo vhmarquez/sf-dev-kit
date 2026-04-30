@@ -1,6 +1,55 @@
 # Changelog
 
-All notable changes to **sf-dev-kit**. Format follows [Keep a Changelog](https://keepachangelog.com/) and the project follows [SemVer](https://semver.org/).
+All notable changes to **argo**. Format follows [Keep a Changelog](https://keepachangelog.com/) and the project follows [SemVer](https://semver.org/).
+
+> **Note on the project's name.** The project was renamed from **`sf-dev-kit`** to **`argo`** in v4.0.0. CHANGELOG entries from v1.0.0 through v3.3.3 originally referenced `sf-dev-kit`; they've been updated to use `argo` for consistency with the current project identity. The historical commits (`fdb8819` and earlier through `5459c44`) on the master branch preserve the original `sf-dev-kit` wording for the record. If you're upgrading from an older install, see the v4.0.0 migration guide below.
+
+---
+
+## v4.0.0 — 2026-04-30
+
+The rename. The project is now **argo**. Every internal reference, environment variable, slash-command prefix, install-log filename, hook-log tag, and SARIF tool id has been updated. No skill, agent, hook, or pack content changed — this is a pure identity migration.
+
+### Changed — identity
+
+- **Plugin name**: `sf-dev-kit` → `argo` (in `.claude-plugin/plugin.json` and `marketplace.json`)
+- **Slash-command prefix**: `/sf-dev-kit:<skill>` → `/argo:<skill>` (across all 56 skills, 11 agents, 11 packs, hooks, and docs)
+- **Plugin data namespace**: `${CLAUDE_PLUGIN_DATA}/sf-dev-kit/` → `${CLAUDE_PLUGIN_DATA}/argo/` (org cache, consent log, deploy history, agent eval history, PMD binary cache)
+- **Install log file**: `.claude/sf-dev-kit-packs.json` → `.claude/argo-packs.json`
+- **Hook log tags**: `[sf-dev-kit/<surface>]` → `[argo/<surface>]` (security-guard, lint-lwc, lint-apex, lint-react, mcp, security)
+- **SARIF tool ids**: `sf-dev-kit/code-review`, `sf-dev-kit/security-scan`, etc. → `argo/<skill>`
+- **Environment variables**:
+  - `SF_DEV_KIT_CONSENT_GRANTED` → `ARGO_CONSENT_GRANTED`
+  - `SF_DEV_KIT_SECURITY` → `ARGO_SECURITY`
+  - `SF_DEV_KIT_SECURITY_GUARD` → `ARGO_SECURITY_GUARD`
+  - `SF_DEV_KIT_MCP_DISABLED` → `ARGO_MCP_DISABLED`
+  - `SF_DEV_KIT_SESSION_NUDGE` → `ARGO_SESSION_NUDGE`
+
+### Migration from v3.3.x
+
+This is a **breaking change** for anyone with an installed v3.3.x. To migrate:
+
+1. **Update the marketplace pointer** to the new repo URL (after the GitHub repo rename):
+   ```text
+   /plugin marketplace remove sf-dev-kit
+   /plugin marketplace add https://github.com/vhmarquez/argo
+   /plugin install argo@argo
+   ```
+2. **Update slash-command invocations** in any scripts, runbooks, or CI pipelines: `/sf-dev-kit:foo` → `/argo:foo`
+3. **Rename the install log** in your projects (one-time): `mv .claude/sf-dev-kit-packs.json .claude/argo-packs.json`
+4. **Migrate plugin data** if you want to preserve org-cache, consent-log, deploy-history (one-time):
+   ```bash
+   mv "${CLAUDE_PLUGIN_DATA}/sf-dev-kit" "${CLAUDE_PLUGIN_DATA}/argo"
+   ```
+   Skipping this step is fine — the new namespace will populate fresh on first use.
+5. **Update environment variables** in any CI / shell config: `SF_DEV_KIT_*` → `ARGO_*` (rare; most users don't export these)
+6. **Re-run** `/argo:sf-init verify` to confirm the new layout resolves cleanly.
+
+The v3.3.3 release remains tagged in git; nothing in your existing v3.3.x install stops working — it's just decoupled from this repo's future updates after the GitHub repo rename.
+
+### Why "argo"
+
+Cleaner, shorter, more memorable than the descriptive `sf-dev-kit`. Doesn't lock the project into "Salesforce" forever (the AI-workflow patterns generalize), and doesn't read as Salesforce-affiliated (the original name leaned that way). Argo has good ship-and-crew connotations — fitting for a tool that coordinates a team of specialists.
 
 ---
 
@@ -52,7 +101,7 @@ The "first impression" release. The plugin's value-prop now reads in 30 seconds,
 
 ### Added — first-run experience
 
-- **`hooks/session-start.sh`** — `SessionStart` hook that fires once per session. When `CLAUDE_PROJECT_DIR/sfdx-project.json` exists but `.claude/sf-project.json` doesn't, it emits a one-paragraph nudge pointing at `/sf-dev-kit:sf-init` (with surface-aware extras when React sources or AgentDefinitions are detected). Silent in every other case — never adds noise to projects that don't need it. Disable per-session via `SF_DEV_KIT_SESSION_NUDGE=0`.
+- **`hooks/session-start.sh`** — `SessionStart` hook that fires once per session. When `CLAUDE_PROJECT_DIR/sfdx-project.json` exists but `.claude/sf-project.json` doesn't, it emits a one-paragraph nudge pointing at `/argo:sf-init` (with surface-aware extras when React sources or AgentDefinitions are detected). Silent in every other case — never adds noise to projects that don't need it. Disable per-session via `ARGO_SESSION_NUDGE=0`.
 - **`hooks/hooks.json`** — registers the `SessionStart` matcher with a 5s timeout.
 
 ### Changed — README
@@ -76,7 +125,7 @@ Plugin and marketplace descriptions rewritten to lead with positioning ("opinion
 No breaking changes. Pull v3.3:
 
 ```text
-/plugin marketplace update sf-dev-kit
+/plugin marketplace update argo
 ```
 
 The SessionStart hook is automatic and silent unless it has something useful to say. Existing projects (with `.claude/sf-project.json`) will see no behavior change.
@@ -96,10 +145,10 @@ The "security model" release. The plugin now enforces four hard invariants on ev
   - `sec_check_data_write <alias> <action>` — refuses unless consent token set
   - `sec_classify_org <alias>` — caches sandbox/prod classification
   - `sec_log_consent` — appends to JSONL audit log
-- **`hooks/security-guard.sh`** — `PreToolUse` hook on `Bash`. Defense-in-depth wrapper around raw `sf` commands that bypass the library helpers. Disable per-session via `SF_DEV_KIT_SECURITY_GUARD=0` (testing only)
+- **`hooks/security-guard.sh`** — `PreToolUse` hook on `Bash`. Defense-in-depth wrapper around raw `sf` commands that bypass the library helpers. Disable per-session via `ARGO_SECURITY_GUARD=0` (testing only)
 - **`docs/security-model.md`** — full security-model documentation: invariants, wire protocol, exit codes, JSON event shape, consent UX, threat model, recommended posture
-- **Org-classification cache** at `${CLAUDE_PLUGIN_DATA}/sf-dev-kit/org-cache/<alias>.json`
-- **Consent log** at `${CLAUDE_PLUGIN_DATA}/sf-dev-kit/consent-log/<project>.jsonl` — every override granted, with timestamp, skill, action, scope
+- **Org-classification cache** at `${CLAUDE_PLUGIN_DATA}/argo/org-cache/<alias>.json`
+- **Consent log** at `${CLAUDE_PLUGIN_DATA}/argo/consent-log/<project>.jsonl` — every override granted, with timestamp, skill, action, scope
 
 ### Added — config schema
 
@@ -112,7 +161,7 @@ The "security model" release. The plugin now enforces four hard invariants on ev
 
 When a security check refuses, the function emits a JSON event on stderr and exits with one of:
 
-- `77` — consent required (overridable). Assistant presents to user; on grant, re-invokes with `SF_DEV_KIT_CONSENT_GRANTED=once` (single-use token)
+- `77` — consent required (overridable). Assistant presents to user; on grant, re-invokes with `ARGO_CONSENT_GRANTED=once` (single-use token)
 - `78` — hard refusal (not overridable in this session)
 - `2` — invocation error
 
@@ -152,11 +201,11 @@ Every skill now declares its data-access surface in frontmatter:
 
 ### Migration from v3.1.x
 
-1. Pull v3.2: `/plugin marketplace update sf-dev-kit`
-2. Re-run `/sf-dev-kit:sf-init update` (or the full bootstrap) to populate the new `security` block. Required: classify every non-sandbox alias as either prod or known-non-prod
-3. (Recommended) Run `/sf-dev-kit:sf-init verify` to confirm the new boundary holds against your config
+1. Pull v3.2: `/plugin marketplace update argo`
+2. Re-run `/argo:sf-init update` (or the full bootstrap) to populate the new `security` block. Required: classify every non-sandbox alias as either prod or known-non-prod
+3. (Recommended) Run `/argo:sf-init verify` to confirm the new boundary holds against your config
 4. Existing skills continue to work with no changes — the security library refuses what it must; data-touching skills surface consent prompts at runtime
-5. CI: ensure `SF_DEV_KIT_CONSENT_GRANTED` is **never set** in the env. CI cannot grant consent; runs that would prompt instead fail loudly
+5. CI: ensure `ARGO_CONSENT_GRANTED` is **never set** in the env. CI cannot grant consent; runs that would prompt instead fail loudly
 
 ### Notes on threat model
 
@@ -202,7 +251,7 @@ Each pack ships `patterns.md`, `checklist.md`, `README.md`, and `pack.json`.
 - **`/generate-docs`** — adds React component + Agentforce agent doc generation, scoping rules per surface, full CI flag set (`--ci`, `--format json|sarif`, `--out`, `--fail-on`, `--env`), `<!-- manual:keep -->` block preservation. New rule IDs: `DOCS-MISSING`, `DOCS-STALE`, `DOCS-ORPHANED`, `DOCS-INDEX-DRIFT`
 - **`/deploy`** — adds `--ci`, `--env`, `--mcp`/`--no-mcp`, `--tests <level>`, MCP `metadata`-toolset routing (with CLI fallback when `mcp.toolsets` is read-only), React-bundle support, deploy-history JSONL append for `/quick-deploy` to consume, production-confirmation rule (`DEPLOY-PROD-REQUIRES-EXPLICIT`)
 - **`/pattern-pack`** — `add` honors a new `deprecated: true` field in `pack.json`: refuses to install the deprecated pack and prints the migration command pointing at `supersededBy`. Skill description updated to list current packs (Agentforce, React, Platform Events, CDC, External Objects, Big Objects, Field Service, Industries, CMS, Data Cloud)
-- **`/agent-discover`** — fixed an outdated reference: the Agent Registry is populated by `/sf-dev-kit:mcp-bridge --register`, not `/sf-dev-kit:mcp-setup`
+- **`/agent-discover`** — fixed an outdated reference: the Agent Registry is populated by `/argo:mcp-bridge --register`, not `/argo:mcp-setup`
 
 ### Changed — template doc indexes
 
@@ -220,21 +269,21 @@ Each pack ships `patterns.md`, `checklist.md`, `README.md`, and `pack.json`.
 
 ### Migration from v3.0.x
 
-1. Pull v3.1: `/plugin marketplace update sf-dev-kit`
+1. Pull v3.1: `/plugin marketplace update argo`
 2. Existing pack installs continue to work; no schema changes
 3. (Optional) Install any of the seven newly-authored packs:
    ```text
-   /sf-dev-kit:pattern-pack add change-data-capture
-   /sf-dev-kit:pattern-pack add data-cloud
+   /argo:pattern-pack add change-data-capture
+   /argo:pattern-pack add data-cloud
    ...
    ```
-4. (Optional but recommended) If your project's `.claude/sf-project.json` was written before v3, re-run `/sf-dev-kit:sf-init update` to align with the v3 schema documented in the updated Step 3
+4. (Optional but recommended) If your project's `.claude/sf-project.json` was written before v3, re-run `/argo:sf-init update` to align with the v3 schema documented in the updated Step 3
 5. If your project pinned the deprecated `einstein-agentforce` pack:
    ```text
-   /sf-dev-kit:pattern-pack remove einstein-agentforce
-   /sf-dev-kit:pattern-pack add agentforce
+   /argo:pattern-pack remove einstein-agentforce
+   /argo:pattern-pack add agentforce
    ```
-6. If your project pinned the dropped `functions` pack: remove it from `.claude/sf-dev-kit-packs.json` manually (the pack directory no longer ships)
+6. If your project pinned the dropped `functions` pack: remove it from `.claude/argo-packs.json` manually (the pack directory no longer ships)
 
 ---
 
@@ -324,14 +373,14 @@ Built across phases 13–19 (one branch + tag per phase: `v2.1.0`..`v2.6.0` → 
 
 ### Migration from v2.x
 
-1. Pull v3: `/plugin marketplace update sf-dev-kit`
-2. (Recommended) Install Salesforce's MCP server: `/sf-dev-kit:mcp-setup --profile dev`
-3. (Recommended) Re-run `/sf-dev-kit:sf-init update` to add the new config keys (`mcp.toolsets`, `platform.frontend`, `quality.agentEvalThreshold`, `paths.agentDefinitions` if you ship agents)
+1. Pull v3: `/plugin marketplace update argo`
+2. (Recommended) Install Salesforce's MCP server: `/argo:mcp-setup --profile dev`
+3. (Recommended) Re-run `/argo:sf-init update` to add the new config keys (`mcp.toolsets`, `platform.frontend`, `quality.agentEvalThreshold`, `paths.agentDefinitions` if you ship agents)
 4. If you ship agents:
-   - Replace `einstein-agentforce` pack: `/sf-dev-kit:pattern-pack remove einstein-agentforce && /sf-dev-kit:pattern-pack add agentforce`
-   - Run `/sf-dev-kit:agent-discover` to inventory existing agents
-   - Run `/sf-dev-kit:trust-layer-audit` against any active agent
-5. If you adopt React: `platform.frontend = "react"` (or `"both"`), then `/sf-dev-kit:sf-init` re-copies the standards docs
+   - Replace `einstein-agentforce` pack: `/argo:pattern-pack remove einstein-agentforce && /argo:pattern-pack add agentforce`
+   - Run `/argo:agent-discover` to inventory existing agents
+   - Run `/argo:trust-layer-audit` against any active agent
+5. If you adopt React: `platform.frontend = "react"` (or `"both"`), then `/argo:sf-init` re-copies the standards docs
 6. Existing v2 workflows continue to work; v3 features are additive and opt-in
 
 ### Branching & versioning policy (continued from v2)
@@ -412,9 +461,9 @@ The big one. v1.0 → v2.0 generalizes the v1.0 port into a project-agnostic Cla
 - All skills that read config honor the override path
 
 ### Migration from v1.x
-1. Pull the new plugin version: `/plugin marketplace update sf-dev-kit`
-2. Re-run `/sf-dev-kit:sf-init update` to pick up the auto-detect for fields you didn't set in v1
-3. (Optional) Run `/sf-dev-kit:org-explore` to populate the org cache for `@architect`
+1. Pull the new plugin version: `/plugin marketplace update argo`
+2. Re-run `/argo:sf-init update` to pick up the auto-detect for fields you didn't set in v1
+3. (Optional) Run `/argo:org-explore` to populate the org cache for `@architect`
 4. Existing v1 workflows continue to work; new skills are additive
 5. `notifications` config is optional — add it only when you want Slack/Teams posting
 

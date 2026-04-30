@@ -98,7 +98,7 @@ CI mode: emit one finding per flaky method:
 - **Don't auto-fix.** This skill detects; the user fixes
 - **Don't mute or skip flaky tests.** Muting hides bugs. The fix is always to make the test deterministic (mock time, isolate state, use `Test.startTest`/`Test.stopTest` correctly)
 - **Be quick about it.** Default 5 runs is a balance — enough to catch most flakiness, fast enough to iterate
-- **Persist history.** Append the per-method pass/fail rates to `${CLAUDE_PLUGIN_DATA}/sf-dev-kit/flaky/<project>/<TestClass>.jsonl` so trends are visible across runs
+- **Persist history.** Append the per-method pass/fail rates to `${CLAUDE_PLUGIN_DATA}/argo/flaky/<project>/<TestClass>.jsonl` so trends are visible across runs
 
 ## Likely causes catalog
 

@@ -13,8 +13,8 @@ Unified quality verification checklist for all Apex and LWC code. Used by agents
 - [ ] `as user` (or `Database.X(records, AccessLevel.USER_MODE)`) on DML operations
 - [ ] Input parameters validated before use (null → type → business rules → DML)
 - [ ] Dynamic SOQL uses bind variables; dynamic fields whitelisted against `Set<String>` (SF-11) or escaped
-- [ ] No SOQL injection vulnerabilities (run `/sf-dev-kit:security-scan`)
-- [ ] No CRUD/FLS gaps (run `/sf-dev-kit:fls-audit`)
+- [ ] No SOQL injection vulnerabilities (run `/argo:security-scan`)
+- [ ] No CRUD/FLS gaps (run `/argo:fls-audit`)
 - [ ] All callouts use Named Credentials (SF-15) — no hardcoded endpoints/tokens
 - [ ] No `without sharing` class reachable from an `@AuraEnabled` method without an explicit access check
 - [ ] No PII (emails, phone, SSN, payment, auth) in `System.debug` or logger entries
@@ -82,7 +82,7 @@ Unified quality verification checklist for all Apex and LWC code. Used by agents
 
 ### Trust Layer
 
-- [ ] Einstein Trust Layer enabled at the org level (run `/sf-dev-kit:trust-layer-audit`)
+- [ ] Einstein Trust Layer enabled at the org level (run `/argo:trust-layer-audit`)
 - [ ] PII data masking active for the project's sensitive fields
 - [ ] Zero-data-retention agreements signed with every configured LLM provider
 - [ ] Grounding queries enforce FLS (`WITH USER_MODE` on every grounding SOQL)
@@ -108,8 +108,8 @@ Unified quality verification checklist for all Apex and LWC code. Used by agents
 - [ ] At least 1 prompt-injection / jailbreak case per customer-facing agent
 - [ ] At least 1 escalation case
 - [ ] At least 1 destructive-action case (must score 1.0 on action-correctness)
-- [ ] `/sf-dev-kit:agent-test --ci --fail-on error` exits 0
-- [ ] No regression vs. main per `/sf-dev-kit:agent-eval-trend pr`
+- [ ] `/argo:agent-test --ci --fail-on error` exits 0
+- [ ] No regression vs. main per `/argo:agent-eval-trend pr`
 
 ### AI Gateway
 

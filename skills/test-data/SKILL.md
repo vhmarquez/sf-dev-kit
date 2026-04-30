@@ -28,7 +28,7 @@ ORG="$(sf_config_get '.platform.defaultTargetOrg' "$ENV")"
 
 ### 1. Resolve required fields per sObject
 
-Prefer the org cache (`${CLAUDE_PLUGIN_DATA}/sf-dev-kit/org-cache/<org>.json`) — it has the full describe. If absent, fall back to live `sf_cli_describe <Object> <ORG>`.
+Prefer the org cache (`${CLAUDE_PLUGIN_DATA}/argo/org-cache/<org>.json`) — it has the full describe. If absent, fall back to live `sf_cli_describe <Object> <ORG>`.
 
 For each field, capture:
 - `name` (API name)
@@ -150,7 +150,7 @@ Write `${APEX_SRC}/<ClassName>.cls` and `<ClassName>.cls-meta.xml`. Print a summ
 ```
 [test-data] Wrote TestDataFactory.cls (3 sObjects: Account, Order__c, Order_Item__c)
 [test-data] Required fields populated; lookups resolved through factories
-[test-data] Update with: /sf-dev-kit:test-data --update Contact
+[test-data] Update with: /argo:test-data --update Contact
 ```
 
 If `--update` was passed and the factory already exists, append new methods (do not duplicate; idempotent insert).

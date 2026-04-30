@@ -71,12 +71,12 @@ sf_cli_alias_exists "$DEFAULT_ORG" && echo "default-org: ✅" || echo "default-o
 ### 5. Smoke flow (only in `smoke` or default mode)
 
 Walk the user through:
-1. Create a scratch org: `/sf-dev-kit:scratch-org create scratch-onboard --days 1 --no-seed`
+1. Create a scratch org: `/argo:scratch-org create scratch-onboard --days 1 --no-seed`
 2. Deploy is automatic (the scratch-org skill pushes source)
 3. Run lint: invoke `${LINT_CMD}` from package.json
 4. Run unit tests: invoke `${TEST_CMD}`
-5. Run Apex coverage on a small class: `/sf-dev-kit:test-coverage <class> --target-org scratch-onboard`
-6. Destroy the scratch org: `/sf-dev-kit:scratch-org destroy scratch-onboard`
+5. Run Apex coverage on a small class: `/argo:test-coverage <class> --target-org scratch-onboard`
+6. Destroy the scratch org: `/argo:scratch-org destroy scratch-onboard`
 
 For each step, report timing and pass/fail.
 
@@ -157,4 +157,4 @@ CI mode: emit JSON object with `{ tools: {...}, auth: {...}, project: {...}, rep
 
 - New developer joining the project
 - CI bootstrap step (verify-only mode) confirming the runner has prerequisites
-- Periodic check — `/sf-dev-kit:onboard verify --ci` in a weekly job to detect drift
+- Periodic check — `/argo:onboard verify --ci` in a weekly job to detect drift
