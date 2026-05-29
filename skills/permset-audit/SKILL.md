@@ -8,7 +8,7 @@ You are building a **permission audit matrix** for the target org. The matrix is
 
 ## Security: data-with-consent
 
-This skill queries `PermissionSetAssignment`, which links permission sets to **specific user records**. That's customer data per the plugin's security model (`security.metadataOnly = true` blocks it by default). The skill prompts the user before running.
+This skill queries `PermissionSetAssignment`, which links permission sets to **specific user records**. That's customer data per the plugin's security model — the metadata-only allowlist blocks it by default, so the skill prompts the user for per-call consent before running.
 
 The other queries used by this skill (`Profile`, `PermissionSet`, `ObjectPermissions`, `FieldPermissions`) ARE on the metadata allowlist and do not require consent.
 

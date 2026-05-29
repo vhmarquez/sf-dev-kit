@@ -64,7 +64,13 @@ SEC_DATA_DIR="${CLAUDE_PLUGIN_DATA:-${HOME}/.claude/plugin-data}/argo"
 SEC_CACHE_DIR="${SEC_DATA_DIR}/org-cache"
 SEC_CONSENT_LOG="${SEC_DATA_DIR}/consent-log/$(basename "${CLAUDE_PROJECT_DIR:-unknown}").jsonl"
 
+# Classification cache entries older than this are re-derived (so an alias that
+# is re-authed to a different org cannot ride a stale verdict forever).
+SEC_CACHE_TTL_SECONDS="${ARGO_ORG_CACHE_TTL:-604800}"  # 7 days
+
+# These directories hold org metadata and consent history — keep them owner-only.
 mkdir -p "${SEC_CACHE_DIR}" "$(dirname "$SEC_CONSENT_LOG")" 2>/dev/null
+chmod 700 "${SEC_DATA_DIR}" "${SEC_CACHE_DIR}" "$(dirname "$SEC_CONSENT_LOG")" 2>/dev/null
 
 # --- Allowlist: SOQL targets considered metadata --------------------------------
 # Conservative; expansion requires reviewer sign-off + consent-log audit.
@@ -147,14 +153,28 @@ sec_org_cache_path() {
   echo "${SEC_CACHE_DIR}/${alias}.json"
 }
 
-# Print "sandbox" | "prod" | "unknown". Fetches via `sf org display` once and caches.
+# Print "sandbox" | "prod" | "unknown". Fetches via `sf org display` once and
+# caches. The cache is treated as a performance hint, not a trust anchor: the
+# definitive prod allowlist (security.prodOrgAliases) is consulted by
+# sec_check_org BEFORE this function on every call, so a tampered or stale
+# cache cannot promote a listed prod org to "sandbox". Cached verdicts also
+# expire (SEC_CACHE_TTL_SECONDS) and "unknown" is never cached, so transient
+# failures and alias re-auth self-heal.
 sec_classify_org() {
   local alias="$1"
   local cache; cache="$(sec_org_cache_path "$alias")"
 
   if [[ -f "$cache" ]]; then
-    jq -r '.classification // "unknown"' "$cache" 2>/dev/null || echo "unknown"
-    return 0
+    local cached_cls cached_at age now
+    cached_cls=$(jq -r '.classification // "unknown"' "$cache" 2>/dev/null || echo "unknown")
+    cached_at=$(jq -r '.classifiedAtEpoch // 0' "$cache" 2>/dev/null || echo 0)
+    now=$(date -u +%s 2>/dev/null || echo 0)
+    age=$(( now - cached_at ))
+    # Only honor a definitive, non-expired verdict; otherwise fall through and re-derive.
+    if [[ "$cached_cls" == "sandbox" || "$cached_cls" == "prod" ]] && (( cached_at > 0 && age >= 0 && age < SEC_CACHE_TTL_SECONDS )); then
+      echo "$cached_cls"
+      return 0
+    fi
   fi
 
   command -v sf >/dev/null 2>&1 || { echo "unknown"; return 0; }
@@ -172,8 +192,17 @@ sec_classify_org() {
     false) cls="prod" ;;
   esac
 
-  jq -n --arg a "$alias" --arg c "$cls" --arg t "$(date -u +%FT%TZ)" \
-    '{alias:$a, classification:$c, classifiedAt:$t}' > "$cache" 2>/dev/null
+  # Never cache "unknown" — that would pin the alias to a permanent failed
+  # state. Only persist a definitive verdict, with a username + epoch stamp so
+  # a later alias re-auth (different org behind the same alias) is detectable.
+  if [[ "$cls" == "sandbox" || "$cls" == "prod" ]]; then
+    local username
+    username=$(printf '%s' "$info" | jq -r '.result.username // empty' 2>/dev/null)
+    jq -n --arg a "$alias" --arg c "$cls" --arg u "$username" \
+      --arg t "$(date -u +%FT%TZ)" --argjson e "$(date -u +%s)" \
+      '{alias:$a, classification:$c, username:$u, classifiedAt:$t, classifiedAtEpoch:$e}' > "$cache" 2>/dev/null
+    chmod 600 "$cache" 2>/dev/null
+  fi
 
   echo "$cls"
 }
@@ -189,6 +218,7 @@ sec_log_consent() {
     --arg t "$(date -u +%FT%TZ)" \
     --arg s "$skill" --arg a "$action" --arg sc "$scope" --arg d "$decision" \
     '{ts:$t, skill:$s, action:$a, scope:$sc, decision:$d}' >> "$SEC_CONSENT_LOG" 2>/dev/null
+  chmod 600 "$SEC_CONSENT_LOG" 2>/dev/null
 }
 
 # --- Refusal helpers -----------------------------------------------------------
@@ -252,11 +282,11 @@ sec_check_org() {
         # Even with consent, refuse — prod is hard.
         sec_consent_consume
         _sec_emit "refused" "PROD_ORG_DETECTED_NO_OVERRIDE" "any" "" "$alias" \
-          "Org '$alias' is non-sandbox per `sf org display` (isSandbox=false). Even with consent, the plugin will not contact prod. Add to security.prodOrgAliases (recommended) or security.knownNonSandboxNonProd if it's a dev/demo org you want to allow."
+          "Org '$alias' is non-sandbox per 'sf org display' (isSandbox=false). Even with consent, the plugin will not contact prod. Add to security.prodOrgAliases (recommended) or security.knownNonSandboxNonProd if it's a dev/demo org you want to allow."
         return 78
       fi
       _sec_emit "consent_required" "ORG_UNCLASSIFIED_NONSANDBOX" "classify" "" "$alias" \
-        "Org '$alias' is non-sandbox per `sf org display` and is not yet classified. Classify it as production (security.prodOrgAliases) or as a known dev/demo org (security.knownNonSandboxNonProd)."
+        "Org '$alias' is non-sandbox per 'sf org display' and is not yet classified. Classify it as production (security.prodOrgAliases) or as a known dev/demo org (security.knownNonSandboxNonProd)."
       return 77
       ;;
     unknown|*)

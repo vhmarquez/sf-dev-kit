@@ -37,7 +37,7 @@ All emitting skills produce findings in a uniform internal JSON shape before for
     "line":     42,
     "column":   3,
     "endLine":  46,
-    "ruleHelpUri": "https://github.com/vmarquez/argo/blob/main/templates/docs/patterns/salesforce-patterns.md#sf-5",
+    "ruleHelpUri": "https://github.com/vhmarquez/argo/blob/main/templates/docs/patterns/salesforce-patterns.md#sf-5",
     "tool":     "code-review"
   }
 ]
