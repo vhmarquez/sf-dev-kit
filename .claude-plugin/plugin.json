@@ -1,6 +1,6 @@
 {
   "name": "argo",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "Opinionated, security-first AI workflow for Salesforce DX projects in Claude Code. 11 specialist subagents (architect, builders, QA, security/trust reviewers), 56 skills (each declares data-access surface), hardened security model — prod orgs hard-blocked, metadata-only SOQL, anonymous Apex refused, runtime-only consent. SessionStart hook nudges first-run setup; PreToolUse Bash guard provides defense-in-depth. Headless-360 native (MCP routing, Agentforce, Trust Layer, AI Gateway, AgentExchange). 11 domain pattern packs.",
   "author": {
     "name": "Victor Marquez"

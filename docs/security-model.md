@@ -1,6 +1,6 @@
 # Security Model
 
-The plugin operates under four hard invariants. They're enforced centrally — every org-touching skill routes through the same library — with a defense-in-depth Bash hook that catches anything that might bypass the library.
+The plugin operates under four hard invariants. They're enforced centrally — every org-touching skill routes through the same library — with a best-effort, defense-in-depth Bash hook (see [Known limitations](#known-limitations)) that gates raw `sf` calls which bypass the library.
 
 ## Invariants
 
@@ -20,7 +20,7 @@ hooks/lib/mcp.sh                → wraps MCP calls; routes through security.sh
 ${CLAUDE_PLUGIN_DATA}/argo/org-cache/<alias>.json
                                 → cached org classification (sandbox/prod/unknown)
 ${CLAUDE_PLUGIN_DATA}/argo/consent-log/<project>.jsonl
-                                → audit log of every override granted
+                                → log of consent grants (allow-once decisions)
 ```
 
 ## Config
@@ -32,7 +32,6 @@ ${CLAUDE_PLUGIN_DATA}/argo/consent-log/<project>.jsonl
   "security": {
     "prodOrgAliases":         ["ProdProd"],
     "knownNonSandboxNonProd": [],
-    "metadataOnly":           true,
     "allowAnonymousApex":     false
   }
 }
@@ -42,8 +41,9 @@ ${CLAUDE_PLUGIN_DATA}/argo/consent-log/<project>.jsonl
 |-------|---------|
 | `prodOrgAliases` | Aliases the plugin must never contact. Hard-refuse, no override. |
 | `knownNonSandboxNonProd` | Non-sandbox orgs (developer / demo orgs) explicitly classified as OK to contact. Without this, any non-sandbox alias not in `prodOrgAliases` is treated as unclassified and refused. |
-| `metadataOnly` | When `true` (default), SOQL queries must target the metadata allowlist. Setting to `false` disables the allowlist (still a per-call prompt for data targets unless consent granted) — not recommended; loosen only if you're working in a fully-isolated dev org. |
 | `allowAnonymousApex` | When `false` (default), `sf apex run` is refused outright. When `true`, it's available behind a per-call consent prompt. |
+
+The metadata-only SOQL allowlist is **always enforced** — there is no toggle to disable it. Any query against a non-allowlisted (customer-data) object requires explicit per-call consent (invariant #2), on every org, with no opt-out.
 
 ## Wire protocol
 
@@ -55,6 +55,8 @@ When a security check fires, it emits a JSON event on stderr and exits with one 
 | `77` | Consent required — overridable. The assistant should present the event to the user and, on grant, re-invoke with `ARGO_CONSENT_GRANTED=once` |
 | `78` | Hard refusal — not overridable in this session |
 | `2` | Invocation error (bad arguments, missing dependencies) |
+
+These codes are the **library's** internal protocol (`sf-cli.sh` / `mcp.sh` routes). The `PreToolUse` Bash guard (`security-guard.sh`) follows the hook contract instead: it collapses both `77` and `78` to **exit `2`** (which blocks the tool call) while preserving the same JSON event on stderr, so the assistant still distinguishes `event: consent_required` from `refused`.
 
 Event shape:
 
@@ -91,7 +93,7 @@ Choose:
   [c] Cancel           — abort the skill
 ```
 
-Granting `[a]` re-invokes the gated command after `export ARGO_CONSENT_GRANTED=once`. The library consumes the token immediately, so a second restricted call inside the same skill run prompts again.
+Granting `[a]` re-invokes the gated command after `export ARGO_CONSENT_GRANTED=once` (the PreToolUse guard also accepts the token inline, as `ARGO_CONSENT_GRANTED=once sf …`). The token is consumed immediately, so a second restricted call inside the same skill run prompts again.
 
 ## Consent log
 
@@ -103,22 +105,22 @@ Every consent grant appends one JSON line to `${CLAUDE_PLUGIN_DATA}/argo/consent
 {"ts":"2026-04-30T19:45:25Z","skill":"trust-eval","action":"soql","scope":"AgentSessionTrace@DevVM","decision":"allow-once"}
 ```
 
-Audit-friendly. You can review what's been granted, when, and against which org.
+This records consent **grants** (`allow-once`, and `metadata-only-disabled` reads) — not refusals or prod-block events. Review what's been granted, when, and against which org.
 
 ## Org classification
 
 For each non-sandbox alias `sf org list` knows about, classification is cached at `${CLAUDE_PLUGIN_DATA}/argo/org-cache/<alias>.json`:
 
 ```json
-{ "alias": "DevVM", "classification": "sandbox", "classifiedAt": "2026-04-30T19:45:00Z" }
+{ "alias": "DevVM", "classification": "sandbox", "username": "dev@vm.example", "classifiedAt": "2026-04-30T19:45:00Z", "classifiedAtEpoch": 1780000000 }
 ```
 
 Possible classifications:
 - `sandbox` — `sf org display --json` reported `isSandbox: true`. Allowed.
 - `prod` — reported `isSandbox: false`. **Hard-refused unless explicitly classified** in `security.prodOrgAliases` (still refused, by design) or `security.knownNonSandboxNonProd` (allowed).
-- `unknown` — classification call failed. Refused with a "consent_required" event asking the user to classify manually.
+- `unknown` — classification call failed. Refused with a `consent_required` event asking the user to classify manually. **Never cached**, so a transient failure self-heals on the next call.
 
-Re-classify by deleting the cache file and re-running the targeting skill.
+The cache is a **performance hint, not a trust anchor**: `security.prodOrgAliases` is consulted *before* the cache on every call, so a stale or hand-edited cache cannot promote a listed prod org to `sandbox`. Cached verdicts expire after `ARGO_ORG_CACHE_TTL` seconds (default 7 days) and are re-derived — so an alias re-authed to a different org can't ride a stale verdict indefinitely. The `username` stamp records which org backed the alias when it was classified. Cache and consent-log files are written `0600`. Re-classify immediately by deleting the cache file and re-running the targeting skill.
 
 ## Per-skill data access (frontmatter)
 
@@ -134,21 +136,31 @@ Run `grep -l 'data-access: data-with-consent' skills/*/SKILL.md` to enumerate.
 
 ## Belt-and-suspenders: PreToolUse Bash hook
 
-`hooks/security-guard.sh` runs before every `Bash` tool call. It scans the command for `sf` invocations, parses subcommand + target alias + SOQL, and gates accordingly. This catches:
+`hooks/security-guard.sh` runs before every `Bash` tool call. It **splits the command on shell separators** (`;`, `&&`, `||`, `|`, `&`, newline) and gates **every** `sf` invocation it finds independently — parsing subcommand + target alias + SOQL for each. This catches:
 - Skills that bypass `sf-cli.sh` and call `sf` directly
 - Hand-written Bash from the assistant that targets prod or queries data
-- Compound commands (`cmd1 && sf data query …`)
+- Compound commands (`sf org list; sf data query … -o prod`) — each segment is gated, so prefixing a benign `sf` verb does not slip a later segment past the guard
+- `sf` invoked by absolute path (`/usr/local/bin/sf …`) or quoted (`'sf' …`) — detection is basename-aware
+
+It also honors the documented re-invoke form: an inline `ARGO_CONSENT_GRANTED=once sf …` is lifted out of the command and applied for that single call.
 
 The hook is registered in `hooks/hooks.json` under `PreToolUse` matcher `Bash`. Disable per-session for testing with `ARGO_SECURITY_GUARD=0` (NOT recommended — disables the safety net while leaving the library checks intact).
+
+### Known limitations
+
+The Bash guard is a best-effort, regex-based safety net — **the library (`security.sh`) is the authoritative enforcement layer.** The guard intentionally cannot catch:
+- `sf` reached through **shell indirection** — variable expansion (`S=sf; $S data query …`), `eval`, command substitution, or shell aliases. A static guard cannot resolve these; such commands don't route through the library either, so don't hand-roll them against data/prod.
+- When `jq` is **absent**, the guard cannot parse the tool input; it **fails closed** for recognizably-dangerous patterns (`sf data …`, `sf apex run`, `sf agent run/test`) and fails open otherwise. Install `jq` for full coverage.
+- Operations issued without `--target-org` are gated against the configured `defaultTargetOrg`, which may differ from the CLI's own default target.
 
 ## Recommended posture
 
 For a typical dev project:
 1. Run `/argo:sf-init` — it detects every non-sandbox alias `sf org list` knows about and prompts you to classify each one as prod or known-non-prod.
-2. Keep `security.metadataOnly: true` and `security.allowAnonymousApex: false` (the defaults).
+2. Keep `security.allowAnonymousApex: false` (the default). The metadata-only SOQL allowlist is always enforced.
 3. Allow consent prompts to fire on a per-call basis. Every grant lands in the consent log; review periodically.
 
-For CI: run with `ARGO_SECURITY=1` (default), the guard hook enabled (default), `security.metadataOnly: true`, and never `ARGO_CONSENT_GRANTED=once` in the env. CI cannot grant consent.
+For CI: run with `ARGO_SECURITY=1` (default), the guard hook enabled (default), and never `ARGO_CONSENT_GRANTED=once` in the env. CI cannot grant consent.
 
 ## Threat model
 
@@ -161,5 +173,6 @@ What this protects against:
 What this does NOT protect against:
 - Compromise of the user's local `sf` CLI auth state — out of scope
 - The user explicitly setting `prodOrgAliases: []` and consenting to every prompt
+- `sf` invoked through shell indirection (`$VAR`, `eval`, aliases) in hand-written Bash — the regex guard cannot resolve these; the library remains the enforcement layer for any call that routes through it (see [Known limitations](#known-limitations))
 - Vulnerabilities in `@salesforce/mcp` itself
-- Information that flows to the Anthropic API as part of the normal Claude Code session — that's the standard data flow; this plugin doesn't add to it. See README "How orgs are discovered" for the breakdown.
+- Information that flows to the Anthropic API as part of the normal Claude Code session — that's the standard data flow; this plugin doesn't add to it

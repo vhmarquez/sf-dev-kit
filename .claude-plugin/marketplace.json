@@ -8,7 +8,7 @@
       "name": "argo",
       "source": "./",
       "description": "Opinionated, security-first AI workflow for Salesforce DX projects in Claude Code. Five-step quickstart; SessionStart nudge on fresh SFDX projects; detect-review-edit-verify bootstrap. Hardened security model: prod orgs hard-blocked, metadata-only SOQL, anonymous Apex refused, runtime-only consent. 11 subagents, 56 skills, 11 domain packs.",
-      "version": "4.0.0",
+      "version": "4.1.0",
       "keywords": ["salesforce", "sfdx", "lwc", "apex", "react", "experience-cloud", "agentforce", "headless360", "mcp", "trust-layer", "platform-events", "cdc", "pmd", "sarif"]
     }
   ]

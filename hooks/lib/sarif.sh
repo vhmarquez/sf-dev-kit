@@ -41,7 +41,7 @@ sarif_emit() {
           driver: {
             name: $name,
             version: $version,
-            informationUri: "https://github.com/vmarquez/argo",
+            informationUri: "https://github.com/vhmarquez/argo",
             rules: (
               [.[] | { id: .ruleId, helpUri: (.ruleHelpUri // null) }]
               | unique_by(.id)

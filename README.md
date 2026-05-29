@@ -80,7 +80,7 @@ That's the loop.
 ## Why this plugin
 
 - **Salesforce DX-aware out of the box.** `/sf-init` reads `sfdx-project.json`, scans existing components for the LWC prefix, sniffs `package.json` for lint/test scripts, classifies orgs from `sf org list` — most of the config writes itself. You typically answer one or two questions.
-- **Security is the default, not an afterthought.** Production orgs are unreachable; data queries require per-call consent; anonymous Apex is refused; every override is logged. Read [`docs/security-model.md`](docs/security-model.md) before loosening anything.
+- **Security is the default, not an afterthought.** Production orgs are blocked by default; data queries require per-call consent; anonymous Apex is refused; every grant is logged. Read [`docs/security-model.md`](docs/security-model.md) — including its **Known limitations** — before loosening anything.
 - **Specialists, not a generalist.** Eleven subagents with distinct responsibilities and clean handoffs. `@architect` plans, builders implement in parallel, reviewers gate the merge. No one agent has all the context — that's the point.
 - **Headless 360 native.** First-class MCP routing via `@salesforce/mcp`, Agentforce dev workflow (`/agent-spec` → `/agent-test` → `/agent-deploy`), Trust Layer audits, AgentExchange listing prep, React-on-Salesforce parity with LWC.
 - **CI-ready.** Most skills accept `--ci`, `--format json|sarif`, `--out`, `--fail-on` flags following a [documented contract](docs/ci-output-contract.md). SARIF output integrates natively with GitHub Code Scanning.
@@ -320,7 +320,7 @@ PMD is downloaded automatically on first use of any PMD-based skill into `${CLAU
 | `quality` | `codeCoverageTarget`, `lintCommand`, `unitTestCommand`, **`agentEvalThreshold`** | Agent eval threshold default 0.85 (Trust Layer band) |
 | **`mcp`** | **`toolsets`**, `allowNonGaTools` | Configured by `/argo:mcp-setup`; downstream skills route through `@salesforce/mcp` when present |
 | `notifications.webhooks` | `slack`, `teams` | For `/notify` |
-| **`security`** | **`prodOrgAliases`**, **`knownNonSandboxNonProd`**, **`metadataOnly`**, **`allowAnonymousApex`** | Restrictive defaults; see [security model](#security-model). Production aliases are **hard-blocked, no override** |
+| **`security`** | **`prodOrgAliases`**, **`knownNonSandboxNonProd`**, **`allowAnonymousApex`** | Restrictive defaults; see [security model](#security-model). Production aliases are **hard-blocked, no override**; the metadata-only SOQL allowlist is always enforced |
 
 Per-environment overrides (`.claude/sf-project.<env>.json`) deep-merge over the base.
 

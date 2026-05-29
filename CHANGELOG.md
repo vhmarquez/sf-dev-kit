@@ -6,6 +6,33 @@ All notable changes to **argo**. Format follows [Keep a Changelog](https://keepa
 
 ---
 
+## v4.1.0 — 2026-05-29
+
+Security hardening of the enforcement layer plus an honesty pass on the docs. No skill, agent, or pack content changed; behavior changes are confined to the security guard and library.
+
+### Security
+
+- **PreToolUse guard is no longer bypassable by command chaining.** `security-guard.sh` previously classified only the *first* `sf` invocation in a command, so a benign leading verb (`sf org list; sf data query … -o prod`) let a later prod-targeted query, anonymous Apex, or data write run ungated. The guard now splits the command on shell separators (`;` `&&` `||` `|` `&` newline) and gates **every** `sf` segment independently.
+- **Path-qualified and quoted `sf` are now detected.** `/usr/local/bin/sf …` and `'sf' …` were not matched by the old bail regex and ran ungated; detection is now basename-aware. (Shell indirection — `$VAR`, `eval`, aliases — remains out of scope and is now documented as such.)
+- **Guard fails closed without `jq`.** Previously it exited 0 (allow-all) when `jq` was missing; it now refuses recognizably-dangerous patterns (`sf data …`, `sf apex run`, `sf agent run/test`) and only fails open for clearly-benign commands.
+- **Org-classification cache is no longer a permanent trust anchor.** Verdicts now carry an epoch + `username` stamp and expire after `ARGO_ORG_CACHE_TTL` (default 7 days); `unknown` is never cached (transient failures self-heal); an alias re-authed to a different org can't ride a stale `sandbox` verdict. `prodOrgAliases` is still consulted *before* the cache on every call.
+- **State files tightened to `0600`/`0700`.** The org-cache and consent-log directories and files (which hold org metadata + activity history) are no longer world-readable.
+
+### Fixed
+
+- **Consent re-invoke now works through the guard.** The documented `ARGO_CONSENT_GRANTED=once sf …` form is parsed out of the command and honored for that single call; previously the guard read the token only from its own environment, so a command prefix could never grant consent and raw `sf` data queries were blocked forever.
+- **Refusal messages no longer execute `sf`.** Two messages in `security.sh` contained unescaped backticks (`` `sf org display` ``) that bash command-substituted while building the string — running a live `sf org display` against the default org and leaking its output into the emitted event. Replaced with literal text.
+- **Removed the no-op `security.metadataOnly` config field.** It was written by `/argo:sf-init` and documented in several places but never read by the enforcement code. Rather than implement an opt-out, the metadata-only SOQL allowlist is now **unconditional**: the plugin only ever auto-allows allowlisted metadata SOQL, and customer-data reads always require per-call consent on every org — with no toggle to loosen it. The field is no longer written by `sf-init`, documented, or recognized.
+- **Hook scripts are marked executable.** `security-guard.sh`, `session-start.sh`, and the three lint hooks are now committed with mode `755` so the hook layer runs on a fresh install.
+- **Repo URL unified to `vhmarquez/argo`** in `hooks/lib/sarif.sh` (SARIF `informationUri`) and `docs/ci-output-contract.md`.
+
+### Changed — docs
+
+- `docs/security-model.md`: documented the guard's split-and-gate-every-segment behavior and added a **Known limitations** section (shell indirection, `jq`-absent fail-closed, default-org gating); scoped the 77/78/2 exit-code table to the library (the guard collapses to exit 2); corrected the consent-log description to "grants only"; refreshed the org-classification section (TTL, no-cache-unknown, integrity note).
+- `README.md`: "production orgs are unreachable" → "blocked by default", with a pointer to Known limitations.
+
+---
+
 ## v4.0.0 — 2026-04-30
 
 The rename. The project is now **argo**. Every internal reference, environment variable, slash-command prefix, install-log filename, hook-log tag, and SARIF tool id has been updated. No skill, agent, hook, or pack content changed — this is a pure identity migration.
