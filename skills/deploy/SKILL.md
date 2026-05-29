@@ -1,6 +1,6 @@
 ---
 name: deploy
-description: Deploy or validate Salesforce metadata against the project's default org (or another org if specified). Routes through the @salesforce/mcp `metadata` toolset when available; falls back to direct `sf` CLI. Honors per-environment config overrides via `--env`.
+description: Deploy or validate Salesforce metadata against the project's default org (or another org if specified) using the `sf` CLI. Honors per-environment config overrides via `--env`.
 data-access: metadata-only
 ---
 
@@ -11,7 +11,6 @@ You are deploying Salesforce metadata for this project. Always read the project 
 ```bash
 source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/config.sh"
 source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/sf-cli.sh"
-source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/mcp.sh"
 sf_cli_check || exit 2
 ORG="$(sf_config_get '.platform.defaultTargetOrg' "$ENV")"
 LWC_SRC="$(sf_config_get '.paths.lwcSource' "$ENV")"
@@ -20,7 +19,7 @@ REACT_SRC="$(sf_config_get '.paths.reactSource // ""' "$ENV")"
 TEST_SUFFIX="$(sf_config_get '.naming.apex.testSuffix // "Test"' "$ENV")"
 ```
 
-`--env <name>` merges `.claude/sf-project.<name>.json` over the base; if a prod override caps `mcp.toolsets` to read-only, this skill detects that and refuses to deploy through MCP — falling back to the user-authenticated CLI path.
+`--env <name>` merges `.claude/sf-project.<name>.json` over the base; in particular it pulls `defaultTargetOrg` from the env file so deploys land in the right org.
 
 ## Input
 
@@ -41,7 +40,6 @@ Modifiers:
 - `--ci` — non-interactive; machine-readable output; no prompts
 - `--format json|sarif` — output format in CI mode (default `json`)
 - `--out <path>` — write CI output to file instead of stdout
-- `--mcp` / `--no-mcp` — force MCP-routed or CLI-routed deploy (default: prefer MCP when available)
 - `--tests` `RunSpecifiedTests|RunLocalTests|RunAllTestsInOrg|NoTestRun` — test level on the deploy (default: `RunSpecifiedTests` for class-targeted deploys, `NoTestRun` for component-only deploys, `RunLocalTests` for `all`)
 
 ## Steps
@@ -63,23 +61,8 @@ Determine target kind, validation-only or real deploy, target org alias.
 
 Verify all resolved paths exist before deploying. Refuse with rule `DEPLOY-PATH-MISSING` (severity: error) if any do not.
 
-### 3. Pick the transport
+### 3. Build and run the deploy
 
-```bash
-if [[ "${MCP_OVERRIDE:-}" == "off" ]]; then
-  ROUTE=cli
-elif mcp_prefer && mcp_configured_toolsets "$ENV" | grep -qw metadata; then
-  ROUTE=mcp
-else
-  ROUTE=cli
-fi
-```
-
-The `metadata` MCP toolset must be in `mcp.toolsets` for the env. Read-only env overrides (e.g., a `prod` profile that ships `data,testing` only) will deliberately not include `metadata`; the skill falls back to CLI in that case.
-
-### 4. Build and run the deploy
-
-CLI route:
 ```bash
 sf project deploy start \
   --target-org "$ORG" \
@@ -89,38 +72,27 @@ sf project deploy start \
   --wait 30 --json
 ```
 
-MCP route:
-```bash
-mcp_run metadata deploy '{
-  "org":         "'"$ORG"'",
-  "sourceDirs":  ["'"$P1"'", "'"$P2"'"],
-  "validateOnly": '"$VALIDATE_BOOL"',
-  "testLevel":   "'"$TEST_LEVEL"'"
-}'
-```
+Returns JSON. Capture deploy id, status, error/test failure arrays.
 
-Both paths return JSON. Capture deploy id, status, error/test failure arrays.
-
-### 5. Production confirmation
+### 4. Production confirmation
 
 Before deploying (not validating) to an org whose alias matches `prod*` / `production*` or whose username domain looks production-shaped, **prompt** for confirmation in interactive mode. In `--ci` mode, refuse and exit with rule `DEPLOY-PROD-REQUIRES-EXPLICIT` (severity: error) unless `--target-org` was set explicitly to that alias on the command line.
 
-### 6. Append to deploy history
+### 5. Append to deploy history
 
 ```
 ${CLAUDE_PLUGIN_DATA}/argo/deploy-history/<project>.jsonl
 ```
 
-One JSON line per deploy: `{ deployId, org, env, mode (deploy|validate), route (mcp|cli), targetCount, status, durationSec, timestamp }`. `/argo:quick-deploy` reads this to find a recent successful validation.
+One JSON line per deploy: `{ deployId, org, env, mode (deploy|validate), targetCount, status, durationSec, timestamp }`. `/argo:quick-deploy` reads this to find a recent successful validation.
 
-### 7. Output
+### 6. Output
 
 Default Markdown:
 ```
 # Deploy: <project> → <org>
 
 Mode:    deploy (or validate)
-Route:   mcp / cli
 Targets: 3 paths, 12 components
 
 ## Result
@@ -142,7 +114,6 @@ CI mode JSON:
   "deployId": "0Af...",
   "org": "DevVM",
   "mode": "deploy",
-  "route": "mcp",
   "status": "Succeeded",
   "componentCount": 12,
   "testRunCount": 4,
@@ -154,7 +125,7 @@ CI mode JSON:
 
 CI mode SARIF: surfaces deploy errors and test failures as findings (`ruleId: DEPLOY-COMPONENT-ERROR`, `DEPLOY-TEST-FAILURE`).
 
-### 8. Exit codes
+### 7. Exit codes
 
 - 0 — deploy / validate succeeded; no findings at or above `--fail-on`
 - 1 — deploy / validate failed, OR findings at or above `--fail-on`
@@ -167,6 +138,5 @@ CI mode SARIF: surfaces deploy errors and test failures as findings (`ruleId: DE
 - **Always verify source paths exist** before running the deploy command
 - **Include Apex dependencies** automatically when deploying an LWC or React component
 - **Include the matching test class** when deploying an Apex production class
-- **Don't override `--no-mcp`.** If the user explicitly disables MCP routing for this deploy, honor it without warning
 - **Append every run to deploy history** so `/argo:quick-deploy` can find the validation id later
 - Report results clearly: components deployed, status, any errors

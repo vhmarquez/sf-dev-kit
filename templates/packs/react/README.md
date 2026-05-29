@@ -1,6 +1,6 @@
 # React on Salesforce Pack
 
-Patterns and guidance for **native React** components on the Salesforce platform — the React support added with Headless 360, alongside the existing LWC framework.
+Patterns and guidance for **native React** components on the Salesforce platform — the platform's React support, alongside the existing LWC framework.
 
 ## When to use this pack
 

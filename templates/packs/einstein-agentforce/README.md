@@ -15,5 +15,5 @@ The new pack ships AGT-1..7 (topic boundaries, sub-agent decomposition, guardrai
 ## Why renamed
 
 - "Einstein" is a broader Salesforce brand; "Agentforce" specifically names the agent surface this pack covers
-- Aligns with the Headless 360 pattern-prefix convention (`AGT-*` for agent patterns)
+- Aligns with the pattern-prefix convention (`AGT-*` for agent patterns)
 - Reserves `EIN-*` for future Einstein-Discovery, Einstein-Vision, or Einstein-Bots packs that don't overlap with the agent surface

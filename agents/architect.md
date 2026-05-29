@@ -76,7 +76,7 @@ Always output a structured implementation plan:
 2. `{paths.lwcSource}/{prefix}ComponentName/` — Purpose, patterns used
 3. `{paths.reactSource}/{ComponentName}/` — (when `platform.frontend = "react"|"both"`) React component bundle
 4. `force-app/main/default/botDefinitions/{AgentName}/` — AgentDefinition + topics + actions + sub-agents (hand off to `@agent-dev`)
-5. `mcp/bridges/{tool-name}.json` — MCP tool bridge for an Apex REST class (when expanding the agent tool surface; created by `/argo:mcp-bridge`)
+5. `mcp/tools/{tool-name}.json` — MCP tool spec for an Apex REST class (when expanding the agent tool surface)
 6. (etc.)
 
 ### Files to Modify
@@ -139,7 +139,7 @@ All values below come from `.claude/sf-project.json` (with optional env override
 
 If the project has them installed, hand off:
 - **`@data-architect`** — non-trivial data-model design (new master-detail hierarchies, cross-object sharing changes, large-scale migrations)
-- **`@integration-architect`** — external integrations (callouts, Named Credentials, Platform Events, Change Data Capture, Salesforce Connect, External Services, **MCP Bridge**, Trusted Agent Identity)
+- **`@integration-architect`** — external integrations (callouts, Named Credentials, Platform Events, Change Data Capture, Salesforce Connect, External Services, **MCP tools**, Trusted Agent Identity)
 - **`@agent-dev`** — Agentforce agents (topics, sub-agents, actions, prompts, eval suites)
 - **`@trust-reviewer`** — agent-specific risks (prompt injection, output validation, grounding-data leakage, jailbreak resistance) before customer-facing agent deploys
 - **`@react-dev`** — React-on-Salesforce component work when `platform.frontend = "react"|"both"`

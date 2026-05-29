@@ -7,12 +7,9 @@
 #   - Anonymous Apex is refused unless explicitly enabled (sec_check_anon_apex)
 #   - Data writes always require per-call consent (sec_check_data_write)
 #
-# Headless 360 / MCP note: for skills that benefit from agent-mediated calls, prefer
-# the MCP toolsets via `${CLAUDE_PLUGIN_ROOT}/hooks/lib/mcp.sh` (`mcp_prefer` +
-# `mcp_run <toolset> <tool>`). This file remains the always-works fallback path
-# and is the authoritative shim used when `@salesforce/mcp` is absent or
-# explicitly disabled (--no-mcp / ARGO_MCP_DISABLED=1). Both routes are
-# gated by the same security library.
+# This file is the authoritative shim for every org-touching operation; all
+# org-aware skills route through these helpers (or `sf` directly behind the
+# same security library).
 #
 # Public functions (return 0 on success; non-zero with a stderr message otherwise):
 #   sf_cli_check                          — verify `sf` is installed

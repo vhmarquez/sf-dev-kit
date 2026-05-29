@@ -4,7 +4,7 @@ description: Decide whether a feature should be built as an Agentforce Agent, a 
 data-access: none
 ---
 
-You are extending the **flow-vs-apex** decision with **Agent** as a first-class option (Headless 360). Many things that used to be Flow + LWC + Apex are now better expressed as agents — especially conversational, multi-step, or reasoning-over-data workflows.
+You are extending the **flow-vs-apex** decision with **Agent** as a first-class option. Many things that used to be Flow + LWC + Apex are now better expressed as agents — especially conversational, multi-step, or reasoning-over-data workflows.
 
 ## When to use this vs /argo:flow-vs-apex
 
@@ -81,7 +81,7 @@ Cross-system event broadcast
 
 ### When to combine
 
-- **Agent + Apex action** — most common pattern. Agent handles the conversational layer; Apex does the deterministic work. Bridge via `/argo:mcp-bridge` (AGT-4)
+- **Agent + Apex action** — most common pattern. Agent handles the conversational layer; Apex does the deterministic work, exposed to the agent as an Apex action or MCP tool (AGT-4)
 - **Agent + Flow** — agent calls a flow as an action. Reasonable when admins own the underlying workflow
 - **LWC + Agent** — LWC embeds an agent for a specific interactive surface (e.g., a help chat in a record page). Use the LWC's `<lightning-agent-chat>` shell
 
@@ -102,7 +102,7 @@ Cross-system event broadcast
 - Latency:              async OK (Slack)
 - Existing:             no Flow on Order__c; Apex trigger handles legacy fields
 
-## Recommendation: **Agent (Agentforce)** with Apex actions via MCP bridge
+## Recommendation: **Agent (Agentforce)** with Apex actions exposed as MCP tools
 
 ### Why
 - Multi-turn conversational shape — Slack message → confirm → action — fits an agent perfectly
@@ -113,7 +113,7 @@ Cross-system event broadcast
 ### Implementation outline
 - @architect: produce the design (agent topics + Apex actions + Slack manifest)
 - @agent-dev: author /argo:agent-spec for order_helper, generate AgentDefinition
-- @apex-dev: implement OrderApiClient.fetchOrder + cancelOrder; bridge via /argo:mcp-bridge
+- @apex-dev: implement OrderApiClient.fetchOrder + cancelOrder; expose as agent actions (Apex action or MCP tool)
 - @qa: write Apex tests; @agent-dev: write 12+ eval cases including 3 jailbreak scenarios
 - /argo:slack-agent: scaffold the Slack delivery surface
 - /argo:trust-layer-audit + /argo:agent-test: gate before deploy
@@ -121,7 +121,7 @@ Cross-system event broadcast
 ### Patterns referenced
 - AGT-1, AGT-3, AGT-4, AGT-5, AGT-7 (agentforce pack)
 - SF-15 (HTTP callout via Named Credential — for any external touch)
-- SF-16 (Apex REST service — bridged via /argo:mcp-bridge)
+- SF-16 (Apex REST service — exposed to the agent as an MCP tool)
 
 ### Alternatives considered
 - **Pure Apex + LWC**: would work in the Salesforce UI but doesn't reach the Slack surface

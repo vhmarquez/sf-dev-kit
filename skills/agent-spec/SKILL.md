@@ -4,7 +4,7 @@ description: Generate or update an Agent Script YAML specification by wrapping `
 data-access: metadata-only
 ---
 
-You are producing an **Agent Script** YAML specification — the structured, open-sourced agent definition language announced with Headless 360. The spec is the authoring artifact; AgentDefinition metadata is generated from it. Specs live under `specs/agent-<name>.yaml` and are version-controlled.
+You are producing an **Agent Script** YAML specification — the structured, open-sourced agent definition language. The spec is the authoring artifact; AgentDefinition metadata is generated from it. Specs live under `specs/agent-<name>.yaml` and are version-controlled.
 
 ## Read Project Config First
 

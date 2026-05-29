@@ -11,7 +11,6 @@ You are auditing the **Einstein Trust Layer** for this org and the project's age
 ```bash
 source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/config.sh"
 source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/sf-cli.sh"
-source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/mcp.sh"
 sf_cli_check || exit 2
 ORG="$(sf_config_get '.platform.defaultTargetOrg' "$ENV")"
 AGENT_DIR="$(sf_config_get '.paths.agentDefinitions // empty' "$ENV")"
@@ -42,11 +41,7 @@ AGENT_DIR="$(sf_config_get '.paths.agentDefinitions // empty' "$ENV")"
 
 Query org-level settings via:
 ```bash
-if mcp_prefer; then
-  mcp_run data soql-query '{"soql":"SELECT EinsteinTrustLayerEnabled, MaskingEnabled, GroundingFlsEnforced FROM Organization","org":"'"$ORG"'"}'
-else
-  sf data query --target-org "$ORG" --query "SELECT ... FROM Organization" --json
-fi
+sf_cli_query "SELECT EinsteinTrustLayerEnabled, MaskingEnabled, GroundingFlsEnforced FROM Organization" "$ORG"
 ```
 
 (Field names depend on the Salesforce release — fall back gracefully if a field doesn't exist; report it as a `TRUST-FIELD-UNKNOWN` note instead of erroring.)

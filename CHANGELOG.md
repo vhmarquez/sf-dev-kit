@@ -6,6 +6,29 @@ All notable changes to **argo**. Format follows [Keep a Changelog](https://keepa
 
 ---
 
+## v4.2.0 — 2026-05-29
+
+Removed the plugin's non-functional MCP routing layer. `hooks/lib/mcp.sh` invoked a one-shot CLI surface on `@salesforce/mcp` (`--invoke`/`--args`/`--list-tools`) that does not exist — `@salesforce/mcp` is a stdio MCP server — so every "route through MCP" path silently failed and fell back to (or, for fictional tools, did nothing on) the `sf` CLI. Rather than build a second MCP client, the plugin now relies solely on the gated `sf` CLI library, which keeps a single enforced security path. MCP as a Salesforce *platform* capability (Agentforce agents exposing/calling MCP tools) is unaffected and still documented.
+
+> **Breaking:** three skills are removed. If you scripted them, migrate as noted below.
+
+### Removed
+
+- **`hooks/lib/mcp.sh`** — the fake routing client (`mcp_prefer`, `mcp_run`, `mcp_list_tools`, `mcp_check`).
+- **`/argo:mcp-setup`** — installed/configured the MCP server for plugin routing. No replacement; if you want the native Salesforce MCP server available to Claude Code's model directly, configure it in `.mcp.json` yourself (note: native MCP tool calls are not gated by argo's security guard).
+- **`/argo:mcp-bridge`** — "wrap an Apex REST endpoint as an MCP tool"; built on a non-existent `@salesforce/mcp-bridge-runtime` package and a fictional `register-agent-tool` operation.
+- **`/argo:devops-natural`** — "natural-language deploy via DevOps Center MCP"; built on a fictional `parse-deploy-request` tool. Use **`/argo:diff-deploy`** or **`/argo:deploy`** instead.
+- Skill count: **56 → 53**.
+
+### Changed
+
+- **All org-touching skills now use the `sf` CLI library only.** `org-explore`, `agent-discover`, `trust-layer-audit`, `deploy`, and `agent-deploy` had `if mcp_prefer; then mcp_run …; else <sf CLI>; fi` blocks collapsed to the CLI path (which was always the one that actually worked, and is gated by `security.sh`).
+- **`/argo:sf-init`** no longer writes a `mcp` config block or scaffolds `.mcp.json`.
+- **Dropped "Headless 360 native (MCP routing)" positioning** from `plugin.json`/`marketplace.json`/`README` (and the `headless360` marketplace keyword). The genuine Agentforce / Trust Layer / AI Gateway / AgentExchange coverage is unchanged.
+- **Kept** the `mcp-tool-vs-rest` decision skill and the Agentforce pack patterns describing agents that expose/call MCP tools — that is accurate platform guidance, independent of the removed routing.
+
+---
+
 ## v4.1.0 — 2026-05-29
 
 Security hardening of the enforcement layer plus an honesty pass on the docs. No skill, agent, or pack content changed; behavior changes are confined to the security guard and library.

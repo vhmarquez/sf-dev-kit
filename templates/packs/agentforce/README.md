@@ -1,13 +1,13 @@
 # Agentforce Pack
 
-Patterns and guidance for building production Salesforce **Agentforce** agents — the agent surface introduced/expanded with Headless 360.
+Patterns and guidance for building production Salesforce **Agentforce** agents — the platform's agent surface.
 
 ## When to use this pack
 
 Install with `/argo:pattern-pack add agentforce` if your project:
 - Ships customer-facing or internal agents (defined under `botDefinitions/`)
 - Calls Apex from agent actions
-- Uses MCP-tool bridges (built via `/argo:mcp-bridge`)
+- Exposes Apex REST endpoints as MCP tools that the agent calls at runtime
 - Has a defined Trust Layer audit posture (run `/argo:trust-layer-audit`)
 
 If you're not yet building agents, defer — the base SF-1..20 patterns plus the integration patterns are enough.
@@ -17,7 +17,7 @@ If you're not yet building agents, defer — the base SF-1..20 patterns plus the
 - **AGT-1: Topic Boundaries** — one intent cluster per topic, ≤2 actions
 - **AGT-2: Sub-agent Decomposition** — when and how to split a topic out
 - **AGT-3: Guardrails** — input + output validation, refusal hardening, prompt-injection resistance
-- **AGT-4: Action via MCP Tool** — bridging Apex REST as agent tools (SF-16 + `/mcp-bridge`)
+- **AGT-4: Action via MCP Tool** — bridging Apex REST as agent tools (SF-16)
 - **AGT-5: Grounding with FLS** — `WITH USER_MODE` on every grounding query; output schemas
 - **AGT-6: Memory & State** — Curated Memory + custom `Agent_Conversation__c` patterns
 - **AGT-7: Escalation Paths** — `escalate_to_human` topic, Case creation, Slack handoff

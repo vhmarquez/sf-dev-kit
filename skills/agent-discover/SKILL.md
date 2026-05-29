@@ -1,16 +1,16 @@
 ---
 name: agent-discover
-description: Inventory Agentforce agents in the project — both source-controlled `AgentDefinition` files and live agents in the target org. Maps each agent's topics, sub-agents, MCP tools used, and bridge tools registered. Counterpart to /flow-audit for the agent surface.
+description: Inventory Agentforce agents in the project — both source-controlled `AgentDefinition` files and live agents in the target org. Maps each agent's topics, sub-agents, and bound actions (Apex, Flow, prompt template, MCP tool). Counterpart to /flow-audit for the agent surface.
 data-access: metadata-only
 ---
 
-You are inventorying **agents** for the project. Agents are now first-class deployable artifacts (Headless 360); like Flows and Apex, they live in source control under `force-app/main/default/botDefinitions/` and are also visible in the org's Agent Registry. This skill reconciles the two.
+You are inventorying **agents** for the project. Agents are first-class deployable artifacts; like Flows and Apex, they live in source control under `force-app/main/default/botDefinitions/` and are also visible in the org's Agent Registry. This skill reconciles the two.
 
 ## Read Project Config First
 
 ```bash
 source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/config.sh"
-source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/mcp.sh"
+source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/sf-cli.sh"
 ORG="$(sf_config_get '.platform.defaultTargetOrg' "$ENV")"
 ```
 
@@ -61,19 +61,14 @@ Capture for each agent:
 
 ### 2. Query the org (if not `--source-only`)
 
-Prefer MCP routing if available:
 ```bash
-if mcp_prefer; then
-  mcp_run data soql-query '{"soql":"SELECT Id, MasterLabel, DeveloperName, Status FROM AgentDefinition","org":"'"$ORG"'"}'
-else
-  sf data query --target-org "$ORG" --query "SELECT Id, MasterLabel, DeveloperName, Status FROM AgentDefinition" --json
-fi
+sf_cli_query "SELECT Id, MasterLabel, DeveloperName, Status FROM AgentDefinition" "$ORG"
 ```
 
 Also query:
 - `AgentVersion` — version + activation history
 - `AgentTopic` — topics per agent
-- `AgentRegistryEntry` (populated by `/argo:mcp-bridge --register`) — externally-discoverable MCP-tool bridges
+- `AgentRegistryEntry` — externally-discoverable MCP-tool entries
 
 ### 3. Reconcile
 
@@ -94,7 +89,7 @@ Default Markdown:
 Run at: 2026-04-28T16:30:00Z
 Agent definitions in source: 4
 Active agents in org: 5
-MCP bridges registered: 8 (see /argo:mcp-bridge)
+MCP tools bound as actions: 8
 
 ## Tracked agents
 
@@ -143,7 +138,7 @@ CI mode emits:
 
 - **Don't read agent prompts in detail.** Topic & action enumeration is enough; full prompt diffing belongs in `/argo:org-diff` or a code review
 - **Honor managed-package agents.** Agents owned by an installed package are reported in a separate "From Managed Packages" section, not as findings
-- **Cross-link to /argo:mcp-bridge.** When an agent uses a bridge tool, surface the bridge file path so reviewers can audit both sides
+- **Surface MCP tool bindings.** When an agent binds an MCP tool as an action, surface the tool definition file path so reviewers can audit both sides
 - **Don't auto-resolve drift.** Report; the user picks retrieve vs. deploy
 
 ## Consumers

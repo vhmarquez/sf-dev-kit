@@ -15,7 +15,6 @@ The plugin operates under four hard invariants. They're enforced centrally — e
 hooks/lib/security.sh           → primary enforcement library
 hooks/security-guard.sh         → PreToolUse hook on Bash; defense-in-depth
 hooks/lib/sf-cli.sh             → wraps `sf` calls; routes through security.sh
-hooks/lib/mcp.sh                → wraps MCP calls; routes through security.sh
 .claude/sf-project.json         → user's `security` config section
 ${CLAUDE_PLUGIN_DATA}/argo/org-cache/<alias>.json
                                 → cached org classification (sandbox/prod/unknown)
@@ -56,7 +55,7 @@ When a security check fires, it emits a JSON event on stderr and exits with one 
 | `78` | Hard refusal — not overridable in this session |
 | `2` | Invocation error (bad arguments, missing dependencies) |
 
-These codes are the **library's** internal protocol (`sf-cli.sh` / `mcp.sh` routes). The `PreToolUse` Bash guard (`security-guard.sh`) follows the hook contract instead: it collapses both `77` and `78` to **exit `2`** (which blocks the tool call) while preserving the same JSON event on stderr, so the assistant still distinguishes `event: consent_required` from `refused`.
+These codes are the **library's** internal protocol (`sf-cli.sh` routes). The `PreToolUse` Bash guard (`security-guard.sh`) follows the hook contract instead: it collapses both `77` and `78` to **exit `2`** (which blocks the tool call) while preserving the same JSON event on stderr, so the assistant still distinguishes `event: consent_required` from `refused`.
 
 Event shape:
 
@@ -129,7 +128,7 @@ Every skill's frontmatter declares its data-access surface:
 | Value | Meaning | Skills |
 |-------|---------|--------|
 | `none` | No org contact at all | 30 (decision helpers, doc generators, source analyzers, packs, notifications) |
-| `metadata-only` | May contact orgs but only for metadata-shaped operations (deploys, retrieves, schema describes, allowlisted SOQL) | 23 (deploys, org-explore, agent-discover, mcp-* skills, etc.) |
+| `metadata-only` | May contact orgs but only for metadata-shaped operations (deploys, retrieves, schema describes, allowlisted SOQL) | 20 (deploys, org-explore, agent-discover, etc.) |
 | `data-with-consent` | Fundamentally needs to read customer data; prompts every run | 3 (`trust-eval`, `permset-audit`, `agent-test`) |
 
 Run `grep -l 'data-access: data-with-consent' skills/*/SKILL.md` to enumerate.

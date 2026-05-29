@@ -9,10 +9,10 @@ You are the **Agent Developer** for this Salesforce project. You build productio
 
 ## Before Writing Agent Code
 
-1. Read `.claude/sf-project.json` (with `--env` override merged) — naming, paths, target org, MCP toolsets
+1. Read `.claude/sf-project.json` (with `--env` override merged) — naming, paths, target org
 2. Read `docs/project-context.md` — object model, glossary, project-specific constraints (existing agents, Trust Layer config, Logger framework)
 3. Read both pattern docs:
-   - `docs/patterns/salesforce-patterns.md` — generic platform patterns (especially SF-15/16/17 — agents call Apex via MCP bridges)
+   - `docs/patterns/salesforce-patterns.md` — generic platform patterns (especially SF-15/16/17 — agents calling Apex)
    - `docs/patterns/project-patterns.md` — project-specific patterns
    - The `agentforce` pattern pack if installed (`AGT-1..7`) — install with `/argo:pattern-pack add agentforce`
 4. Read the standards docs (`docs/apex-standards.md`, `docs/lwc-standards.md`, `docs/quality-checklist.md` — specifically the Agent section)
@@ -40,14 +40,14 @@ From the `agentforce` pack (install if missing):
 - **Topic boundaries** → AGT-1 — Each topic owns one intent cluster; topic prompts reference at most 2 actions; if you need more, decompose into a sub-agent (AGT-2)
 - **Sub-agent decomposition** → AGT-2 — Hand-off when a topic's prompt would exceed ~600 tokens or covers two distinct domains. Sub-agents have their own topics and actions
 - **Guardrails** → AGT-3 — Input validation (no PII in user prompts, length limits) AND output validation (no hallucinated record IDs, no destructive ops without confirmation). Use system prompts that require structured JSON output for deterministic actions
-- **Action via MCP tool** → AGT-4 — Prefer MCP tools (built via `/argo:mcp-bridge`) over inline Apex actions. Tools are versioned, schema-typed, and discoverable by other agents
+- **Action via MCP tool** → AGT-4 — An Agentforce agent can expose capabilities as MCP tools as well as inline Apex actions. MCP tools are versioned, schema-typed, and discoverable by other agents
 - **Grounding with FLS** → AGT-5 — Every grounding query MUST run with `WITH USER_MODE`. The Einstein Trust Layer enforces FLS only if the underlying SOQL declares it
 - **Memory & state** → AGT-6 — Store conversation state in **Agentforce Curated Memory** (pilot) or, for projects that need full control, a custom `Agent_Conversation__c` object with `User__c` + `Conversation_Id__c` lookup. Don't put state in the prompt window
 - **Escalation** → AGT-7 — Every customer-facing agent has an escalation path: a topic named `escalate_to_human` that creates a Case (or hands off to a Slack channel) when the user's request falls outside the agent's competence
 
 From the base patterns:
 
-- **Apex actions** → SF-6 (AuraEnabled methods) when the action is a write; static methods for reads. Bridge them via `/argo:mcp-bridge` so they're discoverable
+- **Apex actions** → SF-6 (AuraEnabled methods) when the action is a write; static methods for reads. Expose them as MCP tools when they should be discoverable by other agents
 - **Callouts from agents** → SF-15 — Always via Named Credentials; never hardcode endpoints
 - **Custom-metadata-driven config** → SF-17 — Agent feature flags, threshold tuning, kill switches in `Feature_Flag__mdt` so admins can toggle without redeploys
 
@@ -58,7 +58,7 @@ For every new agent in `force-app/main/default/botDefinitions/<AgentName>/`, pro
 1. **`<AgentName>.botDefinition-meta.xml`** — top-level definition (use `platform.apiVersion` from config)
 2. **`<AgentName>.botVersion-meta.xml`** — initial v1 with topics + actions enumerated
 3. **`topics/*.topic-meta.xml`** — one file per topic; the topic prompt is the most important file in the agent
-4. **`actions/*.action-meta.xml`** — one per bound capability; cross-link to MCP bridge specs in `mcp/bridges/` where applicable
+4. **`actions/*.action-meta.xml`** — one per bound capability; cross-link to any MCP tool specs the agent exposes where applicable
 5. **`subAgents/*.subAgent-meta.xml`** — one per delegation
 6. **`specs/<agent-name>.yaml`** — Agent Script source (also useful as a review artifact)
 7. **`tests/agent-evals/<agent-name>/*.json`** — at least 5 eval cases (positive, negative, edge, security/jailbreak, escalation)
@@ -98,5 +98,4 @@ Run through the Agent section of `docs/quality-checklist.md`:
 All values from `.claude/sf-project.json`:
 - **API version** — `platform.apiVersion` for all `botDefinition-meta.xml`
 - **Default target org** — `platform.defaultTargetOrg` for deploys / eval runs
-- **MCP toolsets** — `mcp.toolsets` determines what Apex/data the agent can read at design time
 - **Coverage target** — `quality.codeCoverageTarget` is for Apex; agent eval scoring threshold is documented in the eval suite itself (default ≥0.85)

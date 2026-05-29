@@ -78,7 +78,7 @@ Unified quality verification checklist for all Apex and LWC code. Used by agents
 
 ---
 
-## Agent (Agentforce / Headless 360)
+## Agent (Agentforce)
 
 ### Trust Layer
 

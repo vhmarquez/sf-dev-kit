@@ -1,16 +1,15 @@
 ---
 name: mcp-tool-vs-rest
-description: Decide whether to expose work as an MCP tool, an Apex REST endpoint, or a Platform Event. Headless 360 made MCP tools a peer integration pattern; this skill maps the choice space.
+description: Decide whether to expose work as an MCP tool, an Apex REST endpoint, or a Platform Event. MCP tools are a peer integration pattern; this skill maps the choice space.
 data-access: metadata-only
 ---
 
-You are picking an integration pattern for exposing project work to other systems (or other agents). Three primary options post-Headless-360: **MCP tool**, **Apex REST service** (SF-16), **Platform Event** (PE pack). Each fits a different shape.
+You are picking an integration pattern for exposing project work to other systems (or other agents). Three primary options: **MCP tool**, **Apex REST service** (SF-16), **Platform Event** (PE pack). Each fits a different shape.
 
 ## Read Project Config First
 
 ```bash
 source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/config.sh"
-source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/mcp.sh"
 ```
 
 ## Input
@@ -34,7 +33,7 @@ source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/mcp.sh"
 ```
 Caller is an agent (LLM-driven)
   → MCP Tool
-    Bridged via /argo:mcp-bridge from an Apex REST class (SF-16)
+    Wraps an Apex REST class (SF-16) with a typed tool schema
     Schema-typed input/output, registered in Agent Registry (AGT-4)
 
 Caller is a third-party system, sync request/response
@@ -66,7 +65,7 @@ Bulk import from external
 
 ## When to combine
 
-- **MCP Tool wrapping an Apex REST endpoint** — most common. The Apex REST is the source of truth (versioned, deployable); the MCP tool is the agent-facing facade with type schema. `/argo:mcp-bridge` does this in one step
+- **MCP Tool wrapping an Apex REST endpoint** — most common. The Apex REST is the source of truth (versioned, deployable); the MCP tool is the agent-facing facade with type schema
 - **REST + PE** — REST for the synchronous "create order" call; PE for the asynchronous "order created" broadcast that other systems pick up
 - **MCP Tool + PE subscription** — an agent invokes the tool, which fires a PE; a separate Apex subscriber handles the side effects
 
@@ -89,14 +88,14 @@ Bulk import from external
 - The agent caller pattern fits MCP's design exactly: typed input/output schemas, discoverable, schema-validated outputs
 - Volume is low — synchronous REST under MCP is fine
 - Reuse: an Apex REST class (SF-16) is the source of truth and can also be called from other systems; the MCP bridge is the agent-facing facade
-- Auth is handled by the platform — the agent's session is the Salesforce session; MCP routes through it
+- Auth is handled by the platform — the agent's session is the Salesforce session the tool runs under
 
 ### Implementation outline
 - @apex-dev: implement OrderRestService (SF-16) with @HttpGet returning a typed Response envelope
-- /argo:mcp-bridge OrderRestService — generates mcp/bridges/order_get.json
+- @agent-dev: define the `order_get` MCP tool schema (mcp/bridges/order_get.json) wrapping OrderRestService
 - @apex-dev: implement OrderRestServiceTest with HttpCalloutMock-style coverage
 - @agent-dev: bind `order_get` to the lookup_order topic in the agent spec (AGT-4)
-- /argo:mcp-bridge --register — registers the tool in the Agent Registry so other agents can discover it
+- @agent-dev: register the tool in the Agent Registry so other agents can discover it
 
 ### Patterns referenced
 - SF-16 (Apex REST service)

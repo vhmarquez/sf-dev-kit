@@ -164,7 +164,7 @@ public with sharing class DataCloudQueryClient {
 }
 ```
 
-For agent actions, expose this via the MCP bridge (see SF-16 + `/argo:mcp-bridge`) so an Agentforce agent can ground responses against Data Cloud insights. Always honor `WITH USER_MODE` semantics — Data Cloud has its own permission model (Data Spaces, Data Cloud Permission Sets) that must be configured on the Connected App / running user.
+For agent actions, expose this as an MCP tool (see SF-16 + AGT-4) so an Agentforce agent can ground responses against Data Cloud insights. Always honor `WITH USER_MODE` semantics — Data Cloud has its own permission model (Data Spaces, Data Cloud Permission Sets) that must be configured on the Connected App / running user.
 
 **Rules**:
 - **Always Named Credential for Data Cloud auth.** Like any callout
