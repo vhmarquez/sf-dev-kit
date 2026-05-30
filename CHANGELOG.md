@@ -6,6 +6,19 @@ All notable changes to **argo**. Format follows [Keep a Changelog](https://keepa
 
 ---
 
+## v4.4.0 — 2026-05-29
+
+### Added — test suite
+
+- **A [bats](https://github.com/bats-core/bats-core) suite over the security-critical hooks** under `tests/`, exercising the enforcement contract by faking the `sf` CLI boundary (no org, network, or credentials needed). Run with `bash tests/run.sh` (or `bats tests/`). Closes the "no automated tests" gap from the review.
+  - `security_guard.bats` — the PreToolUse guard as a black box (JSON in → exit code): compound-command bypass, path-qualified/quoted `sf`, inline consent token, metadata-vs-data SOQL, no false positives on `git && sf deploy`.
+  - `classify.bats` — `security.sh` functions directly (real `77`/`78` codes): scratch→`dev`, sandbox, prod, `prodOrgAliases` hard-refuse, `knownNonSandboxNonProd`, no-cache-on-unknown, TTL re-derive, cache short-circuit, metadata-only-is-unconditional.
+  - `pmd.bats` — sha256 helper correctness + the pinned-hash invariant.
+  - `tests/helpers/` — a configurable fake `sf` and shared bats setup (isolated temp dirs, `seed_cache`, `guard`, `load_security_lib`).
+- **No CI workflow, by design.** `tests/README.md` documents a free, opt-in local `pre-push` hook to gate your own pushes.
+
+---
+
 ## v4.3.0 — 2026-05-29
 
 Second hardening pass (the original review's "Phase 2"). Robustness and supply-chain fixes; no breaking changes.
