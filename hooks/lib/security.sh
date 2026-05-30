@@ -62,7 +62,12 @@ fi
 
 SEC_DATA_DIR="${CLAUDE_PLUGIN_DATA:-${HOME}/.claude/plugin-data}/argo"
 SEC_CACHE_DIR="${SEC_DATA_DIR}/org-cache"
-SEC_CONSENT_LOG="${SEC_DATA_DIR}/consent-log/$(basename "${CLAUDE_PROJECT_DIR:-unknown}").jsonl"
+# Key the decision log on the project's leaf name PLUS a short hash of its full
+# path, so two unrelated projects that share a directory name (e.g. ~/work/x and
+# ~/personal/x) never write to the same audit file. cksum is POSIX-portable.
+SEC_PROJECT_DIR="${CLAUDE_PROJECT_DIR:-unknown}"
+SEC_PROJECT_SLUG="$(basename "$SEC_PROJECT_DIR")-$(printf '%s' "$SEC_PROJECT_DIR" | cksum | cut -d' ' -f1)"
+SEC_CONSENT_LOG="${SEC_DATA_DIR}/consent-log/${SEC_PROJECT_SLUG}.jsonl"
 
 # Classification cache entries older than this are re-derived (so an alias that
 # is re-authed to a different org cannot ride a stale verdict forever).
@@ -217,34 +222,48 @@ sec_classify_org() {
   # state. Only persist a definitive verdict, with a username + epoch stamp so
   # a later alias re-auth (different org behind the same alias) is detectable.
   if [[ "$cls" == "sandbox" || "$cls" == "dev" || "$cls" == "prod" ]]; then
-    local username
+    local username tmp
     username=$(printf '%s' "$info" | jq -r '.result.username // empty' 2>/dev/null)
-    jq -n --arg a "$alias" --arg c "$cls" --arg u "$username" \
-      --arg t "$(date -u +%FT%TZ)" --argjson e "$(date -u +%s)" \
-      '{alias:$a, classification:$c, username:$u, classifiedAt:$t, classifiedAtEpoch:$e}' > "$cache" 2>/dev/null
-    chmod 600 "$cache" 2>/dev/null
+    # Write to a temp file then atomically rename, so a concurrent reader never
+    # sees a half-written cache (mv is atomic on the same filesystem).
+    tmp="${cache}.tmp.$$"
+    if jq -n --arg a "$alias" --arg c "$cls" --arg u "$username" \
+         --arg t "$(date -u +%FT%TZ)" --argjson e "$(date -u +%s)" \
+         '{alias:$a, classification:$c, username:$u, classifiedAt:$t, classifiedAtEpoch:$e}' > "$tmp" 2>/dev/null; then
+      chmod 600 "$tmp" 2>/dev/null
+      mv -f "$tmp" "$cache" 2>/dev/null || rm -f "$tmp"
+    fi
   fi
 
   echo "$cls"
 }
 
-# --- Consent log ---------------------------------------------------------------
+# --- Decision log (audit trail) -------------------------------------------------
+#
+# Records EVERY org-access decision — grants AND denials/consent prompts — as one
+# JSON line, so the file is a true audit trail rather than a grants-only record.
+# Each line: {ts, decision, reason, skill, action, target, org}. A single jq line
+# written with O_APPEND is below PIPE_BUF, so concurrent appends from parallel
+# agents stay intact without a lock (which isn't portable to macOS anyway).
 
-sec_log_consent() {
-  local skill="${1:-unknown}"
-  local action="${2:-unknown}"
-  local scope="${3:-}"
-  local decision="${4:-unknown}"
+_sec_audit() {  # decision reason skill action target org
   jq -n -c \
     --arg t "$(date -u +%FT%TZ)" \
-    --arg s "$skill" --arg a "$action" --arg sc "$scope" --arg d "$decision" \
-    '{ts:$t, skill:$s, action:$a, scope:$sc, decision:$d}' >> "$SEC_CONSENT_LOG" 2>/dev/null
+    --arg d "${1:-unknown}" --arg r "${2:-}" --arg s "${3:-unknown}" \
+    --arg a "${4:-unknown}" --arg tg "${5:-}" --arg o "${6:-}" \
+    '{ts:$t, decision:$d, reason:$r, skill:$s, action:$a, target:$tg, org:$o}' >> "$SEC_CONSENT_LOG" 2>/dev/null
   chmod 600 "$SEC_CONSENT_LOG" 2>/dev/null
+}
+
+# Backward-compatible grant logger (allow-once / metadata-only-disabled).
+sec_log_consent() {
+  _sec_audit "${4:-unknown}" "" "${1:-unknown}" "${2:-unknown}" "${3:-}" ""
 }
 
 # --- Refusal helpers -----------------------------------------------------------
 
-# Emit a refused or consent_required event.
+# Emit a refused or consent_required event on stderr AND record it to the audit
+# log, so blocked prod attempts and consent prompts are captured, not just grants.
 # Args: event reason action target org message
 _sec_emit() {
   local ev="$1" reason="$2" action="$3" target="$4" org="$5" msg="$6"
@@ -254,6 +273,7 @@ _sec_emit() {
     --arg action "$action" --arg target "$target" --arg org "$org" \
     --arg msg "$msg" \
     '{event:$ev, reason:$reason, skill:$skill, action:$action, target:$target, org:$org, message:$msg}' >&2
+  _sec_audit "$ev" "$reason" "${SKILL_NAME:-unknown}" "$action" "$target" "$org"
 }
 
 # --- The checks ----------------------------------------------------------------

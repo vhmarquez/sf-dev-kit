@@ -6,6 +6,26 @@ All notable changes to **argo**. Format follows [Keep a Changelog](https://keepa
 
 ---
 
+## v4.5.0 — 2026-05-29
+
+The deferred low-severity items from the review — observability and robustness of the security state files. No behavioral change to what's allowed vs blocked.
+
+### Changed
+
+- **The consent log is now a true decision/audit trail.** It previously recorded only grants; `_sec_emit` now also records every **denial and consent prompt** (`refused` / `consent_required` with the rule id), alongside grants (`allow-once`). So blocked prod attempts and data-query prompts are auditable, not just authorizations. Line schema is now `{ts, decision, reason, skill, action, target, org}`.
+- **The log filename is keyed by the full project path, not just its basename** (`<project>-<pathhash>.jsonl` via `cksum`), so two unrelated projects that share a directory name (e.g. `~/work/x` and `~/personal/x`) no longer write to the same audit file.
+- **Org-classification cache writes are atomic** (temp file + `mv`), so a concurrent reader never observes a half-written verdict. (Decision-log appends are single sub-`PIPE_BUF` `O_APPEND` writes, which stay intact under concurrency without a lock — `flock` isn't portable to macOS.)
+
+### Security
+
+- **SessionStart context-injection guardrail.** Confirmed `session-start.sh` interpolates no repo-controlled value into the text it adds to the model's initial context (only fixed strings gated on file existence), and added a guardrail comment so future edits keep it static.
+
+### Tests
+
+- Added `tests/audit_log.bats` (4 tests): prod-block recorded as `refused`, consent prompt recorded, grant recorded as `allow-once`, and the log filename is path-keyed (no basename collisions). Suite is now 30 tests.
+
+---
+
 ## v4.4.0 — 2026-05-29
 
 ### Added — test suite

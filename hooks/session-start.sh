@@ -26,6 +26,10 @@ fi
 [[ -f "${CLAUDE_PROJECT_DIR}/.claude/sf-project.json" ]] && exit 0
 
 # Detect React/agent surfaces so the nudge can mention what /sf-init will set up.
+# SECURITY GUARDRAIL: this output is injected into the model's initial context, so
+# it MUST stay plugin-authored and static. `extras` is built ONLY from the two
+# fixed strings below (gated on directory/file *existence*) — never interpolate a
+# repo-controlled value (file name, file content, branch, env, etc.) into it.
 extras=""
 if [[ -d "${CLAUDE_PROJECT_DIR}/force-app/main/default/react" ]] 2>/dev/null; then
   extras+=" React component sources detected — /sf-init will scope React standards in."
