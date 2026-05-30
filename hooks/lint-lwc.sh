@@ -9,6 +9,8 @@
 # Findings are surfaced on stderr so the assistant sees them. The hook always
 # exits 0 — it never blocks the edit.
 
+set -u
+
 INPUT=$(cat)
 
 if ! command -v jq >/dev/null 2>&1; then
@@ -42,7 +44,7 @@ if [[ "$FILE_PATH" =~ __tests__ ]]; then
 fi
 
 # --- Prettier ----------------------------------------------------------------
-prettier_out=$(npx --no-install prettier --write "$FILE_PATH" 2>&1)
+prettier_out=$(npx --no-install prettier --write -- "$FILE_PATH" 2>&1)
 prettier_exit=$?
 if [[ $prettier_exit -ne 0 ]]; then
   {
@@ -54,7 +56,7 @@ fi
 # --- ESLint ------------------------------------------------------------------
 # ESLint exits non-zero when it finds problems. We surface those clearly but
 # never block the edit. If ESLint is not installed, npx will fail; report it.
-eslint_out=$(npx --no-install eslint "$FILE_PATH" 2>&1)
+eslint_out=$(npx --no-install eslint -- "$FILE_PATH" 2>&1)
 eslint_exit=$?
 if [[ $eslint_exit -ne 0 ]]; then
   {

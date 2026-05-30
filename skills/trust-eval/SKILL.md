@@ -75,7 +75,7 @@ Custom Scoring Evals are the org's named scoring rubrics — they extend the bui
 ### 2. Pull Session Tracing data
 
 ```bash
-sf data query --target-org "$ORG" --json --query "
+sf_cli_query "
   SELECT Id, AgentVersion.Bot.DeveloperName, StartTime, EndTime, UserId,
          OutcomeScore, GroundingSources, MaskedFields,
          AdverseSignal, EscalatedToHuman
@@ -84,7 +84,7 @@ sf data query --target-org "$ORG" --json --query "
     AND StartTime >= LAST_N_DAYS:7
   ORDER BY StartTime DESC
   LIMIT ${SAMPLE:-50}
-"
+" "$ORG"
 ```
 
 For each trace, capture:

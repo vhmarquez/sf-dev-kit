@@ -116,7 +116,8 @@ For each non-sandbox alias `sf org list` knows about, classification is cached a
 
 Possible classifications:
 - `sandbox` — `sf org display --json` reported `isSandbox: true`. Allowed.
-- `prod` — reported `isSandbox: false`. **Hard-refused unless explicitly classified** in `security.prodOrgAliases` (still refused, by design) or `security.knownNonSandboxNonProd` (allowed).
+- `dev` — the alias is a **scratch org** (present in `sf org list`'s `scratchOrgs`). Scratch orgs are ephemeral, Dev-Hub-created dev targets — never production — so they're allowed without explicit classification. A production org can never appear in `scratchOrgs`, so this signal cannot promote a prod org to allowed. (Developer-Edition orgs are *not* auto-allowed — they're non-scratch and classify as `prod` until added to `security.knownNonSandboxNonProd`.)
+- `prod` — non-scratch and reported `isSandbox: false`. **Hard-refused unless explicitly classified** in `security.prodOrgAliases` (still refused, by design) or `security.knownNonSandboxNonProd` (allowed).
 - `unknown` — classification call failed. Refused with a `consent_required` event asking the user to classify manually. **Never cached**, so a transient failure self-heals on the next call.
 
 The cache is a **performance hint, not a trust anchor**: `security.prodOrgAliases` is consulted *before* the cache on every call, so a stale or hand-edited cache cannot promote a listed prod org to `sandbox`. Cached verdicts expire after `ARGO_ORG_CACHE_TTL` seconds (default 7 days) and are re-derived — so an alias re-authed to a different org can't ride a stale verdict indefinitely. The `username` stamp records which org backed the alias when it was classified. Cache and consent-log files are written `0600`. Re-classify immediately by deleting the cache file and re-running the targeting skill.

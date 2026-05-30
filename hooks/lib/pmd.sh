@@ -12,6 +12,23 @@
 
 PMD_VERSION="${ARGO_PMD_VERSION:-7.6.0}"
 
+# SHA-256 of the official pmd-dist-<version>-bin.zip GitHub release asset, pinned
+# for the default version. When bumping ARGO_PMD_VERSION, pass the matching hash
+# via ARGO_PMD_SHA256 (otherwise the integrity check warns and is skipped).
+PMD_SHA256_DEFAULT_VERSION="7.6.0"
+PMD_SHA256_DEFAULT="e07f7a9c3607d643509a96d7f5f891961e98ea88b6eba85d120d08f0c08c985e"
+
+# Print the SHA-256 of a file using whatever hashing tool is available; empty if none.
+_pmd_sha256() {
+  if command -v shasum >/dev/null 2>&1; then
+    shasum -a 256 "$1" 2>/dev/null | awk '{print $1}'
+  elif command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "$1" 2>/dev/null | awk '{print $1}'
+  else
+    echo ""
+  fi
+}
+
 pmd_data_root() {
   local root="${CLAUDE_PLUGIN_DATA:-${HOME}/.claude/plugin-data}/argo/pmd"
   echo "$root"
@@ -48,6 +65,28 @@ pmd_install() {
   else
     echo "[argo] Error: curl or wget is required to download PMD" >&2
     return 1
+  fi
+
+  # Verify integrity before extracting/executing. Expected hash is pinned for the
+  # default version; override with ARGO_PMD_SHA256 for other versions. Fail closed
+  # on mismatch (delete the artifact, refuse to extract).
+  local expected="${ARGO_PMD_SHA256:-}"
+  if [[ -z "$expected" && "$PMD_VERSION" == "$PMD_SHA256_DEFAULT_VERSION" ]]; then
+    expected="$PMD_SHA256_DEFAULT"
+  fi
+  if [[ -n "$expected" ]]; then
+    local actual; actual="$(_pmd_sha256 "$zip")"
+    if [[ -z "$actual" ]]; then
+      echo "[argo] Warning: no sha256 tool (shasum/sha256sum) found — cannot verify PMD download integrity." >&2
+    elif [[ "$actual" != "$expected" ]]; then
+      rm -f "$zip"
+      echo "[argo] PMD checksum mismatch — refusing to extract." >&2
+      echo "[argo]   expected: $expected" >&2
+      echo "[argo]   actual:   $actual" >&2
+      return 1
+    fi
+  else
+    echo "[argo] Warning: no pinned SHA-256 for PMD ${PMD_VERSION}; skipping integrity check (set ARGO_PMD_SHA256 to enforce)." >&2
   fi
 
   if ! command -v unzip >/dev/null 2>&1; then

@@ -49,7 +49,7 @@ if [[ "$FILE_PATH" =~ \.test\.(tsx|jsx|ts|js)$ ]] || [[ "$FILE_PATH" =~ __tests_
 fi
 
 # --- Prettier ----------------------------------------------------------------
-prettier_out=$(npx --no-install prettier --write "$FILE_PATH" 2>&1)
+prettier_out=$(npx --no-install prettier --write -- "$FILE_PATH" 2>&1)
 prettier_exit=$?
 if [[ $prettier_exit -ne 0 ]]; then
   {
@@ -60,7 +60,7 @@ fi
 
 # --- ESLint ------------------------------------------------------------------
 # ESLint exits non-zero when it finds problems. Surface clearly; never block.
-eslint_out=$(npx --no-install eslint "$FILE_PATH" 2>&1)
+eslint_out=$(npx --no-install eslint -- "$FILE_PATH" 2>&1)
 eslint_exit=$?
 if [[ $eslint_exit -ne 0 ]]; then
   {

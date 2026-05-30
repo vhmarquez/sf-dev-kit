@@ -153,8 +153,22 @@ sec_org_cache_path() {
   echo "${SEC_CACHE_DIR}/${alias}.json"
 }
 
-# Print "sandbox" | "prod" | "unknown". Fetches via `sf org display` once and
-# caches. The cache is treated as a performance hint, not a trust anchor: the
+# True when the alias resolves to a scratch org per `sf org list`. Scratch orgs
+# are ephemeral, Dev-Hub-created dev targets — never production — so they are
+# treated as a non-prod "dev" tier and allowed without explicit classification.
+# Matches on alias OR username. A production org cannot appear in scratchOrgs,
+# so this signal can never promote a prod org to allowed.
+sec_is_scratch_alias() {
+  local alias="$1"
+  command -v sf >/dev/null 2>&1 || return 1
+  command -v jq >/dev/null 2>&1 || return 1
+  sf org list --json 2>/dev/null \
+    | jq -e --arg a "$alias" '[.result.scratchOrgs // [] | .[]?] | any(.alias == $a or .username == $a)' >/dev/null 2>&1
+}
+
+# Print "sandbox" | "dev" | "prod" | "unknown" ("dev" = scratch org, non-prod).
+# Fetches via `sf org display` once and caches. The cache is treated as a
+# performance hint, not a trust anchor: the
 # definitive prod allowlist (security.prodOrgAliases) is consulted by
 # sec_check_org BEFORE this function on every call, so a tampered or stale
 # cache cannot promote a listed prod org to "sandbox". Cached verdicts also
@@ -171,7 +185,7 @@ sec_classify_org() {
     now=$(date -u +%s 2>/dev/null || echo 0)
     age=$(( now - cached_at ))
     # Only honor a definitive, non-expired verdict; otherwise fall through and re-derive.
-    if [[ "$cached_cls" == "sandbox" || "$cached_cls" == "prod" ]] && (( cached_at > 0 && age >= 0 && age < SEC_CACHE_TTL_SECONDS )); then
+    if [[ "$cached_cls" == "sandbox" || "$cached_cls" == "dev" || "$cached_cls" == "prod" ]] && (( cached_at > 0 && age >= 0 && age < SEC_CACHE_TTL_SECONDS )); then
       echo "$cached_cls"
       return 0
     fi
@@ -184,18 +198,25 @@ sec_classify_org() {
   info=$(sf org display --target-org "$alias" --json 2>/dev/null) || { echo "unknown"; return 0; }
 
   local is_sandbox
-  is_sandbox=$(printf '%s' "$info" | jq -r '.result.isSandbox // .result.sandbox // empty' 2>/dev/null)
+  # NB: do NOT use jq's `//` here — it coalesces a literal `false` to the next
+  # branch, which would mislabel a prod org (isSandbox=false) as unparseable.
+  is_sandbox=$(printf '%s' "$info" | jq -r 'if .result.isSandbox != null then (.result.isSandbox|tostring) elif .result.sandbox != null then (.result.sandbox|tostring) else "" end' 2>/dev/null)
 
   local cls="unknown"
-  case "$is_sandbox" in
-    true)  cls="sandbox" ;;
-    false) cls="prod" ;;
-  esac
+  if sec_is_scratch_alias "$alias"; then
+    # Scratch org — ephemeral dev target, never prod. Allowed as "dev".
+    cls="dev"
+  else
+    case "$is_sandbox" in
+      true)  cls="sandbox" ;;
+      false) cls="prod" ;;
+    esac
+  fi
 
   # Never cache "unknown" — that would pin the alias to a permanent failed
   # state. Only persist a definitive verdict, with a username + epoch stamp so
   # a later alias re-auth (different org behind the same alias) is detectable.
-  if [[ "$cls" == "sandbox" || "$cls" == "prod" ]]; then
+  if [[ "$cls" == "sandbox" || "$cls" == "dev" || "$cls" == "prod" ]]; then
     local username
     username=$(printf '%s' "$info" | jq -r '.result.username // empty' 2>/dev/null)
     jq -n --arg a "$alias" --arg c "$cls" --arg u "$username" \
@@ -274,7 +295,8 @@ sec_check_org() {
   # Unknown classification — fetch + decide.
   local cls; cls="$(sec_classify_org "$alias")"
   case "$cls" in
-    sandbox)
+    sandbox|dev)
+      # sandbox or scratch ("dev") — non-prod, allowed without classification.
       return 0
       ;;
     prod)
