@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# Fake `sf` CLI for argo hook tests. Shadows the real binary (tests put this
+# directory first on PATH). It only implements the read-only subcommands the
+# security library actually calls during classification, driven by env vars:
+#
+#   FAKE_SF_SCRATCH      space-separated scratch-org aliases     -> result.scratchOrgs
+#   FAKE_SF_SANDBOX      space-separated sandbox aliases         -> result.sandboxes + isSandbox:true
+#   FAKE_SF_NONSCRATCH   space-separated non-scratch aliases     -> result.nonScratchOrgs (isSandbox:false)
+#   FAKE_SF_FAIL=1       make `org display` fail (simulate unreachable/unknown)
+#
+# Any other invocation exits 1 (tests should never reach the real org).
+
+_arr() { # build a JSON array of {alias,username} from a space-separated list
+  local first=1 a; printf '['
+  for a in $1; do [[ $first -eq 0 ]] && printf ','; printf '{"alias":"%s","username":"%s@example.com"}' "$a" "$a"; first=0; done
+  printf ']'
+}
+
+case "${1:-} ${2:-}" in
+  "org list")
+    printf '{"status":0,"result":{"scratchOrgs":%s,"sandboxes":%s,"nonScratchOrgs":%s,"devHubs":[],"other":[]}}\n' \
+      "$(_arr "${FAKE_SF_SCRATCH:-}")" "$(_arr "${FAKE_SF_SANDBOX:-}")" "$(_arr "${FAKE_SF_NONSCRATCH:-}")"
+    ;;
+  "org display")
+    [[ "${FAKE_SF_FAIL:-}" == "1" ]] && exit 1
+    local_tgt=""; prev=""
+    for a in "$@"; do [[ "$prev" == "--target-org" || "$prev" == "-o" ]] && local_tgt="$a"; prev="$a"; done
+    is_sb=false
+    for a in ${FAKE_SF_SANDBOX:-}; do [[ "$a" == "$local_tgt" ]] && is_sb=true; done
+    printf '{"status":0,"result":{"isSandbox":%s,"username":"%s@example.com"}}\n' "$is_sb" "$local_tgt"
+    ;;
+  *)
+    echo "[fake-sf] unexpected invocation: $*" >&2
+    exit 1
+    ;;
+esac
