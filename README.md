@@ -2,7 +2,7 @@
 
 > Opinionated, security-first AI workflow for Salesforce DX projects in Claude Code.
 
-A Claude Code plugin that turns Claude into a Salesforce DX team. Eleven specialist subagents — solution architect, data architect, integration architect, Apex/LWC/React/agent builders, QA, E2E tester, security and trust reviewers — coordinate through structured handoffs. Fifty-three slash-skills handle setup, deploys, code review, agent dev, and DevOps. Every org-touching operation is gated by a hardened security model: production orgs are hard-blocked, customer-data queries require explicit per-call consent, and anonymous Apex is refused by default.
+A Claude Code plugin that turns Claude into a Salesforce DX team. Eleven specialist subagents — solution architect, data architect, integration architect, Apex/LWC/React/agent builders, QA, E2E tester, security and trust reviewers — coordinate through structured handoffs. Fifty-four slash-skills handle setup, deploys, code review, agent dev, and DevOps. Every org-touching operation is gated by a hardened security model: production orgs are hard-blocked, customer-data queries require explicit per-call consent, and anonymous Apex is refused by default.
 
 Built for Experience Cloud, Lightning Experience, Communities, mobile, and Slack delivery surfaces — and aware of everything Salesforce announced at TDX 2026 (Agentforce, the new React framework, the Einstein Trust Layer + AI Gateway controls, AgentExchange).
 
@@ -115,7 +115,7 @@ That's the loop.
 
 Typical flow: `@architect` plans → hands off to specialists → builders work in parallel → `@qa` reviews → `@e2e-tester` covers journeys → `@security-reviewer` + `@trust-reviewer` before prod.
 
-### Skills (`skills/`) — 53 total
+### Skills (`skills/`) — 54 total
 
 Invoke any as `/argo:<name>`. Most accept `--ci`, `--format json|sarif`, `--out`, `--env <name>` per the [CI output contract](docs/ci-output-contract.md). Each skill declares a `data-access` field in its frontmatter (`none` / `metadata-only` / `data-with-consent`); see the [security model](#security-model).
 
@@ -178,6 +178,7 @@ Invoke any as `/argo:<name>`. Most accept `--ci`, `--format json|sarif`, `--out`
 |-------|---------|
 | `/argo:code-review` | Per-component, batch (`all`/`audit`), and PR-mode review |
 | `/argo:security-scan` | PMD `apex-security` ruleset; SARIF for GitHub Code Scanning |
+| `/argo:audit-log` | Review the local decision/audit log — every org-access grant, denial, and consent prompt; filters + CI JSON (read-only) |
 | `/argo:fls-audit` | Static check for missing CRUD/FLS on DML / SOQL |
 | `/argo:sharing-review` | `without sharing` audit; flag privilege escalation from `@AuraEnabled` |
 | `/argo:soql-analyzer` | Selectivity check (indexed fields, LDV awareness, leading-wildcard) |
@@ -358,7 +359,7 @@ argo/
 │   ├── plugin.json
 │   └── marketplace.json
 ├── agents/                    11 subagents
-├── skills/                    53 skills (each with data-access frontmatter)
+├── skills/                    54 skills (each with data-access frontmatter)
 ├── hooks/
 │   ├── hooks.json
 │   ├── session-start.sh, security-guard.sh
