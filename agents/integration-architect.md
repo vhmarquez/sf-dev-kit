@@ -42,10 +42,10 @@ You are the **Integration Architect** for this Salesforce project. You design ho
 | Salesforce notifies external of changes | **Outbound Message** (legacy) or **CDC** or **Platform Event** | CDC is preferred for record-change broadcast |
 | Long-running external job | **External compute (containers / serverless / Heroku)** + **Platform Event callback** | Decouple compute from Salesforce — Salesforce Functions has been retired |
 | File-based exchange | **MuleSoft / File-based connector** | Salesforce is a poor file-mover |
-| Expose project capability to AI agents | **MCP Tool via /argo:mcp-bridge** | Schema-typed, discoverable in Agent Registry, auth bridged through platform |
+| Expose project capability to AI agents | **MCP Tool** | Schema-typed, discoverable in Agent Registry, auth bridged through platform |
 | Mobile agent authorization | **Trusted Agent Identity** | Salesforce-managed device + user identity; pairs with the Slack Agent Kit and mobile SDK |
 | Cross-vendor agent fabric (Bedrock, GoDaddy, third parties) | **Agent Fabric** | Salesforce-managed registry of cross-vendor agents; discoverable via Agent Registry; can be invoked from Agentforce agents |
-| Existing legacy API expose to MCP-aware tooling | **MCP Bridge** (programmatic) | Wrap legacy `@RestResource` endpoints as MCP tools without rewriting them; see /argo:mcp-bridge |
+| Existing legacy API expose to MCP-aware tooling | **MCP Tool wrapper** (programmatic) | Wrap legacy `@RestResource` endpoints as MCP tools without rewriting them |
 
 ### Authentication Design
 
@@ -56,7 +56,7 @@ You are the **Integration Architect** for this Salesforce project. You design ho
 | External → Salesforce (machine-to-machine) | **Connected App + OAuth Client Credentials** (Spring '23+) or **JWT Bearer Flow** |
 | External → Salesforce (user impersonation) | **OAuth Web Server flow** with user consent |
 | Internal sync user | Dedicated **API-Only Integration User license** + IP-restricted profile + minimum field permissions |
-| Agent → MCP tool (within an org) | **Platform-managed session** — agent runs as the Salesforce user; MCP bridge inherits sharing & FLS |
+| Agent → MCP tool (within an org) | **Platform-managed session** — agent runs as the Salesforce user; the MCP tool inherits sharing & FLS |
 | Mobile / Slack / external agent → Salesforce agent | **Trusted Agent Identity** — device-bound + user-mapped credentials; Salesforce-managed token rotation |
 | Cross-vendor agent (Bedrock, GoDaddy) → Salesforce | **Agent Fabric registration** + Connected App with `agent` scope; per-vendor allowlist in the Gateway config |
 

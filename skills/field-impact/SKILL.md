@@ -55,11 +55,11 @@ For the bare `<Field>` form (no object qualifier), prefix matches with the objec
 
 ```bash
 # Formula fields on OTHER objects that reference this field
-sf data query --target-org "$ORG" --json --query "
+sf_cli_query "
   SELECT EntityDefinition.QualifiedApiName, QualifiedApiName, FormulaDescription
   FROM FieldDefinition
   WHERE FormulaDescription LIKE '%<Object>.<Field>%'
-"
+" "$ORG"
 
 # Flow definitions referencing this field (best-effort; relies on flow XML being in source)
 # (skipped — covered by source search)

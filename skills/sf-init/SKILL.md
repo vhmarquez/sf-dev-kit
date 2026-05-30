@@ -59,12 +59,10 @@ Run all detectors via Bash; collect (value, confidence, evidence) per field. Con
 | 18 | `quality.agentEvalThreshold` | (none) | always default `0.85` | (n/a) | Only when agents in scope |
 | 19 | `quality.lintCommand` | `package.json.scripts.lint` | present | (n/a) | Default `npm run lint` |
 | 20 | `quality.unitTestCommand` | `package.json.scripts["test:unit"]` then `.test` | present | (n/a) | Default `npm run test:unit` |
-| 21 | `mcp.toolsets` | `.mcp.json` `salesforce` server's `--toolsets` arg | present | absent | Skipped otherwise; `mcp_check` reports installability |
-| 22 | `mcp.allowNonGaTools` | (none) | always `false` | (n/a) | |
-| 23 | `notifications` | (none) | always omitted | (n/a) | Asked only if user opts in via `edit notifications` |
-| 24 | `security.prodOrgAliases` | (none — user must classify) | (n/a) | (n/a) | **Required** if any non-sandbox alias is detected. The plugin refuses unknown non-sandbox orgs at runtime |
-| 25 | `security.knownNonSandboxNonProd` | (none) | always `[]` | (n/a) | Dev/demo orgs that are non-sandbox but explicitly OK to contact |
-| 26 | `security.allowAnonymousApex` | (none) | always `false` | (n/a) | When false (default), `sf apex run` is refused outright |
+| 21 | `notifications` | (none) | always omitted | (n/a) | Asked only if user opts in via `edit notifications` |
+| 22 | `security.prodOrgAliases` | (none — user must classify) | (n/a) | (n/a) | **Required** if any non-sandbox alias is detected. The plugin refuses unknown non-sandbox orgs at runtime |
+| 23 | `security.knownNonSandboxNonProd` | (none) | always `[]` | (n/a) | Dev/demo orgs that are non-sandbox but explicitly OK to contact |
+| 24 | `security.allowAnonymousApex` | (none) | always `false` | (n/a) | When false (default), `sf apex run` is refused outright |
 
 For each non-scratch alias from `sf org list --json`, run `sf org display --target-org <alias> --json` once during detection to capture `isSandbox` and cache the classification under `${CLAUDE_PLUGIN_DATA}/argo/org-cache/<alias>.json`. Aliases reporting `isSandbox: false` AND not yet listed in `security.prodOrgAliases` or `security.knownNonSandboxNonProd` surface on the review screen as ⚠️ required — the user must classify them before the write proceeds.
 
@@ -94,7 +92,7 @@ One Markdown table-like block. Width-bounded. Each row: `N. field-path  value  m
 Counts in the header tell the user at a glance how much to read:
 
 ```
-[Detection complete — 14 of 17 fields filled, 1 needs you, 2 need confirmation]
+[Detection complete — 13 of 17 fields filled, 2 need you, 2 need confirmation]
 
   1. project.name              acme-portal                     ✓ from package.json
   2. project.description       (none)                           ⚠️ required — what is this project for?
@@ -111,10 +109,9 @@ Counts in the header tell the user at a glance how much to read:
  12. quality.codeCoverageTarget 85                              ⚠️ default — no signal
  13. quality.lintCommand       npm run lint                     ✓ from package.json
  14. quality.unitTestCommand   npm run test:unit                ✓ from package.json
- 15. mcp                       (skipped)                        ⚠️ @salesforce/mcp not installed; run /mcp-setup later
- 16. notifications             (none)                           (default; you can add later)
- 17. security.prodOrgAliases   []                               ⚠️ required — 2 non-sandbox orgs detected: ProdProd, UAT-Sandbox
- 18. security.allowAnonymousApex false                          ✓ default — anonymous Apex disabled
+ 15. notifications             (none)                           (default; you can add later)
+ 16. security.prodOrgAliases   []                               ⚠️ required — 2 non-sandbox orgs detected: ProdProd, UAT-Sandbox
+ 17. security.allowAnonymousApex false                          ✓ default — anonymous Apex disabled
 
 Reply with one of:
   • The description for #2 (a sentence) — I'll confirm #5, then write
@@ -154,7 +151,7 @@ Type the alias to use, "back" to keep current, or "?" for help.
 
 Validate against the field's rules (next section). On failure, re-prompt with the validator's message; do not advance.
 
-For enum fields (`platform.frontend`, `platform.sharingDefault`) and multi-select fields (`platform.lwcTargets`, `mcp.toolsets`), use the **AskUserQuestion** tool — buttons are unambiguous.
+For enum fields (`platform.frontend`, `platform.sharingDefault`) and multi-select fields (`platform.lwcTargets`), use the **AskUserQuestion** tool — buttons are unambiguous.
 
 For the org alias, validate against `sf org list --json`; if user types an alias not in the list, show the list and re-prompt.
 
@@ -213,8 +210,6 @@ Assemble the v3 schema; **omit** keys whose preconditions don't hold (don't writ
                 "agentEvalThreshold":  0.85,
                 "lintCommand":         "npm run lint",
                 "unitTestCommand":     "npm run test:unit" },
-  "mcp":      { "toolsets":         ["metadata", "data", "testing", "lwc", "code-analysis"],
-                "allowNonGaTools":  false },
   "notifications": { "webhooks": { "slack": "...", "teams": "..." } },
   "security": { "prodOrgAliases": ["ProdProd", "UAT-Sandbox"],
                 "knownNonSandboxNonProd": [],
@@ -226,7 +221,6 @@ Assemble the v3 schema; **omit** keys whose preconditions don't hold (don't writ
 - `naming.react`, `paths.reactSource`, `paths.reactDocs` — only when `platform.frontend ∈ {"react", "both"}`
 - `paths.agentDefinitions`, `paths.agentDocs`, `quality.agentEvalThreshold` — only when agents are in scope
 - `paths.standardsDocs` — append `"docs/react-standards.md"` when react in scope
-- `mcp` — write only if MCP was edited in (otherwise `/mcp-setup` will manage it)
 - `notifications` — write only if at least one webhook URL was provided
 - `security` — **always written**. Defaults are restrictive (`allowAnonymousApex: false`; the metadata-only SOQL allowlist is always enforced in code, not via config). `prodOrgAliases` defaults to every detected non-sandbox alias the user didn't classify as `knownNonSandboxNonProd` — failing safe
 
@@ -288,7 +282,6 @@ Skipped if `--no-verify`. Run all checks; render a checklist; record exit status
 | API version compatible | within 2 versions of org's reported API | Edit `platform.apiVersion` to match the org |
 | Lint command in scripts | `package.json.scripts[<lintCommand minus 'npm run '>]` present | Update `quality.lintCommand` or add the script |
 | Unit test command in scripts | same shape | Same |
-| MCP reachable (when configured) | `mcp_check` (sources `hooks/lib/mcp.sh`) returns 0 | Run `/argo:mcp-setup` to install/configure |
 | Standards docs copied | each `paths.standardsDocs` exists | Re-run `/sf-init` (will detect existing config and just re-copy) |
 | Doc indexes scaffolded | `lwc/README.md`, `apex-classes/README.md`, `docs/README.md`, conditional `react/`/`agents/` | Same |
 | All non-sandbox orgs classified | every alias from `sf org list` is either in `security.prodOrgAliases` or `security.knownNonSandboxNonProd` (sandboxes skipped) | Edit one of those lists; an unclassified non-sandbox is refused at runtime |
@@ -306,11 +299,10 @@ Output:
 ✅ API version 66.0 within range
 ✅ Lint command found
 ✅ Unit test command found
-⏭️ MCP not configured (skipped — run /mcp-setup to enable)
 ✅ Standards docs copied
 ✅ Doc indexes scaffolded
 
-8 passed, 0 failed, 1 skipped. Config is healthy.
+8 passed, 0 failed. Config is healthy.
 ```
 
 If any ❌:
@@ -335,7 +327,6 @@ After verify, summarize what was created/updated and recommend next steps:
 
 - Fill in the `_TODO_` sections of `docs/project-context.md`
 - Add project-specific patterns to `docs/patterns/project-patterns.md` as they emerge
-- (If MCP wasn't configured) Run `/argo:mcp-setup --profile dev`
 - Run `/argo:org-explore` to populate the org cache so `@architect` can ground designs in real org state
 - Run `/argo:code-review all` once a few components exist
 
@@ -364,7 +355,7 @@ Skip steps 6–9 (template copying). Run step 10 (verify) on the result; warn th
 
 1. Read the base config
 2. Run detection in env-aware mode (e.g., look up `sf org list` for orgs that look env-shaped — `prod*`, `staging*`)
-3. Render the review screen showing **only the fields likely to differ in this env** (org alias, MCP toolsets, coverage targets, agent eval threshold, webhooks). Pre-fill with the base value (visible in italics) plus any env-specific detected value.
+3. Render the review screen showing **only the fields likely to differ in this env** (org alias, coverage targets, agent eval threshold, webhooks). Pre-fill with the base value (visible in italics) plus any env-specific detected value.
 4. Edit loop is the same
 5. Write **only the keys the user actually changed** to `.claude/sf-project.<name>.json` (deep-nested; deep-merge over base when any skill is invoked with `--env <name>`)
 6. Verify in env-merged mode
@@ -396,8 +387,6 @@ A short blurb per field. When the user asks `? <N>`, print the matching blurb, t
 - `quality.codeCoverageTarget` — Apex coverage threshold (0–100). `/test-coverage` and `/coverage-trend` enforce this
 - `quality.agentEvalThreshold` — Agent eval pass threshold (0.0–1.0). Default `0.85` is the Trust Layer band
 - `quality.lintCommand` / `unitTestCommand` — npm scripts the lint hook and `@qa` agent invoke
-- `mcp.toolsets` — Which `@salesforce/mcp` toolsets to enable. Each one consumes LLM context — start narrow. Configured by `/mcp-setup`
-- `mcp.allowNonGaTools` — Pre-release tools toggle. Off in CI/prod; on only for dev experimentation
 - `notifications.webhooks.{slack,teams}` — Outgoing webhook URLs for `/notify`. Slack: `https://hooks.slack.com/...`; Teams: `https://*.webhook.office.com/...`
 - `security.prodOrgAliases` — Aliases the plugin must NEVER contact. Every `sf` invocation against these is refused unconditionally — no read, no metadata fetch, no validation. Detected via `sf org display --json` `isSandbox: false`; the user formalizes during `/sf-init`. Removing an alias from this list is a deliberate security decision
 - `security.knownNonSandboxNonProd` — Non-sandbox orgs that are NOT production (developer orgs, demo orgs). Listed here, they're allowed; not listed AND non-sandbox, they're refused at runtime as "unclassified"

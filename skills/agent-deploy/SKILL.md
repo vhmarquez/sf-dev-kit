@@ -11,7 +11,6 @@ You are deploying an **agent** — AgentDefinition + AgentVersion + topics + act
 ```bash
 source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/config.sh"
 source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/sf-cli.sh"
-source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/mcp.sh"
 sf_cli_check || exit 2
 ORG="$(sf_config_get '.platform.defaultTargetOrg' "$ENV")"
 AGENT_DIR="$(sf_config_get '.paths.agentDefinitions // empty' "$ENV")"
@@ -85,18 +84,12 @@ sf project deploy start \
 
 ### 4. Register eval suite with Testing Center
 
-After a successful (non-validate) deploy, register evals:
+After a successful (non-validate) deploy, register evals via the `sf` CLI:
 
 ```bash
-if mcp_prefer; then
-  for case_file in tests/agent-evals/${NAME}/*.json; do
-    mcp_run testing register-eval "$(jq -c --arg agent "$NAME" --arg path "$case_file" '. + {agent:$agent, sourcePath:$path}' "$case_file")"
-  done
-else
-  for case_file in tests/agent-evals/${NAME}/*.json; do
-    sf agent test register-case --target-org "$ORG" --agent "$NAME" --file "$case_file" --json
-  done
-fi
+for case_file in tests/agent-evals/${NAME}/*.json; do
+  sf agent test register-case --target-org "$ORG" --agent "$NAME" --file "$case_file" --json
+done
 ```
 
 This makes the eval suite visible in the Testing Center UI for ongoing monitoring.

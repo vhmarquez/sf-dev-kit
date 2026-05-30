@@ -1,6 +1,6 @@
 ---
 name: slack-agent
-description: Scaffold a Slack-native Salesforce agent end-to-end via the Slack Agent Kit (Headless 360). Generates the agent's botDefinition, Slack manifest, channel-bot Apex bridge, and a starter Block Kit response template. Aim is "CLI to live agent in 10 minutes".
+description: Scaffold a Slack-native Salesforce agent end-to-end via the Slack Agent Kit. Generates the agent's botDefinition, Slack manifest, channel-bot Apex bridge, and a starter Block Kit response template. Aim is "CLI to live agent in 10 minutes".
 data-access: none
 ---
 
@@ -101,7 +101,7 @@ app.event('message', async ({ event, say }) => {
 
 ### 4. Block Kit response template helpers
 
-Generate `slack/<agent-name>/blocks.ts` with reusable Block Kit helpers per the Headless 360 update:
+Generate `slack/<agent-name>/blocks.ts` with reusable Block Kit helpers:
 
 ```ts
 import { KnownBlock, Card, Alert, Carousel, DataTable, Chart } from '@salesforce/agentforce-slack/blocks';
@@ -125,7 +125,7 @@ export function notFoundAlert(query: string): KnownBlock[] {
 }
 ```
 
-The `@salesforce/agentforce-slack/blocks` builders are the post-Headless-360 Block Kit additions (Card, Alert, Carousel, Data Table, Chart).
+The `@salesforce/agentforce-slack/blocks` builders are the Block Kit additions (Card, Alert, Carousel, Data Table, Chart).
 
 ### 5. Wire deploys + secrets
 
@@ -194,5 +194,5 @@ Required secrets (not committed; add via your secret manager):
 ## Consumers
 
 - Internal collab: an agent that anyone in the workspace can `@mention`
-- Deploy bots: `@deploy-bot push the order changes to QA` → routes through `/argo:devops-natural`
+- Deploy bots: `@deploy-bot push the order changes to QA` → the bridge invokes the org-side agent action
 - Onboarding helpers: a `@helper` bot that answers FAQs grounded in `docs/project-context.md`

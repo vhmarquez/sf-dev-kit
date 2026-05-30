@@ -6,6 +6,48 @@ All notable changes to **argo**. Format follows [Keep a Changelog](https://keepa
 
 ---
 
+## v4.3.0 — 2026-05-29
+
+Second hardening pass (the original review's "Phase 2"). Robustness and supply-chain fixes; no breaking changes.
+
+### Security
+
+- **Scratch orgs are now classified as a non-prod `dev` tier and allowed** without explicit classification. Previously `isSandbox=false` mapped straight to `prod`, so scratch orgs — the primary SFDX dev target — were hard-blocked until manually added to `security.knownNonSandboxNonProd`. Classification now checks `sf org list`'s `scratchOrgs` first; a production org can never appear there, so the signal cannot promote a prod org to allowed. (Developer-Edition orgs remain non-scratch → `prod` until explicitly classified.)
+- **Fixed an `isSandbox` parse bug in org classification.** `jq -r '.result.isSandbox // …'` coalesced a literal `false` to the next branch (same `//` gotcha as the removed `metadataOnly`), so a real prod org was mislabeled `unknown` (and never cached). Both paths still *blocked*, but `prod` now classifies, caches, and emits the correct event/`78`-on-consent behavior.
+- **PMD download is integrity-checked.** `pmd.sh` now verifies the downloaded `pmd-dist-<version>-bin.zip` against a pinned SHA-256 before extracting/executing, and **fails closed** (deletes the artifact, refuses to extract) on mismatch. Pinned for the default version; override via `ARGO_PMD_SHA256` when bumping `ARGO_PMD_VERSION`.
+- **Lint hooks pass file paths after a `--` terminator.** `lint-lwc.sh` / `lint-react.sh` now run `npx … prettier/eslint -- "$FILE_PATH"`, preventing a path that begins with `-` from being parsed as an option. Added the missing `set -u` to `lint-lwc.sh`.
+
+### Changed
+
+- **Org-touching skills route data queries through the library.** `permset-audit`, `trust-eval`, `flow-audit`, and `field-impact` now call `sf_cli_query` instead of raw `sf data query`, so the metadata-allowlist consent gate fires at the documented library layer (the PreToolUse guard remains the backstop). For `permset-audit`, the `PermissionSetAssignment` (customer-data) query now prompts for consent exactly as the skill's `data-with-consent` declaration claims.
+- **`@e2e-tester`**: clarified that anonymous Apex for test-data setup is refused by default (requires `allowAnonymousApex` + per-call consent, scratch only); prefer the REST setup path.
+- **`@trust-reviewer`**: scoped its "read-only" claim to source/code/config and noted that runtime assessment executes agent eval runs which invoke the agent in a non-prod org (gated as agent-eval).
+
+---
+
+## v4.2.0 — 2026-05-29
+
+Removed the plugin's non-functional MCP routing layer. `hooks/lib/mcp.sh` invoked a one-shot CLI surface on `@salesforce/mcp` (`--invoke`/`--args`/`--list-tools`) that does not exist — `@salesforce/mcp` is a stdio MCP server — so every "route through MCP" path silently failed and fell back to (or, for fictional tools, did nothing on) the `sf` CLI. Rather than build a second MCP client, the plugin now relies solely on the gated `sf` CLI library, which keeps a single enforced security path. MCP as a Salesforce *platform* capability (Agentforce agents exposing/calling MCP tools) is unaffected and still documented.
+
+> **Breaking:** three skills are removed. If you scripted them, migrate as noted below.
+
+### Removed
+
+- **`hooks/lib/mcp.sh`** — the fake routing client (`mcp_prefer`, `mcp_run`, `mcp_list_tools`, `mcp_check`).
+- **`/argo:mcp-setup`** — installed/configured the MCP server for plugin routing. No replacement; if you want the native Salesforce MCP server available to Claude Code's model directly, configure it in `.mcp.json` yourself (note: native MCP tool calls are not gated by argo's security guard).
+- **`/argo:mcp-bridge`** — "wrap an Apex REST endpoint as an MCP tool"; built on a non-existent `@salesforce/mcp-bridge-runtime` package and a fictional `register-agent-tool` operation.
+- **`/argo:devops-natural`** — "natural-language deploy via DevOps Center MCP"; built on a fictional `parse-deploy-request` tool. Use **`/argo:diff-deploy`** or **`/argo:deploy`** instead.
+- Skill count: **56 → 53**.
+
+### Changed
+
+- **All org-touching skills now use the `sf` CLI library only.** `org-explore`, `agent-discover`, `trust-layer-audit`, `deploy`, and `agent-deploy` had `if mcp_prefer; then mcp_run …; else <sf CLI>; fi` blocks collapsed to the CLI path (which was always the one that actually worked, and is gated by `security.sh`).
+- **`/argo:sf-init`** no longer writes a `mcp` config block or scaffolds `.mcp.json`.
+- **Dropped "Headless 360 native (MCP routing)" positioning** from `plugin.json`/`marketplace.json`/`README` (and the `headless360` marketplace keyword). The genuine Agentforce / Trust Layer / AI Gateway / AgentExchange coverage is unchanged.
+- **Kept** the `mcp-tool-vs-rest` decision skill and the Agentforce pack patterns describing agents that expose/call MCP tools — that is accurate platform guidance, independent of the removed routing.
+
+---
+
 ## v4.1.0 — 2026-05-29
 
 Security hardening of the enforcement layer plus an honesty pass on the docs. No skill, agent, or pack content changed; behavior changes are confined to the security guard and library.

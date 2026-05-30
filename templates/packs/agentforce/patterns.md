@@ -133,7 +133,7 @@ systemPrompt: |
 
 ## AGT-4: Action via MCP Tool {#agt-action-mcp-tool}
 
-Prefer **MCP tools** (built via `/argo:mcp-bridge`) over inline Apex actions. Tools are versioned, schema-typed, and discoverable by other agents.
+Prefer **MCP tools** (Apex REST bridged as an MCP tool the agent calls) over inline Apex actions. Tools are versioned, schema-typed, and discoverable by other agents.
 
 ```yaml
 # specs/agent-order_helper.yaml
@@ -168,7 +168,7 @@ topics:
   className: SomeService
   method: doSomething
 ```
-Inline Apex bypasses the bridge layer and loses output validation. Bridge it via `/argo:mcp-bridge` first.
+Inline Apex bypasses the bridge layer and loses output validation. Expose it as an MCP tool with an `outputSchema` first.
 
 ## AGT-5: Grounding with FLS {#agt-grounding-fls}
 

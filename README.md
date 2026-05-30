@@ -2,15 +2,15 @@
 
 > Opinionated, security-first AI workflow for Salesforce DX projects in Claude Code.
 
-A Claude Code plugin that turns Claude into a Salesforce DX team. Eleven specialist subagents — solution architect, data architect, integration architect, Apex/LWC/React/agent builders, QA, E2E tester, security and trust reviewers — coordinate through structured handoffs. Fifty-six slash-skills handle setup, deploys, code review, agent dev, and DevOps. Every org-touching operation is gated by a hardened security model: production orgs are hard-blocked, customer-data queries require explicit per-call consent, and anonymous Apex is refused by default.
+A Claude Code plugin that turns Claude into a Salesforce DX team. Eleven specialist subagents — solution architect, data architect, integration architect, Apex/LWC/React/agent builders, QA, E2E tester, security and trust reviewers — coordinate through structured handoffs. Fifty-three slash-skills handle setup, deploys, code review, agent dev, and DevOps. Every org-touching operation is gated by a hardened security model: production orgs are hard-blocked, customer-data queries require explicit per-call consent, and anonymous Apex is refused by default.
 
-Built for Experience Cloud, Lightning Experience, Communities, mobile, and Slack delivery surfaces — and aware of everything Salesforce announced at TDX 2026 (Headless 360, Agentforce, the new React framework, the Einstein Trust Layer + AI Gateway controls, AgentExchange).
+Built for Experience Cloud, Lightning Experience, Communities, mobile, and Slack delivery surfaces — and aware of everything Salesforce announced at TDX 2026 (Agentforce, the new React framework, the Einstein Trust Layer + AI Gateway controls, AgentExchange).
 
 ---
 
 ## Quickstart
 
-Five steps from zero to a working setup, in your Salesforce DX project.
+Four steps from zero to a working setup, in your Salesforce DX project.
 
 ### 1. Install Claude Code (if you haven't)
 
@@ -48,15 +48,7 @@ Detection runs automatically (`sfdx-project.json`, `package.json`, `sf org list`
 
 A smoke test runs after the write to verify the org alias resolves, paths exist, and lint commands work.
 
-### 4. (Optional but recommended) Configure MCP
-
-```text
-/argo:mcp-setup --profile dev
-```
-
-Installs `@salesforce/mcp`, scopes the toolsets to a sensible dev set (`metadata, data, testing, lwc, code-analysis`), and writes `.mcp.json`. The plugin runs without it via direct `sf` CLI calls; MCP unlocks richer routing for Headless-360 features.
-
-### 5. Try the workflow
+### 4. Try the workflow
 
 ```text
 @architect: design a customer-greeting agent for our portal
@@ -82,14 +74,14 @@ That's the loop.
 - **Salesforce DX-aware out of the box.** `/sf-init` reads `sfdx-project.json`, scans existing components for the LWC prefix, sniffs `package.json` for lint/test scripts, classifies orgs from `sf org list` — most of the config writes itself. You typically answer one or two questions.
 - **Security is the default, not an afterthought.** Production orgs are blocked by default; data queries require per-call consent; anonymous Apex is refused; every grant is logged. Read [`docs/security-model.md`](docs/security-model.md) — including its **Known limitations** — before loosening anything.
 - **Specialists, not a generalist.** Eleven subagents with distinct responsibilities and clean handoffs. `@architect` plans, builders implement in parallel, reviewers gate the merge. No one agent has all the context — that's the point.
-- **Headless 360 native.** First-class MCP routing via `@salesforce/mcp`, Agentforce dev workflow (`/agent-spec` → `/agent-test` → `/agent-deploy`), Trust Layer audits, AgentExchange listing prep, React-on-Salesforce parity with LWC.
+- **Agentforce-aware.** Full Agentforce dev workflow (`/agent-spec` → `/agent-test` → `/agent-deploy`), Trust Layer audits, AgentExchange listing prep, React-on-Salesforce parity with LWC.
 - **CI-ready.** Most skills accept `--ci`, `--format json|sarif`, `--out`, `--fail-on` flags following a [documented contract](docs/ci-output-contract.md). SARIF output integrates natively with GitHub Code Scanning.
 
 ---
 
 ## Table of contents
 
-- [Quickstart](#quickstart) — five steps to a working setup
+- [Quickstart](#quickstart) — four steps to a working setup
 - [Why this plugin](#why-this-plugin)
 - [What you get](#what-you-get) — agents, skills, hooks, packs, standards
 - [Install](#install) — full prerequisites
@@ -111,7 +103,7 @@ That's the loop.
 |-------|-------|------|
 | `@architect` | opus | Read-only solution design + implementation plan (automation-type rec, governor budget, risk/blast-radius, effort, test strategy) |
 | `@data-architect` | opus | Object model, master-detail vs lookup, sharing, LDV, migrations |
-| `@integration-architect` | opus | Callouts, Named Credentials, Platform Events, CDC, External Services, **MCP Bridge**, **Trusted Agent Identity**, **Agent Fabric** |
+| `@integration-architect` | opus | Callouts, Named Credentials, Platform Events, CDC, External Services, **agent-exposed MCP tools**, **Trusted Agent Identity**, **Agent Fabric** |
 | `@apex-dev` | sonnet | Apex implementation (classes, triggers, batch, queueable, REST, callouts, custom metadata) |
 | `@lwc-dev` | sonnet | Lightning Web Component implementation (i18n, virtualization, lazy-load, LWS) |
 | `@react-dev` | sonnet | **React-on-Salesforce** implementation (`@salesforce/react/graphql`, SLDS via tokens, LWC interop) |
@@ -123,7 +115,7 @@ That's the loop.
 
 Typical flow: `@architect` plans → hands off to specialists → builders work in parallel → `@qa` reviews → `@e2e-tester` covers journeys → `@security-reviewer` + `@trust-reviewer` before prod.
 
-### Skills (`skills/`) — 56 total
+### Skills (`skills/`) — 53 total
 
 Invoke any as `/argo:<name>`. Most accept `--ci`, `--format json|sarif`, `--out`, `--env <name>` per the [CI output contract](docs/ci-output-contract.md). Each skill declares a `data-access` field in its frontmatter (`none` / `metadata-only` / `data-with-consent`); see the [security model](#security-model).
 
@@ -133,17 +125,16 @@ Invoke any as `/argo:<name>`. Most accept `--ci`, `--format json|sarif`, `--out`
 | `/argo:sf-init` | Detect → review → edit → verify bootstrap. Aggressive auto-detection populates a single review screen with confidence markers; the user edits only what's ambiguous or required; a smoke test verifies the result. Modes: `auto`, `update <fields>`, `env <name>`, `verify` |
 | `/argo:onboard` | Verify a developer's machine + smoke-test the dev loop end-to-end |
 | `/argo:pattern-pack` | Install/list/info/remove domain pattern packs |
-| `/argo:mcp-setup` | **Install/configure `@salesforce/mcp` toolsets** (metadata/data/testing/lwc/code-analysis/devops/aura) |
 
 **Org awareness**
 | Skill | Purpose |
 |-------|---------|
-| `/argo:org-explore` | Optional org-schema snapshot (in MCP mode, agents read live; cache is `--cache` opt-in) |
+| `/argo:org-explore` | Optional org-schema snapshot via the `sf` CLI; cache is `--cache` opt-in |
 | `/argo:org-diff` | Source-vs-org drift report (setup-only / source-only / conflicts) |
 | `/argo:flow-audit` | Active-flow inventory; flags Apex/Flow overlap and untracked-in-source flows |
 | `/argo:permset-audit` | Object/field × principal access matrix; flags fields with no read access |
 | `/argo:field-impact` | Field references across LWC, Apex, layouts, validation rules, formulas, flows, reports |
-| `/argo:agent-discover` | **Agentforce agent inventory** — source vs org reconciliation; bridge tools per agent |
+| `/argo:agent-discover` | **Agentforce agent inventory** — source vs org reconciliation; MCP tools each agent exposes |
 
 **Architecture & design**
 | Skill | Purpose |
@@ -158,18 +149,17 @@ Invoke any as `/argo:<name>`. Most accept `--ci`, `--format json|sarif`, `--out`
 | `/argo:before-vs-after-trigger` | Trigger phase decision |
 | `/argo:queueable-vs-batch` | Async mechanism decision |
 
-**Agent dev (Headless 360)**
+**Agent dev**
 | Skill | Purpose |
 |-------|---------|
 | `/argo:agent-spec` | Wrap `sf agent generate agent-spec` with project context; iterative refinement |
 | `/argo:agent-test` | Run agent eval suite via Testing Center; per-axis severity (factuality, completeness, refusal-correctness, etc.) |
 | `/argo:agent-eval-trend` | Per-agent eval history; PR-mode regression diff; security regressions zero-tolerance |
 | `/argo:agent-deploy` | Deploy AgentDefinition + register evals; gates by trust-layer-audit + agent-test + eval-regression |
-| `/argo:mcp-bridge` | **Wrap an Apex REST class as an MCP tool** — closes SF-16 → agent ecosystem loop |
 | `/argo:slack-agent` | **Scaffold a Slack-native agent** end-to-end via Slack Agent Kit |
 | `/argo:agent-exchange-list` | **Validate readiness for AgentExchange listing** |
 
-**React (Headless 360)**
+**React**
 | Skill | Purpose |
 |-------|---------|
 | `/argo:react-init` | Scaffold a React component bundle with `@salesforce/react/graphql` + i18n + SLDS |
@@ -197,7 +187,7 @@ Invoke any as `/argo:<name>`. Most accept `--ci`, `--format json|sarif`, `--out`
 | `/argo:complexity` | Cyclomatic + cognitive complexity per method |
 | `/argo:dependency-graph` | Apex call graph + LWC/React import graph |
 
-**Trust & governance (Headless 360)**
+**Trust & governance**
 | Skill | Purpose |
 |-------|---------|
 | `/argo:trust-layer-audit` | **Einstein Trust Layer config audit** (org-level + per-agent: PII masking, FLS-on-grounding, ZDR, jailbreak eval, etc.) |
@@ -213,7 +203,6 @@ Invoke any as `/argo:<name>`. Most accept `--ci`, `--format json|sarif`, `--out`
 | `/argo:scratch-org` | Create/destroy/recreate scratch orgs; seed Apex + agent data |
 | `/argo:package-version` | 2GP/unlocked package version create/promote/list/install |
 | `/argo:destructive-changes` | Interactive `destructiveChanges.xml` builder with reference validation |
-| `/argo:devops-natural` | **Natural-language deploy** via DevOps Center MCP (Headless 360) |
 
 **Documentation & release**
 | Skill | Purpose |
@@ -235,8 +224,7 @@ Invoke any as `/argo:<name>`. Most accept `--ci`, `--format json|sarif`, `--out`
 
 Plus shared library helpers under `hooks/lib/`:
 - `config.sh` — load and deep-merge project config + per-env overrides
-- `sf-cli.sh` — wrappers for `sf` CLI; routes through `security.sh`; the always-works fallback
-- **`mcp.sh`** — **`@salesforce/mcp` routing helpers** (`mcp_prefer`, `mcp_run <toolset> <tool>`, `mcp_list_tools`); routes through `security.sh`
+- `sf-cli.sh` — wrappers for `sf` CLI; routes through `security.sh`; the authoritative org-touching path
 - **`security.sh`** — **central security gate**: `sec_check_org`, `sec_check_soql`, `sec_check_anon_apex`, `sec_log_consent`, metadata allowlist. See [`docs/security-model.md`](docs/security-model.md)
 - `pmd.sh` — lazy PMD download into `${CLAUDE_PLUGIN_DATA}` on first use
 - `sarif.sh` — SARIF 2.1.0 emitter for `--format sarif`
@@ -297,7 +285,6 @@ Restart the Claude Code session after install so agents, skills, and hooks regis
 
 - **Salesforce CLI** (`sf`) — latest
 - **Node.js** 20+
-- **`@salesforce/mcp`** — recommended; the plugin runs without it (CLI fallback) but Headless 360 features unlock when available. Install: `/argo:mcp-setup`
 - **git** 2.30+
 - **jq** 1.6+
 - **bash** 4+ (Git Bash on Windows)
@@ -318,7 +305,6 @@ PMD is downloaded automatically on first use of any PMD-based skill into `${CLAU
 | `platform` | `apiVersion`, `defaultTargetOrg`, `lwcTargets`, `sharingDefault`, `devHubAlias`, `packageName`, **`frontend`** | `frontend` ∈ `"lwc" \| "react" \| "both"` |
 | `paths` | `lwcSource`, `apexSource`, `reactSource`, `reactDocs`, **`agentDefinitions`**, `agentDocs`, `lwcDocs`, `apexDocs`, doc paths | |
 | `quality` | `codeCoverageTarget`, `lintCommand`, `unitTestCommand`, **`agentEvalThreshold`** | Agent eval threshold default 0.85 (Trust Layer band) |
-| **`mcp`** | **`toolsets`**, `allowNonGaTools` | Configured by `/argo:mcp-setup`; downstream skills route through `@salesforce/mcp` when present |
 | `notifications.webhooks` | `slack`, `teams` | For `/notify` |
 | **`security`** | **`prodOrgAliases`**, **`knownNonSandboxNonProd`**, **`allowAnonymousApex`** | Restrictive defaults; see [security model](#security-model). Production aliases are **hard-blocked, no override**; the metadata-only SOQL allowlist is always enforced |
 
@@ -335,7 +321,7 @@ The plugin enforces four hard invariants. Detailed model in [`docs/security-mode
 3. **Anonymous Apex disabled by default.** `sf apex run` is refused outright; even when enabled via `security.allowAnonymousApex: true`, every call prompts for consent.
 4. **Overrides are runtime-only.** No persistent "always allow" grants. Every restricted call prompts.
 
-Enforcement is centralized in `hooks/lib/security.sh` (every `sf-cli.sh` and `mcp.sh` wrapper routes through it) plus a `PreToolUse` Bash hook (`hooks/security-guard.sh`) that catches anything bypassing the library. Each skill declares its data-access surface in frontmatter (`data-access: none | metadata-only | data-with-consent`).
+Enforcement is centralized in `hooks/lib/security.sh` (every `sf-cli.sh` wrapper routes through it) plus a `PreToolUse` Bash hook (`hooks/security-guard.sh`) that catches anything bypassing the library. Each skill declares its data-access surface in frontmatter (`data-access: none | metadata-only | data-with-consent`).
 
 Three skills fundamentally need data access and prompt for consent every run: `/trust-eval` (queries `AgentSessionTrace`), `/permset-audit` (queries `PermissionSetAssignment`), `/agent-test` (eval inputs / outputs may carry test PII).
 
@@ -372,12 +358,12 @@ argo/
 │   ├── plugin.json
 │   └── marketplace.json
 ├── agents/                    11 subagents
-├── skills/                    56 skills (each with data-access frontmatter)
+├── skills/                    53 skills (each with data-access frontmatter)
 ├── hooks/
 │   ├── hooks.json
 │   ├── session-start.sh, security-guard.sh
 │   ├── lint-lwc.sh, lint-apex.sh, lint-react.sh
-│   └── lib/                   config, sf-cli, mcp, security, pmd, sarif
+│   └── lib/                   config, sf-cli, security, pmd, sarif
 ├── templates/
 │   ├── CLAUDE.md
 │   ├── docs/                  bundled standards (apex/lwc/react), patterns, ADR template

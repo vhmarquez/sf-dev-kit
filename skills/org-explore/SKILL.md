@@ -1,12 +1,12 @@
 ---
 name: org-explore
-description: Snapshot the target Salesforce org's schema (objects, fields, profiles, permission sets, installed packages) into a local cache for downstream argo skills. In MCP mode (Headless 360) this is optional — agents read live via the `data`/`metadata` toolsets. Cache is for offline use, batch reports, and snapshot-vs-snapshot diffs.
+description: Snapshot the target Salesforce org's schema (objects, fields, profiles, permission sets, installed packages) into a local cache for downstream argo skills. Cache is for offline use, batch reports, and snapshot-vs-snapshot diffs.
 data-access: metadata-only
 ---
 
 You are populating the **org cache** that downstream argo skills (especially `@architect`, `/argo:flow-audit`, `/argo:permset-audit`, `/argo:field-impact`) read for grounded design and analysis.
 
-> **Headless 360 note**: with `@salesforce/mcp` configured (run `/argo:mcp-setup`), agents already see the live org via the `data` toolset. The cache is now **opt-in** — useful for offline work, deterministic reports, and historical comparisons. In MCP mode, `@architect` and friends read live by default; pass `--cache` to use a snapshot.
+> **Note**: the cache is **opt-in** — useful for offline work, deterministic reports, and historical comparisons. Bare `org-explore` prints a live summary via the `sf` CLI and writes nothing; pass `--cache` to produce a snapshot.
 
 ## Cache Location
 
@@ -23,36 +23,26 @@ Source the helper and load merged config (with optional `--env`):
 ```bash
 source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/config.sh"
 source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/sf-cli.sh"
-source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/mcp.sh"
 sf_cli_check || exit 2
 ```
 
 `platform.defaultTargetOrg` is the target unless overridden.
-
-## Routing — MCP-first, CLI fallback
-
-When `mcp_prefer` returns true (i.e. `@salesforce/mcp` is reachable and `mcp.toolsets` includes `data`/`metadata`), this skill calls the MCP server's `data` toolset (`sobject-list`, `sobject-describe`, `soql-query`) instead of `sf` CLI subprocesses. The output shape of the cache file is identical either way.
-
-Force CLI even when MCP is available: `--no-mcp`.
-Force MCP and fail if unavailable: `--mcp`.
 
 ## Input
 
 The user provided: `$ARGUMENTS`
 
 Argument forms:
-- (empty) — print live summary via MCP if available (`data` toolset); fall back to CLI summary; do NOT write cache
+- (empty) — print live CLI summary; do NOT write cache
 - `--cache` — produce a cache snapshot at the path below (legacy v1.3 behavior)
 - `--target-org <alias>` — override the org alias (`-o` is also accepted)
 - `--env <name>` — load `.claude/sf-project.<name>.json` overrides; defaultTargetOrg comes from the merged config
 - `--refresh` — force refresh of an existing cache
 - `--all-objects` — describe every sObject (slow; default is "custom + standard objects referenced in source")
 - `--ttl <seconds>` — override the freshness TTL (default 86400 = 24h)
-- `--no-mcp` — force CLI path even if `@salesforce/mcp` is configured
-- `--mcp` — require MCP path; exit 2 if not available
 - `--ci` — exit non-zero with no human-readable noise; emit a one-line JSON summary
 
-> **Default behavior changed in v2.1 (Phase 13)**: bare `org-explore` no longer writes a cache. Use `--cache` to opt in. This avoids stale-cache surprises when an agent has live access via MCP.
+> **Default behavior changed in v2.1 (Phase 13)**: bare `org-explore` no longer writes a cache. Use `--cache` to opt in. This avoids stale-cache surprises.
 
 ## Steps
 
@@ -77,13 +67,9 @@ If `$CACHE_FILE` exists and `(now - _meta.cachedAt) < TTL` and not `--refresh`, 
 - Standard objects referenced in source: grep the apex source dir for `Account|Contact|Case|Lead|Opportunity|User|...` — only describe those that actually appear
 
 ### 4. Describe each object
-For each object in scope, prefer MCP routing when available:
+For each object in scope:
 ```bash
-if mcp_prefer; then
-  mcp_run data sobject-describe '{"sobject":"'"$obj"'","org":"'"$ORG"'"}'
-else
-  sf_cli_describe "$obj" "$ORG"
-fi > /tmp/desc-$obj.json
+sf_cli_describe "$obj" "$ORG" > /tmp/desc-$obj.json
 ```
 Capture: API name, label, fields (api name, type, length, picklist values, custom flag, formula expression), child relationships, record-type info.
 

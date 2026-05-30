@@ -30,14 +30,14 @@ APEX_SRC="$(sf_config_get '.paths.apexSource' "$ENV")"
 ### 1. Inventory active Flows
 
 ```bash
-sf data query --target-org "$ORG" --json --query "
+sf_cli_query "
   SELECT DeveloperName, Label, ProcessType, TriggerType, TriggerObjectOrEvent.QualifiedApiName,
          ActiveVersion.VersionNumber, ActiveVersion.Status,
          LastModifiedBy.Name, LastModifiedDate, ManageableState
   FROM FlowDefinitionView
   WHERE IsActive = TRUE
   ORDER BY TriggerType, TriggerObjectOrEvent.QualifiedApiName, DeveloperName
-"
+" "$ORG"
 ```
 
 If `<object>` was provided, add `AND TriggerObjectOrEvent.QualifiedApiName = '<object>'`.

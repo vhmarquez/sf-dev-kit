@@ -15,7 +15,6 @@ The plugin operates under four hard invariants. They're enforced centrally — e
 hooks/lib/security.sh           → primary enforcement library
 hooks/security-guard.sh         → PreToolUse hook on Bash; defense-in-depth
 hooks/lib/sf-cli.sh             → wraps `sf` calls; routes through security.sh
-hooks/lib/mcp.sh                → wraps MCP calls; routes through security.sh
 .claude/sf-project.json         → user's `security` config section
 ${CLAUDE_PLUGIN_DATA}/argo/org-cache/<alias>.json
                                 → cached org classification (sandbox/prod/unknown)
@@ -56,7 +55,7 @@ When a security check fires, it emits a JSON event on stderr and exits with one 
 | `78` | Hard refusal — not overridable in this session |
 | `2` | Invocation error (bad arguments, missing dependencies) |
 
-These codes are the **library's** internal protocol (`sf-cli.sh` / `mcp.sh` routes). The `PreToolUse` Bash guard (`security-guard.sh`) follows the hook contract instead: it collapses both `77` and `78` to **exit `2`** (which blocks the tool call) while preserving the same JSON event on stderr, so the assistant still distinguishes `event: consent_required` from `refused`.
+These codes are the **library's** internal protocol (`sf-cli.sh` routes). The `PreToolUse` Bash guard (`security-guard.sh`) follows the hook contract instead: it collapses both `77` and `78` to **exit `2`** (which blocks the tool call) while preserving the same JSON event on stderr, so the assistant still distinguishes `event: consent_required` from `refused`.
 
 Event shape:
 
@@ -117,7 +116,8 @@ For each non-sandbox alias `sf org list` knows about, classification is cached a
 
 Possible classifications:
 - `sandbox` — `sf org display --json` reported `isSandbox: true`. Allowed.
-- `prod` — reported `isSandbox: false`. **Hard-refused unless explicitly classified** in `security.prodOrgAliases` (still refused, by design) or `security.knownNonSandboxNonProd` (allowed).
+- `dev` — the alias is a **scratch org** (present in `sf org list`'s `scratchOrgs`). Scratch orgs are ephemeral, Dev-Hub-created dev targets — never production — so they're allowed without explicit classification. A production org can never appear in `scratchOrgs`, so this signal cannot promote a prod org to allowed. (Developer-Edition orgs are *not* auto-allowed — they're non-scratch and classify as `prod` until added to `security.knownNonSandboxNonProd`.)
+- `prod` — non-scratch and reported `isSandbox: false`. **Hard-refused unless explicitly classified** in `security.prodOrgAliases` (still refused, by design) or `security.knownNonSandboxNonProd` (allowed).
 - `unknown` — classification call failed. Refused with a `consent_required` event asking the user to classify manually. **Never cached**, so a transient failure self-heals on the next call.
 
 The cache is a **performance hint, not a trust anchor**: `security.prodOrgAliases` is consulted *before* the cache on every call, so a stale or hand-edited cache cannot promote a listed prod org to `sandbox`. Cached verdicts expire after `ARGO_ORG_CACHE_TTL` seconds (default 7 days) and are re-derived — so an alias re-authed to a different org can't ride a stale verdict indefinitely. The `username` stamp records which org backed the alias when it was classified. Cache and consent-log files are written `0600`. Re-classify immediately by deleting the cache file and re-running the targeting skill.
@@ -129,7 +129,7 @@ Every skill's frontmatter declares its data-access surface:
 | Value | Meaning | Skills |
 |-------|---------|--------|
 | `none` | No org contact at all | 30 (decision helpers, doc generators, source analyzers, packs, notifications) |
-| `metadata-only` | May contact orgs but only for metadata-shaped operations (deploys, retrieves, schema describes, allowlisted SOQL) | 23 (deploys, org-explore, agent-discover, mcp-* skills, etc.) |
+| `metadata-only` | May contact orgs but only for metadata-shaped operations (deploys, retrieves, schema describes, allowlisted SOQL) | 20 (deploys, org-explore, agent-discover, etc.) |
 | `data-with-consent` | Fundamentally needs to read customer data; prompts every run | 3 (`trust-eval`, `permset-audit`, `agent-test`) |
 
 Run `grep -l 'data-access: data-with-consent' skills/*/SKILL.md` to enumerate.

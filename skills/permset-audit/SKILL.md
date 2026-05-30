@@ -58,43 +58,45 @@ SKILL_NAME="permset-audit"; export SKILL_NAME
 
 ### 1. Pull profiles, permsets, and assignments
 ```bash
-sf data query --target-org "$ORG" --json --query "
+sf_cli_query "
   SELECT Id, Name, UserType, IsCustom FROM Profile
-" > /tmp/permset-audit-profiles.json
+" "$ORG" > /tmp/permset-audit-profiles.json
 
-sf data query --target-org "$ORG" --json --query "
+sf_cli_query "
   SELECT Id, Name, Label, License.Name, Type, IsCustom
   FROM PermissionSet
   WHERE IsOwnedByProfile = false
-" > /tmp/permset-audit-permsets.json
+" "$ORG" > /tmp/permset-audit-permsets.json
 
-sf data query --target-org "$ORG" --json --query "
+# PermissionSetAssignment links permsets to specific users (customer data) —
+# routing through sf_cli_query fires the metadata-allowlist consent prompt here.
+sf_cli_query "
   SELECT AssigneeId, PermissionSetId
   FROM PermissionSetAssignment
   WHERE PermissionSet.IsOwnedByProfile = false
-" > /tmp/permset-audit-assignments.json
+" "$ORG" > /tmp/permset-audit-assignments.json
 ```
 
 ### 2. Pull object permissions
 For the in-scope objects:
 ```bash
-sf data query --target-org "$ORG" --json --query "
+sf_cli_query "
   SELECT ParentId, Parent.Name, Parent.Type, Parent.Profile.Name,
          SObjectType, PermissionsRead, PermissionsCreate, PermissionsEdit,
          PermissionsDelete, PermissionsViewAllRecords, PermissionsModifyAllRecords
   FROM ObjectPermissions
   WHERE SObjectType IN ('Account','Contact', ...)
-"
+" "$ORG"
 ```
 
 ### 3. Pull field permissions (per object — paginate)
 ```bash
-sf data query --target-org "$ORG" --json --query "
+sf_cli_query "
   SELECT ParentId, Parent.Name, Parent.Type, Parent.Profile.Name,
          SObjectType, Field, PermissionsRead, PermissionsEdit
   FROM FieldPermissions
   WHERE SObjectType = 'Account'
-"
+" "$ORG"
 ```
 FieldPermissions queries are large; loop per object instead of one giant IN clause.
 

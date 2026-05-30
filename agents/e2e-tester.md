@@ -108,8 +108,8 @@ test('member sees recent bulletins on landing', async ({ page }) => {
 
 1. **Test file** at `tests/e2e/{utam,playwright}/<journey>.spec.{js,ts}`
 2. **Test data setup** — if the journey needs records, either:
-   - Use the project's `TestDataFactory` via Apex (call `sf apex run` with anon-Apex pre-test), OR
-   - Use Playwright's API client to call the project's REST endpoints (SF-16) for setup
+   - Use Playwright's API client to call the project's REST endpoints (SF-16) for setup (preferred), OR
+   - Use the project's `TestDataFactory` via anonymous Apex (`sf apex run`). Note: anonymous Apex is **refused by default** by the security model — it requires `security.allowAnonymousApex: true` plus per-call consent, and should only be used against a scratch org. Prefer the REST path where possible.
 3. **Cleanup** — destructive tests should clean up via the same mechanism
 4. **Documentation** — short Markdown at `docs/e2e/<journey>.md` describing what's covered and what env vars/auth are required
 

@@ -36,7 +36,7 @@ AGENT_DIR="$(sf_config_get '.paths.agentDefinitions // \"force-app/main/default/
 | Listing description at `<listing-dir>/description.md` (≥200 chars, ≤1000) | error | `LIST-NO-DESCRIPTION` |
 | Privacy notice at `<listing-dir>/privacy.md` describing data handling | error | `LIST-NO-PRIVACY` |
 | OAuth scopes documented at `<listing-dir>/scopes.md` with justification per scope | error | `LIST-NO-SCOPES` |
-| All MCP bridge tools used by the agent have `outputSchema` defined | error | `LIST-TOOL-NO-SCHEMA` |
+| All MCP tools used by the agent have `outputSchema` defined | error | `LIST-TOOL-NO-SCHEMA` |
 | No `without sharing` Apex reachable from any agent action | error | `LIST-WITHOUT-SHARING-EXPOSED` |
 | API version on AgentDefinition matches `platform.apiVersion` AND is ≤ 2 versions behind current Salesforce release | warning | `LIST-API-VERSION-OLD` |
 
@@ -105,7 +105,7 @@ Listing dir: listings/order_helper
 ✅ Description: 380 chars
 ✅ Privacy notice: present
 ⚠️ OAuth scopes: scopes.md missing (LIST-NO-SCOPES)
-✅ Tool output schemas: all 5 bridges have outputSchema
+✅ Tool output schemas: all 5 MCP tools have outputSchema
 ✅ Sharing: no without-sharing exposed via agent actions
 ✅ API version: 66.0 (current)
 

@@ -4,7 +4,7 @@ description: Decide whether a new UI component should be built as an LWC or a Re
 data-access: none
 ---
 
-You are picking the frontend framework. Headless 360 added native React on the platform alongside LWC; both are first-class. The choice depends on the surface, the team's expertise, and the depth of integration with Salesforce-native primitives.
+You are picking the frontend framework. Salesforce now supports native React on the platform alongside LWC; both are first-class. The choice depends on the surface, the team's expertise, and the depth of integration with Salesforce-native primitives.
 
 ## Read Project Config First
 

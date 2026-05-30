@@ -95,15 +95,15 @@ To re-bootstrap or update the project config, run **`/argo:sf-init`**.
 
 ### Skills (invoke as `/argo:<name>`)
 
-**Setup**: `sf-init`, `onboard`, `pattern-pack`, `mcp-setup`
+**Setup**: `sf-init`, `onboard`, `pattern-pack`
 **Org awareness**: `org-explore`, `org-diff`, `flow-audit`, `permset-audit`, `field-impact`, `agent-discover`
 **Architecture**: `erd`, `sequence-diagram`, `adr`, `flow-vs-apex`, `agent-vs-flow-vs-apex`, `lwc-vs-react`, `mcp-tool-vs-rest`, `before-vs-after-trigger`, `queueable-vs-batch`
-**Agent dev**: `agent-spec`, `agent-test`, `agent-eval-trend`, `agent-deploy`, `mcp-bridge`, `slack-agent`, `agent-exchange-list`
+**Agent dev**: `agent-spec`, `agent-test`, `agent-eval-trend`, `agent-deploy`, `slack-agent`, `agent-exchange-list`
 **React**: `react-init`
 **Testing**: `test-plan`, `test-data`, `test-coverage` (apex/agent modes), `coverage-trend`, `flaky-test-finder`
 **Code review & static analysis**: `code-review`, `security-scan`, `fls-audit`, `sharing-review`, `soql-analyzer`, `limit-usage`, `perf-review`, `dead-code`, `complexity`, `dependency-graph`
 **Trust & governance**: `trust-layer-audit`, `trust-eval`, `gateway-config`
-**Deployment**: `deploy`, `diff-deploy`, `quick-deploy`, `scratch-org`, `package-version`, `destructive-changes`, `devops-natural`
+**Deployment**: `deploy`, `diff-deploy`, `quick-deploy`, `scratch-org`, `package-version`, `destructive-changes`
 **Docs & release**: `generate-docs`, `release-notes`, `pr-prepare`, `notify`
 
 (See `${CLAUDE_PLUGIN_ROOT}/README.md` or run `/argo:pattern-pack list` for the full inventory.)
@@ -136,7 +136,7 @@ All agents read both pattern docs and the relevant standards docs before writing
 
 ### Per-environment overrides
 
-`.claude/sf-project.<env>.json` deep-merges over the base config when any skill is invoked with `--env <name>`. Common pattern: `prod` overrides `defaultTargetOrg`, raises `codeCoverageTarget` and `agentEvalThreshold`, narrows `mcp.toolsets` to read-only, configures `notifications.webhooks` for Slack/Teams alerts.
+`.claude/sf-project.<env>.json` deep-merges over the base config when any skill is invoked with `--env <name>`. Common pattern: `prod` overrides `defaultTargetOrg`, raises `codeCoverageTarget` and `agentEvalThreshold`, configures `notifications.webhooks` for Slack/Teams alerts.
 
 ### Security model
 
@@ -149,6 +149,6 @@ The plugin enforces four hard invariants (see `${CLAUDE_PLUGIN_ROOT}/docs/securi
 
 `/argo:sf-init` requires every non-sandbox alias to be classified before it writes config. Three skills (`/trust-eval`, `/permset-audit`, `/agent-test`) prompt for consent on every run because they fundamentally need customer data.
 
-### MCP Toolsets (Headless 360)
+### Org operations via the Salesforce CLI
 
-When `mcp.toolsets` is configured (run `/argo:mcp-setup`), the workflow routes through Salesforce's official `@salesforce/mcp` server. Toolsets: `metadata, data, testing, lwc, code-analysis, devops, aura`. The plugin's `hooks/lib/mcp.sh` falls back to direct `sf` CLI when the MCP server isn't available — every skill works either way.
+All org operations run through the gated Salesforce `sf` CLI (`hooks/lib/sf-cli.sh`), which enforces the security model above. Commands target `platform.defaultTargetOrg` (or the `--env` override) and are subject to the prod-org and customer-data guards.
