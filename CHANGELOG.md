@@ -6,6 +6,14 @@ All notable changes to **argo**. Format follows [Keep a Changelog](https://keepa
 
 ---
 
+## v4.6.0 — 2026-05-29
+
+### Added
+
+- **`/argo:audit-log`** — review the local decision/audit log for the current project: a summary (totals by decision, prod-block attempts, orgs touched, date range) plus the most recent entries, with `--denials` / `--grants` / `--prompts` / `--org` / `--skill` / `--since` / `--last` filters and `--ci --format json`. Read-only and `data-access: none` — it reads the existing `${CLAUDE_PLUGIN_DATA}/argo/consent-log/` file (the one v4.5.0 turned into a full audit trail) and never relocates it into the project or contacts an org. Skill count: **53 → 54**.
+
+---
+
 ## v4.5.0 — 2026-05-29
 
 The deferred low-severity items from the review — observability and robustness of the security state files. No behavioral change to what's allowed vs blocked.

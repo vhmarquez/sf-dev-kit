@@ -128,7 +128,7 @@ Every skill's frontmatter declares its data-access surface:
 
 | Value | Meaning | Skills |
 |-------|---------|--------|
-| `none` | No org contact at all | 30 (decision helpers, doc generators, source analyzers, packs, notifications) |
+| `none` | No org contact at all | 31 (decision helpers, doc generators, source analyzers, packs, notifications) |
 | `metadata-only` | May contact orgs but only for metadata-shaped operations (deploys, retrieves, schema describes, allowlisted SOQL) | 20 (deploys, org-explore, agent-discover, etc.) |
 | `data-with-consent` | Fundamentally needs to read customer data; prompts every run | 3 (`trust-eval`, `permset-audit`, `agent-test`) |
 
