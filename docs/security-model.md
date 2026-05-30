@@ -17,9 +17,9 @@ hooks/security-guard.sh         → PreToolUse hook on Bash; defense-in-depth
 hooks/lib/sf-cli.sh             → wraps `sf` calls; routes through security.sh
 .claude/sf-project.json         → user's `security` config section
 ${CLAUDE_PLUGIN_DATA}/argo/org-cache/<alias>.json
-                                → cached org classification (sandbox/prod/unknown)
-${CLAUDE_PLUGIN_DATA}/argo/consent-log/<project>.jsonl
-                                → log of consent grants (allow-once decisions)
+                                → cached org classification (sandbox/dev/prod/unknown)
+${CLAUDE_PLUGIN_DATA}/argo/consent-log/<project>-<pathhash>.jsonl
+                                → decision/audit log: every grant AND denial/prompt
 ```
 
 ## Config
@@ -94,17 +94,17 @@ Choose:
 
 Granting `[a]` re-invokes the gated command after `export ARGO_CONSENT_GRANTED=once` (the PreToolUse guard also accepts the token inline, as `ARGO_CONSENT_GRANTED=once sf …`). The token is consumed immediately, so a second restricted call inside the same skill run prompts again.
 
-## Consent log
+## Decision log (audit trail)
 
-Every consent grant appends one JSON line to `${CLAUDE_PLUGIN_DATA}/argo/consent-log/<project>.jsonl`:
+Every org-access decision — **grants and denials/consent prompts alike** — appends one JSON line to `${CLAUDE_PLUGIN_DATA}/argo/consent-log/<project>-<pathhash>.jsonl`:
 
 ```json
-{"ts":"2026-04-30T19:45:23Z","skill":"trust-eval","action":"soql","scope":"AgentSessionTrace@DevVM","decision":"allow-once"}
-{"ts":"2026-04-30T19:45:24Z","skill":"trust-eval","action":"soql","scope":"AgentSessionTrace@DevVM","decision":"allow-once"}
-{"ts":"2026-04-30T19:45:25Z","skill":"trust-eval","action":"soql","scope":"AgentSessionTrace@DevVM","decision":"allow-once"}
+{"ts":"2026-05-29T19:45:23Z","decision":"refused","reason":"PROD_ORG_BLOCKED","skill":"trust-eval","action":"any","target":"","org":"ProdProd"}
+{"ts":"2026-05-29T19:45:24Z","decision":"consent_required","reason":"SOQL_DATA_OBJECT","skill":"trust-eval","action":"soql","target":"AgentSessionTrace","org":"DevVM"}
+{"ts":"2026-05-29T19:45:25Z","decision":"allow-once","reason":"","skill":"trust-eval","action":"soql","target":"AgentSessionTrace@DevVM","org":""}
 ```
 
-This records consent **grants** (`allow-once`, and `metadata-only-disabled` reads) — not refusals or prod-block events. Review what's been granted, when, and against which org.
+It's a true audit trail: blocked prod attempts (`refused`), consent prompts (`consent_required`), and grants (`allow-once`) are all captured — so you can review what was attempted, what was blocked, and what was authorized. The filename is keyed by the project's leaf name **plus a hash of its full path**, so two unrelated projects that share a directory name never write to the same file.
 
 ## Org classification
 
@@ -120,7 +120,7 @@ Possible classifications:
 - `prod` — non-scratch and reported `isSandbox: false`. **Hard-refused unless explicitly classified** in `security.prodOrgAliases` (still refused, by design) or `security.knownNonSandboxNonProd` (allowed).
 - `unknown` — classification call failed. Refused with a `consent_required` event asking the user to classify manually. **Never cached**, so a transient failure self-heals on the next call.
 
-The cache is a **performance hint, not a trust anchor**: `security.prodOrgAliases` is consulted *before* the cache on every call, so a stale or hand-edited cache cannot promote a listed prod org to `sandbox`. Cached verdicts expire after `ARGO_ORG_CACHE_TTL` seconds (default 7 days) and are re-derived — so an alias re-authed to a different org can't ride a stale verdict indefinitely. The `username` stamp records which org backed the alias when it was classified. Cache and consent-log files are written `0600`. Re-classify immediately by deleting the cache file and re-running the targeting skill.
+The cache is a **performance hint, not a trust anchor**: `security.prodOrgAliases` is consulted *before* the cache on every call, so a stale or hand-edited cache cannot promote a listed prod org to `sandbox`. Cached verdicts expire after `ARGO_ORG_CACHE_TTL` seconds (default 7 days) and are re-derived — so an alias re-authed to a different org can't ride a stale verdict indefinitely. The `username` stamp records which org backed the alias when it was classified. The cache is written **atomically** (temp file + rename), so a concurrent reader never sees a half-written verdict. Cache and decision-log files are written `0600`. Re-classify immediately by deleting the cache file and re-running the targeting skill.
 
 ## Per-skill data access (frontmatter)
 
